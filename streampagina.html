@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#0a0a0f">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="DR Sports TV">
+  <meta name="description" content="Free live DR sports TV — World Cup 2026">
+  <title>DR Sports TV · WC 2026</title>
+
+  <!-- PWA icon inline SVG as data URI -->
+  <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='100' fill='%230a0a0f'/%3E%3Ccircle cx='256' cy='220' r='120' fill='none' stroke='%23e63946' stroke-width='12'/%3E%3Cellipse cx='256' cy='220' rx='48' ry='120' fill='none' stroke='%23e63946' stroke-width='8'/%3E%3Cline x1='136' y1='220' x2='376' y2='220' stroke='%23e63946' stroke-width='8'/%3E%3Cpath d='M160 148 Q256 180 352 148' fill='none' stroke='%23e63946' stroke-width='8'/%3E%3Cpath d='M160 292 Q256 260 352 292' fill='none' stroke='%23e63946' stroke-width='8'/%3E%3Crect x='180' y='360' width='152' height='20' rx='4' fill='%23e63946'/%3E%3Crect x='140' y='380' width='232' height='12' rx='4' fill='%23333'/%3E%3C/svg%3E">
+
+  <style>
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+
+    :root {
+      --bg:       #0a0a0f;
+      --s1:       #111118;
+      --s2:       #18181f;
+      --s3:       #202028;
+      --border:   #ffffff10;
+      --border2:  #ffffff18;
+      --red:      #e63946;
+      --red2:     #ff5c38;
+      --gold:     #f59e0b;
+      --green:    #22c55e;
+      --text:     #f0f0f5;
+      --muted:    #70708a;
+      --muted2:   #a0a0b8;
+      --r:        12px;
+    }
+
+    html { height:100%; background:var(--bg); }
+    body { min-height:100%; background:var(--bg); color:var(--text); font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,sans-serif; overflow-x:hidden; }
+
+    /* ── TOPBAR ── */
+    .topbar {
+      position:sticky; top:0; z-index:30;
+      display:flex; align-items:center; justify-content:space-between;
+      padding:12px 16px 11px;
+      background:rgba(10,10,15,0.92);
+      backdrop-filter:blur(16px);
+      -webkit-backdrop-filter:blur(16px);
+      border-bottom:1px solid var(--border);
+    }
+    .logo { display:flex; align-items:center; gap:10px; }
+    .logo-icon {
+      width:34px; height:34px; border-radius:9px;
+      background:linear-gradient(145deg,var(--red),var(--red2));
+      display:flex; align-items:center; justify-content:center;
+      box-shadow:0 2px 12px rgba(230,57,70,0.4);
+      flex-shrink:0;
+    }
+    .logo-text { font-size:15px; font-weight:800; letter-spacing:-0.4px; line-height:1.1; }
+    .logo-text small { display:block; font-size:10px; font-weight:500; color:var(--muted2); letter-spacing:0.2px; margin-top:1px; }
+    .badge-live {
+      display:flex; align-items:center; gap:5px;
+      background:rgba(34,197,94,0.1); border:1px solid rgba(34,197,94,0.25);
+      border-radius:20px; padding:5px 10px;
+      font-size:10px; font-weight:700; color:var(--green); letter-spacing:0.8px; text-transform:uppercase;
+    }
+    .dot-live { width:5px; height:5px; border-radius:50%; background:var(--green); animation:pulse 1.8s ease-in-out infinite; }
+    @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.3;transform:scale(0.8)} }
+
+    /* ── WC BANNER ── */
+    .wc-bar {
+      display:flex; align-items:center; gap:10px;
+      padding:9px 16px;
+      background:linear-gradient(90deg,rgba(245,158,11,0.08),transparent);
+      border-bottom:1px solid rgba(245,158,11,0.15);
+    }
+    .wc-bar-text { flex:1; font-size:12px; font-weight:700; color:var(--gold); }
+    .wc-bar-sub { font-size:10px; color:var(--muted); font-weight:400; margin-left:6px; }
+    .wc-bar a { font-size:11px; font-weight:700; color:var(--gold); text-decoration:none; background:rgba(245,158,11,0.1); border:1px solid rgba(245,158,11,0.2); padding:4px 9px; border-radius:6px; flex-shrink:0; }
+
+    /* ── CHANNEL TABS ── */
+    .tabs-wrap { background:var(--s1); border-bottom:1px solid var(--border); overflow-x:auto; scrollbar-width:none; -webkit-overflow-scrolling:touch; }
+    .tabs-wrap::-webkit-scrollbar { display:none; }
+    .tabs { display:flex; }
+    .tab {
+      flex-shrink:0; min-width:72px;
+      display:flex; flex-direction:column; align-items:center; gap:2px;
+      padding:9px 12px 8px;
+      cursor:pointer; border-bottom:2px solid transparent;
+      transition:background 0.12s, border-color 0.12s;
+    }
+    .tab:hover { background:var(--s2); }
+    .tab.active { border-bottom-color:var(--red); background:var(--s2); }
+    .tab-name { font-size:11px; font-weight:700; color:var(--muted2); white-space:nowrap; }
+    .tab.active .tab-name { color:var(--red); }
+    .tab-num { font-size:9px; color:var(--muted); }
+    .tab-pip {
+      font-size:8px; font-weight:800; padding:1px 4px; border-radius:3px; margin-top:1px;
+      background:rgba(230,57,70,0.12); color:var(--red); border:1px solid rgba(230,57,70,0.2);
+    }
+    .tab-pip.gold { background:rgba(245,158,11,0.1); color:var(--gold); border-color:rgba(245,158,11,0.2); }
+
+    /* ── SECTIONS ── */
+    .section { display:none; }
+    .section.active { display:block; }
+
+    /* ── PLAYER ── */
+    .player-outer {
+      position:relative; width:100%; background:#000;
+      /* 16:9 enforced */
+    }
+    .player-outer iframe,
+    .player-outer video {
+      display:block; width:100%; aspect-ratio:16/9; border:none; background:#000;
+    }
+    /* Overlay controls (cast + fullscreen) inside player */
+    .player-controls {
+      position:absolute; bottom:0; left:0; right:0;
+      padding:8px 10px;
+      background:linear-gradient(transparent, rgba(0,0,0,0.75));
+      display:flex; justify-content:flex-end; gap:8px;
+      opacity:0; transition:opacity 0.2s;
+      pointer-events:none;
+    }
+    .player-outer:hover .player-controls,
+    .player-outer.touched .player-controls { opacity:1; pointer-events:auto; }
+    .ctrl-btn {
+      display:flex; align-items:center; justify-content:center;
+      width:36px; height:36px; border-radius:8px;
+      background:rgba(0,0,0,0.55); border:1px solid rgba(255,255,255,0.15);
+      color:#fff; cursor:pointer; backdrop-filter:blur(4px);
+      flex-shrink:0;
+    }
+    .ctrl-btn:active { background:rgba(230,57,70,0.6); }
+
+    /* loading overlay */
+    .player-loading {
+      position:absolute; inset:0; background:#000;
+      display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px;
+      font-size:12px; color:var(--muted); pointer-events:none;
+    }
+    .player-loading.hidden { display:none; }
+    .spin { width:28px; height:28px; border:2px solid var(--border2); border-top-color:var(--red); border-radius:50%; animation:spin 0.7s linear infinite; }
+    @keyframes spin { to { transform:rotate(360deg); } }
+
+    /* ── CHANNEL INFO BAR ── */
+    .ch-info {
+      display:flex; align-items:center; gap:12px;
+      padding:12px 16px;
+      background:var(--s1); border-bottom:1px solid var(--border);
+    }
+    .ch-info-main { flex:1; min-width:0; }
+    .ch-name { font-size:16px; font-weight:800; letter-spacing:-0.4px; }
+    .ch-desc { font-size:11px; color:var(--muted); margin-top:2px; line-height:1.4; }
+    .ch-tag {
+      font-size:10px; font-weight:700; padding:3px 8px; border-radius:5px;
+      white-space:nowrap; flex-shrink:0;
+    }
+    .tag-sport { background:rgba(230,57,70,0.1); color:var(--red); border:1px solid rgba(230,57,70,0.2); }
+    .tag-wc { background:rgba(245,158,11,0.1); color:var(--gold); border:1px solid rgba(245,158,11,0.2); }
+    .tag-gen { background:rgba(255,255,255,0.05); color:var(--muted2); border:1px solid var(--border2); }
+
+    /* ── ACTION ROW (below player, outside) ── */
+    .action-row {
+      display:flex; gap:8px; padding:10px 16px;
+      background:var(--s1); border-bottom:1px solid var(--border);
+    }
+    .act-btn {
+      flex:1; display:flex; align-items:center; justify-content:center; gap:6px;
+      padding:9px 12px; border-radius:9px; font-size:12px; font-weight:700;
+      cursor:pointer; border:none; text-decoration:none; transition:opacity 0.12s, transform 0.1s;
+    }
+    .act-btn:active { opacity:0.8; transform:scale(0.97); }
+    .act-cast { background:linear-gradient(135deg,var(--red),var(--red2)); color:#fff; box-shadow:0 2px 10px rgba(230,57,70,0.3); }
+    .act-fs   { background:var(--s2); color:var(--text); border:1px solid var(--border2); }
+    .act-ext  { background:linear-gradient(135deg,#d97706,var(--gold)); color:#fff; box-shadow:0 2px 10px rgba(245,158,11,0.25); }
+
+    /* Fallback notice */
+    .fallback-bar {
+      padding:8px 16px; background:var(--s2); border-bottom:1px solid var(--border);
+      font-size:11px; color:var(--muted); display:flex; align-items:center; gap:8px;
+    }
+    .fallback-bar a { color:var(--red); font-weight:600; text-decoration:none; }
+
+    /* ── EXTERNAL PANEL ── */
+    .ext-panel {
+      aspect-ratio:16/9; background:var(--s1);
+      display:flex; flex-direction:column; align-items:center; justify-content:center; gap:14px;
+      text-align:center; padding:24px;
+    }
+    .ext-panel-icon { font-size:38px; line-height:1; }
+    .ext-panel p { font-size:12px; color:var(--muted); line-height:1.6; max-width:280px; }
+
+    /* ── WC STREAMS TAB ── */
+    .wc-section { background:var(--s1); }
+    .wc-header { padding:16px 16px 10px; }
+    .wc-header h2 { font-size:17px; font-weight:800; letter-spacing:-0.4px; }
+    .wc-header p { font-size:11px; color:var(--muted); margin-top:4px; line-height:1.5; }
+    .stream-group { padding:0 16px 14px; }
+    .stream-group-label {
+      font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.7px;
+      padding:10px 0 8px; color:var(--muted); border-top:1px solid var(--border);
+    }
+    .stream-group:first-of-type .stream-group-label { border-top:none; padding-top:4px; }
+    .stream-cards { display:flex; flex-direction:column; gap:6px; }
+    .sc {
+      display:flex; align-items:center; gap:12px;
+      background:var(--s2); border:1px solid var(--border); border-radius:10px;
+      padding:11px 13px; text-decoration:none; transition:background 0.1s;
+    }
+    .sc:active { background:var(--s3); }
+    .sc-info { flex:1; min-width:0; }
+    .sc-name { font-size:12px; font-weight:700; color:var(--text); }
+    .sc-desc { font-size:10px; color:var(--muted); margin-top:2px; line-height:1.4; }
+    .sc-badge { font-size:9px; font-weight:700; padding:2px 6px; border-radius:4px; white-space:nowrap; flex-shrink:0; }
+    .sc-badge.free { background:rgba(34,197,94,0.1); color:var(--green); border:1px solid rgba(34,197,94,0.2); }
+    .sc-badge.vpn  { background:rgba(245,158,11,0.1); color:var(--gold); border:1px solid rgba(245,158,11,0.2); }
+    .wc-tip {
+      margin:0 16px 16px;
+      background:rgba(230,57,70,0.06); border:1px solid rgba(230,57,70,0.15);
+      border-radius:10px; padding:11px 13px;
+      font-size:11px; color:var(--muted); line-height:1.6;
+    }
+    .wc-tip strong { color:var(--text); }
+
+    /* ── TV GUIDE ── */
+    .tv-guide { padding:16px 16px 0; }
+    .tv-guide-title { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.7px; color:var(--muted); margin-bottom:10px; }
+    .tv-card { background:var(--s1); border:1px solid var(--border); border-radius:var(--r); margin-bottom:8px; overflow:hidden; }
+    .tv-card-head {
+      display:flex; align-items:center; gap:12px;
+      padding:13px 14px; cursor:pointer; user-select:none;
+    }
+    .tv-card-head:active { background:var(--s2); }
+    .tv-icon { font-size:20px; width:28px; text-align:center; flex-shrink:0; }
+    .tv-info { flex:1; }
+    .tv-title { font-size:13px; font-weight:700; }
+    .tv-sub { font-size:10px; color:var(--muted); margin-top:2px; }
+    .tv-arrow { font-size:12px; color:var(--muted); transition:transform 0.2s; }
+    .tv-arrow.open { transform:rotate(180deg); }
+    .tv-body { display:none; border-top:1px solid var(--border); padding:12px 14px 14px; }
+    .tv-body.open { display:block; }
+    .tv-body ol { padding-left:16px; display:flex; flex-direction:column; gap:7px; }
+    .tv-body li { font-size:12px; color:var(--muted); line-height:1.6; }
+    .tv-body li strong { color:var(--text); }
+    .tv-body .tip { margin-top:10px; background:var(--s2); border-radius:8px; padding:9px 11px; font-size:11px; color:var(--muted); line-height:1.5; }
+    .url-box { margin-top:8px; background:var(--bg); border:1px solid var(--border); border-radius:8px; padding:9px 11px; font-size:10px; color:var(--red); font-family:monospace; word-break:break-all; }
+
+    /* ── FOOTER ── */
+    .footer { padding:20px 16px; text-align:center; font-size:10px; color:var(--muted); line-height:1.7; }
+    @supports (padding-bottom: env(safe-area-inset-bottom)) {
+      .footer { padding-bottom:calc(20px + env(safe-area-inset-bottom)); }
+    }
+
+    /* ── DESKTOP CENTER ── */
+    @media (min-width:600px) {
+      body { display:flex; flex-direction:column; align-items:center; }
+      .topbar, .wc-bar, .tabs-wrap, .section, .tv-guide, .footer { width:100%; max-width:560px; }
+    }
+
+    /* Cast toast */
+    #cast-toast {
+      position:fixed; bottom:20px; left:50%; transform:translateX(-50%) translateY(80px);
+      background:var(--s2); border:1px solid var(--border2); border-radius:10px;
+      padding:10px 16px; font-size:12px; color:var(--text); font-weight:600;
+      transition:transform 0.3s ease; z-index:100; white-space:nowrap;
+      box-shadow:0 4px 24px rgba(0,0,0,0.5);
+    }
+    #cast-toast.show { transform:translateX(-50%) translateY(0); }
+  </style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="logo">
+    <div class="logo-icon">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+        <circle cx="12" cy="11" r="7" stroke="white" stroke-width="1.5"/>
+        <ellipse cx="12" cy="11" rx="2.8" ry="7" stroke="white" stroke-width="1.2"/>
+        <line x1="5" y1="11" x2="19" y2="11" stroke="white" stroke-width="1.2"/>
+        <path d="M6.5 7.5 Q12 9.5 17.5 7.5" stroke="white" stroke-width="1.2" fill="none"/>
+        <path d="M6.5 14.5 Q12 12.5 17.5 14.5" stroke="white" stroke-width="1.2" fill="none"/>
+        <rect x="9" y="19" width="6" height="1.5" rx="0.75" fill="white"/>
+        <rect x="7" y="20.5" width="10" height="1" rx="0.5" fill="rgba(255,255,255,0.4)"/>
+      </svg>
+    </div>
+    <div class="logo-text">
+      DR Sports TV
+      <small>World Cup 2026</small>
+    </div>
+  </div>
+  <div class="badge-live"><div class="dot-live"></div>Live</div>
+</div>
+
+<!-- WC BANNER -->
+<div class="wc-bar">
+  <span>🏆</span>
+  <span class="wc-bar-text">FIFA World Cup 2026 <span class="wc-bar-sub">June 11 – July 19 · 104 matches</span></span>
+  <a href="https://fifa.piodeportes.com/partidos" target="_blank">Schedule →</a>
+</div>
+
+<!-- TABS -->
+<div class="tabs-wrap">
+  <div class="tabs" id="tabs">
+    <div class="tab active" onclick="sw(0)" id="tab-0"><div class="tab-name">CDN 67</div><div class="tab-num">Sports</div><div class="tab-pip">⚽</div></div>
+    <div class="tab" onclick="sw(1)" id="tab-1"><div class="tab-name">SportVision</div><div class="tab-num">Canal 35</div><div class="tab-pip">⚽</div></div>
+    <div class="tab" onclick="sw(2)" id="tab-2"><div class="tab-name">Color Visión</div><div class="tab-num">Canal 9</div><div class="tab-pip gold">🏆 WC</div></div>
+    <div class="tab" onclick="sw(3)" id="tab-3"><div class="tab-name">Telemicro</div><div class="tab-num">Canal 5</div><div class="tab-pip">📺</div></div>
+    <div class="tab" onclick="sw(4)" id="tab-4"><div class="tab-name">Telesistema</div><div class="tab-num">Canal 11</div><div class="tab-pip gold">🏆 WC</div></div>
+    <div class="tab" onclick="sw(5)" id="tab-5"><div class="tab-name">Teleantillas</div><div class="tab-num">Canal 2</div><div class="tab-pip">📺</div></div>
+    <div class="tab" onclick="sw(6)" id="tab-6"><div class="tab-name">🌍 WC Streams</div><div class="tab-num">All matches</div><div class="tab-pip gold">Free</div></div>
+  </div>
+</div>
+
+<!-- ===== SECTION 0: CDN Deportes ===== -->
+<div class="section active" id="sec-0">
+  <div class="player-outer" id="po-0" onclick="touchToggle(0)">
+    <iframe id="pl-0"
+      src="https://geo.dailymotion.com/player.html?video=x9lntl6&autoplay=1"
+      allowfullscreen allow="autoplay;fullscreen;picture-in-picture;web-share;cast"
+      referrerpolicy="no-referrer-when-downgrade"></iframe>
+    <div class="player-controls">
+      <div class="ctrl-btn" onclick="doCast(event)" title="Cast to TV">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M2 8.5A12.5 12.5 0 0 1 14.5 21"/><path d="M2 4A16.5 16.5 0 0 1 18 20"/><rect x="2" y="15" width="3" height="3" rx="1" fill="currentColor" stroke="none"/><rect x="2" y="3" width="20" height="14" rx="2" fill="none"/></svg>
+      </div>
+      <div class="ctrl-btn" onclick="doFS('pl-0',event)" title="Fullscreen">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+      </div>
+    </div>
+  </div>
+  <div class="fallback-bar">⚠️ Stream not loading? <a href="https://canalesdominicanos.live/cdn-sports-max-canal-67" target="_blank">Open on original site →</a></div>
+  <div class="ch-info"><div class="ch-info-main"><div class="ch-name">CDN Deportes · Canal 67</div><div class="ch-desc">Dedicated DR sports — baseball, basketball, football & international events</div></div><span class="ch-tag tag-sport">⚽ Sports</span></div>
+  <div class="action-row">
+    <button class="act-btn act-cast" onclick="doCast()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M2 8.5A12.5 12.5 0 0 1 14.5 21"/><path d="M2 4A16.5 16.5 0 0 1 18 20"/><rect x="2" y="15" width="3" height="3" rx="1" fill="currentColor" stroke="none"/><rect x="2" y="3" width="20" height="14" rx="2" fill="none"/></svg>
+      Cast to TV
+    </button>
+    <button class="act-btn act-fs" onclick="doFS('pl-0')">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+      Fullscreen
+    </button>
+  </div>
+</div>
+
+<!-- ===== SECTION 1: Sport Vision 35 (HLS) ===== -->
+<div class="section" id="sec-1">
+  <div class="player-outer" id="po-1" onclick="touchToggle(1)">
+    <video id="pl-1" controls playsinline webkit-playsinline></video>
+    <div class="player-loading" id="load-1"><div class="spin"></div><span>Loading Sport Vision 35…</span></div>
+    <div class="player-controls">
+      <div class="ctrl-btn" onclick="doCast(event)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M2 8.5A12.5 12.5 0 0 1 14.5 21"/><path d="M2 4A16.5 16.5 0 0 1 18 20"/><rect x="2" y="15" width="3" height="3" rx="1" fill="currentColor" stroke="none"/><rect x="2" y="3" width="20" height="14" rx="2" fill="none"/></svg></div>
+      <div class="ctrl-btn" onclick="doFS('pl-1',event)"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg></div>
+    </div>
+  </div>
+  <div class="fallback-bar">⚠️ Stream not loading? <a href="https://canalesdominicanos.live/sport-vision-canal-35" target="_blank">Open on original site →</a></div>
+  <div class="ch-info"><div class="ch-info-main"><div class="ch-name">Sport Vision · Canal 35</div><div class="ch-desc">DR sports analysis, football, basketball & live match coverage</div></div><span class="ch-tag tag-sport">⚽ Sports</span></div>
+  <div class="action-row">
+    <button class="act-btn act-cast" onclick="doCast()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M2 8.5A12.5 12.5 0 0 1 14.5 21"/><path d="M2 4A16.5 16.5 0 0 1 18 20"/><rect x="2" y="15" width="3" height="3" rx="1" fill="currentColor" stroke="none"/><rect x="2" y="3" width="20" height="14" rx="2" fill="none"/></svg>Cast to TV</button>
+    <button class="act-btn act-fs" onclick="doFS('pl-1')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>Fullscreen</button>
+  </div>
+</div>
+
+<!-- ===== SECTION 2: Color Vision 9 ===== -->
+<div class="section" id="sec-2">
+  <div class="player-outer" id="po-2" onclick="touchToggle(2)">
+    <iframe id="pl-2" data-src="https://www.dailymotion.com/embed/video/x7gy059?autoplay=1&mute=0"
+      allowfullscreen allow="autoplay;fullscreen;picture-in-picture;web-share;cast"
+      referrerpolicy="no-referrer-when-downgrade"></iframe>
+    <div class="player-controls">
+      <div class="ctrl-btn" onclick="doCast(event)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M2 8.5A12.5 12.5 0 0 1 14.5 21"/><path d="M2 4A16.5 16.5 0 0 1 18 20"/><rect x="2" y="15" width="3" height="3" rx="1" fill="currentColor" stroke="none"/><rect x="2" y="3" width="20" height="14" rx="2" fill="none"/></svg></div>
+      <div class="ctrl-btn" onclick="doFS('pl-2',event)"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg></div>
+    </div>
+  </div>
+  <div class="fallback-bar">⚠️ Stream not loading? <a href="https://canalesdominicanos.live/color-vision-canal-9" target="_blank">Open on original site →</a></div>
+  <div class="ch-info"><div class="ch-info-main"><div class="ch-name">Color Visión · Canal 9</div><div class="ch-desc">Major DR network — broadcasting World Cup & big international tournaments</div></div><span class="ch-tag tag-wc">🏆 WC</span></div>
+  <div class="action-row">
+    <button class="act-btn act-cast" onclick="doCast()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M2 8.5A12.5 12.5 0 0 1 14.5 21"/><path d="M2 4A16.5 16.5 0 0 1 18 20"/><rect x="2" y="15" width="3" height="3" rx="1" fill="currentColor" stroke="none"/><rect x="2" y="3" width="20" height="14" rx="2" fill="none"/></svg>Cast to TV</button>
+    <button class="act-btn act-fs" onclick="doFS('pl-2')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>Fullscreen</button>
+  </div>
+</div>
+
+<!-- ===== SECTION 3: Telemicro 5 ===== -->
+<div class="section" id="sec-3">
+  <div class="player-outer" id="po-3" onclick="touchToggle(3)">
+    <iframe id="pl-3" data-src="https://telemicro.com.do/players/5bot/"
+      allowfullscreen allow="autoplay;fullscreen;picture-in-picture;web-share;cast"
+      referrerpolicy="no-referrer-when-downgrade"></iframe>
+    <div class="player-controls">
+      <div class="ctrl-btn" onclick="doCast(event)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M2 8.5A12.5 12.5 0 0 1 14.5 21"/><path d="M2 4A16.5 16.5 0 0 1 18 20"/><rect x="2" y="15" width="3" height="3" rx="1" fill="currentColor" stroke="none"/><rect x="2" y="3" width="20" height="14" rx="2" fill="none"/></svg></div>
+      <div class="ctrl-btn" onclick="doFS('pl-3',event)"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg></div>
+    </div>
+  </div>
+  <div class="fallback-bar">⚠️ Stream not loading? <a href="https://canalesdominicanos.live/telemicro-canal-5" target="_blank">Open on original site →</a></div>
+  <div class="ch-info"><div class="ch-info-main"><div class="ch-name">Telemicro · Canal 5</div><div class="ch-desc">Entertainment & news — covers sports events and national programming</div></div><span class="ch-tag tag-gen">📺 General</span></div>
+  <div class="action-row">
+    <button class="act-btn act-cast" onclick="doCast()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M2 8.5A12.5 12.5 0 0 1 14.5 21"/><path d="M2 4A16.5 16.5 0 0 1 18 20"/><rect x="2" y="15" width="3" height="3" rx="1" fill="currentColor" stroke="none"/><rect x="2" y="3" width="20" height="14" rx="2" fill="none"/></svg>Cast to TV</button>
+    <button class="act-btn act-fs" onclick="doFS('pl-3')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>Fullscreen</button>
+  </div>
+</div>
+
+<!-- ===== SECTION 4: Telesistema 11 ===== -->
+<div class="section" id="sec-4">
+  <div class="ext-panel">
+    <div class="ext-panel-icon">🏆</div>
+    <p>Telesistema Canal 11 doesn't allow embedding — it's the main DR channel with World Cup broadcast rights. Open it directly for live WC coverage.</p>
+    <a class="act-btn act-ext" href="https://canalesdominicanos.live/telesistema-canal-11" target="_blank" style="margin-top:4px;">Watch Telesistema 11 Live →</a>
+  </div>
+  <div class="ch-info"><div class="ch-info-main"><div class="ch-name">Telesistema · Canal 11</div><div class="ch-desc">Primary DR broadcaster for FIFA World Cup 2026</div></div><span class="ch-tag tag-wc">🏆 WC</span></div>
+</div>
+
+<!-- ===== SECTION 5: Teleantillas 2 ===== -->
+<div class="section" id="sec-5">
+  <div class="ext-panel">
+    <div class="ext-panel-icon">📺</div>
+    <p>Teleantillas Canal 2 doesn't allow embedding — open it directly for live national programming and major sport events.</p>
+    <a class="act-btn act-cast" href="https://canalesdominicanos.live/teleantillas-canal-2" target="_blank" style="margin-top:4px;max-width:260px;">Watch Teleantillas 2 Live →</a>
+  </div>
+  <div class="ch-info"><div class="ch-info-main"><div class="ch-name">Teleantillas · Canal 2</div><div class="ch-desc">National broadcaster — major sports events and live tournaments</div></div><span class="ch-tag tag-gen">📺 General</span></div>
+</div>
+
+<!-- ===== SECTION 6: WC Streams ===== -->
+<div class="section wc-section" id="sec-6">
+  <div class="wc-header">
+    <h2>🌍 World Cup 2026 Streams</h2>
+    <p>All 104 matches. Open in Chrome → Cast to TV with one tap.</p>
+  </div>
+
+  <div class="stream-group">
+    <div class="stream-group-label">✅ Free — No VPN, works from DR</div>
+    <div class="stream-cards">
+      <a class="sc" href="https://fifa.piodeportes.com/partidos-en-vivo-mundial-2026" target="_blank">
+        <div class="sc-info"><div class="sc-name">🇩🇴 PIO Deportes RD</div><div class="sc-desc">Dominican WC portal — stream activates at kickoff. Best local option.</div></div>
+        <span class="sc-badge free">Free · DR</span>
+      </a>
+      <a class="sc" href="https://watch-livefootball.tv/en/watch/" target="_blank">
+        <div class="sc-info"><div class="sc-name">⚽ Watch Live Football</div><div class="sc-desc">All 104 matches, HD, no account. Opens 10–15 min before kickoff.</div></div>
+        <span class="sc-badge free">Free · Global</span>
+      </a>
+      <a class="sc" href="https://canalesdominicanos.live/telesistema-canal-11" target="_blank">
+        <div class="sc-info"><div class="sc-name">📺 Telesistema 11</div><div class="sc-desc">Main DR channel with official WC broadcast rights.</div></div>
+        <span class="sc-badge free">Free · DR</span>
+      </a>
+    </div>
+  </div>
+
+  <div class="stream-group">
+    <div class="stream-group-label">🔶 Free with VPN (UK or Brazil server)</div>
+    <div class="stream-cards">
+      <a class="sc" href="https://www.bbc.co.uk/iplayer/live/bbcone" target="_blank">
+        <div class="sc-info"><div class="sc-name">🇬🇧 BBC iPlayer</div><div class="sc-desc">All 104 matches free. UK VPN + free account. Best English commentary.</div></div>
+        <span class="sc-badge vpn">VPN · UK</span>
+      </a>
+      <a class="sc" href="https://www.itv.com/watch/live/itv1" target="_blank">
+        <div class="sc-info"><div class="sc-name">🇬🇧 ITVX</div><div class="sc-desc">All 104 matches free. UK VPN + free account. Alternates with BBC.</div></div>
+        <span class="sc-badge vpn">VPN · UK</span>
+      </a>
+      <a class="sc" href="https://www.youtube.com/@cazetv/live" target="_blank">
+        <div class="sc-info"><div class="sc-name">🇧🇷 CazéTV on YouTube</div><div class="sc-desc">All 104 matches free in Brazil. Portuguese. Try without VPN first — sometimes works from DR.</div></div>
+        <span class="sc-badge vpn">Try free</span>
+      </a>
+    </div>
+  </div>
+
+  <div class="wc-tip">
+    <strong>💡 Best approach:</strong> Open PIO Deportes or Watch Live Football 10 min before kickoff. Not working? Switch to BBC iPlayer with a VPN. Then Cast the Chrome tab to your TV via Chrome menu ⋮ → Cast.
+  </div>
+</div>
+
+<!-- TV GUIDE (always visible below active section) -->
+<div class="tv-guide">
+  <div class="tv-guide-title">📺 Get it on your TV</div>
+
+  <div class="tv-card">
+    <div class="tv-card-head" onclick="tog(0)">
+      <div class="tv-icon">📱</div>
+      <div class="tv-info"><div class="tv-title">Screen Mirror (Android)</div><div class="tv-sub">Any Android TV · No extra hardware</div></div>
+      <div class="tv-arrow" id="a0">▾</div>
+    </div>
+    <div class="tv-body" id="b0">
+      <ol><li>Pull down notification shade → tap <strong>Cast</strong> / <strong>Smart View</strong> / <strong>Screen Cast</strong></li><li>Select your Android TV from the list</li><li>Your full screen appears on the TV — open this app and pick a channel</li></ol>
+      <div class="tip">💡 Not visible? Settings → Connected devices → Cast</div>
+    </div>
+  </div>
+
+  <div class="tv-card">
+    <div class="tv-card-head" onclick="tog(1)">
+      <div class="tv-icon">🍎</div>
+      <div class="tv-info"><div class="tv-title">AirPlay (Apple TV)</div><div class="tv-sub">iPhone/iPad → Apple TV · Same WiFi</div></div>
+      <div class="tv-arrow" id="a1">▾</div>
+    </div>
+    <div class="tv-body" id="b1">
+      <ol><li>Swipe down from top-right → open <strong>Control Center</strong></li><li>Tap <strong>Screen Mirroring</strong> → select your Apple TV</li><li>Full phone screen mirrors to TV including this app</li></ol>
+      <div class="tip">💡 Tap the AirPlay icon inside the video player itself for a cleaner direct stream to TV</div>
+    </div>
+  </div>
+
+  <div class="tv-card">
+    <div class="tv-card-head" onclick="tog(2)">
+      <div class="tv-icon">🔵</div>
+      <div class="tv-info"><div class="tv-title">Chromecast / Cast via Chrome</div><div class="tv-sub">Android TV has Chromecast built in · Same WiFi</div></div>
+      <div class="tv-arrow" id="a2">▾</div>
+    </div>
+    <div class="tv-body" id="b2">
+      <ol><li>Open this page in <strong>Chrome</strong> on your phone</li><li>Chrome menu <strong>⋮</strong> → <strong>Cast</strong></li><li>Select your Android TV — it has Chromecast built in, no dongle needed</li><li>Chrome casts the full tab including the video to your TV</li></ol>
+      <div class="tip">💡 Both devices must be on the same WiFi network</div>
+    </div>
+  </div>
+
+  <div class="tv-card">
+    <div class="tv-card-head" onclick="tog(3)">
+      <div class="tv-icon">🖥️</div>
+      <div class="tv-info"><div class="tv-title">Open directly on Android TV</div><div class="tv-sub">Best quality · No phone needed</div></div>
+      <div class="tv-arrow" id="a3">▾</div>
+    </div>
+    <div class="tv-body" id="b3">
+      <ol><li>On Android TV, open <strong>Chrome</strong> (install from Play Store if needed)</li><li>Navigate to this URL on the TV:</li></ol>
+      <div class="url-box" id="pageUrl">loading…</div>
+      <div class="tip">💡 Or install the <strong>Canales Dominicanos</strong> app from Android TV Play Store</div>
+    </div>
+  </div>
+
+  <div class="tv-card" style="margin-bottom:0">
+    <div class="tv-card-head" onclick="tog(4)">
+      <div class="tv-icon">🔌</div>
+      <div class="tv-info"><div class="tv-title">HDMI cable</div><div class="tv-sub">Always works · No WiFi needed</div></div>
+      <div class="tv-arrow" id="a4">▾</div>
+    </div>
+    <div class="tv-body" id="b4">
+      <ol><li>USB-C to HDMI adapter (~$10) or Lightning to HDMI for older iPhones</li><li>Plug phone → adapter → TV's HDMI port</li><li>Switch TV input to that HDMI — phone screen mirrors instantly</li></ol>
+      <div class="tip">💡 The nuclear option — works on any TV, any phone, zero setup, no WiFi</div>
+    </div>
+  </div>
+</div>
+
+<div class="footer">
+  Free live DR TV · World Cup 2026 · June 11 – July 19<br>
+  Add to home screen for quick access · Open in Chrome for Cast support
+</div>
+
+<div id="cast-toast">📺 Open Chrome menu ⋮ → Cast → select your TV</div>
+
+<script>
+(function() {
+  'use strict';
+
+  // ── Channel switch ──
+  window.sw = function(idx) {
+    document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('active'); });
+    document.querySelectorAll('.section').forEach(function(s) { s.classList.remove('active'); });
+    document.getElementById('tab-' + idx).classList.add('active');
+    document.getElementById('sec-' + idx).classList.add('active');
+
+    // Lazy load iframes
+    var sec = document.getElementById('sec-' + idx);
+    var iframe = sec.querySelector('iframe[data-src]');
+    if (iframe && !iframe.src) { iframe.src = iframe.dataset.src; }
+
+    // Load HLS for Sport Vision
+    if (idx === 1) { loadHLS(); }
+
+    // Scroll tab into view
+    document.getElementById('tab-' + idx).scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+  };
+
+  // ── HLS for Sport Vision 35 ──
+  var hlsInited = false;
+  var HLS_URL = 'https://5fa5de1a545ae.streamlock.net/sportvision35tv/sportvision35tv/chunklist_w1319107567.m3u8';
+  var FALLBACK_URL = 'https://canalesdominicanos.live/sport-vision-canal-35';
+
+  function loadHLS() {
+    if (hlsInited) { return; }
+    hlsInited = true;
+    var video = document.getElementById('pl-1');
+    var loading = document.getElementById('load-1');
+
+    function onFail() {
+      loading.innerHTML = '<div style="text-align:center;padding:20px"><div style="font-size:13px;color:#e63946;margin-bottom:10px">Stream unavailable</div><a href="' + FALLBACK_URL + '" target="_blank" style="font-size:12px;color:#a0a0b8;text-decoration:none;background:#18181f;border:1px solid #ffffff18;padding:8px 14px;border-radius:8px">Open on original site →</a></div>';
+    }
+
+    // Safari / iOS native HLS
+    if (video.canPlayType('application/vnd.apple.mpegurl')) {
+      video.src = HLS_URL;
+      video.addEventListener('loadeddata', function() { loading.classList.add('hidden'); });
+      video.addEventListener('error', onFail);
+      video.play().catch(function() {});
+      return;
+    }
+
+    // HLS.js for other browsers
+    if (typeof Hls !== 'undefined' && Hls.isSupported()) {
+      var hls = new Hls({ enableWorker: false, lowLatencyMode: false });
+      hls.loadSource(HLS_URL);
+      hls.attachMedia(video);
+      hls.on(Hls.Events.MANIFEST_PARSED, function() {
+        loading.classList.add('hidden');
+        video.play().catch(function() {});
+      });
+      hls.on(Hls.Events.ERROR, function(e, data) {
+        if (data.fatal) { onFail(); }
+      });
+    } else {
+      onFail();
+    }
+  }
+
+  // ── Fullscreen ──
+  window.doFS = function(id, e) {
+    if (e) { e.stopPropagation(); }
+    var el = document.getElementById(id);
+    if (!el) { return; }
+    var req = el.requestFullscreen || el.webkitRequestFullscreen || el.mozRequestFullScreen || el.msRequestFullscreen;
+    if (req) { req.call(el); }
+  };
+
+  // ── Cast ──
+  window.doCast = function(e) {
+    if (e) { e.stopPropagation(); }
+
+    // Try Presentation API
+    if (window.PresentationRequest) {
+      try {
+        var req = new PresentationRequest([window.location.href]);
+        req.start().then(function() {}).catch(function() { showCastToast(); });
+        return;
+      } catch(err) {}
+    }
+    showCastToast();
+  };
+
+  function showCastToast() {
+    var t = document.getElementById('cast-toast');
+    t.classList.add('show');
+    setTimeout(function() { t.classList.remove('show'); }, 4000);
+  }
+
+  // ── Touch controls show/hide on mobile ──
+  window.touchToggle = function(idx) {
+    var po = document.getElementById('po-' + idx);
+    if (!po) { return; }
+    po.classList.toggle('touched');
+    setTimeout(function() { if (po) { po.classList.remove('touched'); } }, 3000);
+  };
+
+  // ── TV guide accordion ──
+  window.tog = function(idx) {
+    var body = document.getElementById('b' + idx);
+    var arrow = document.getElementById('a' + idx);
+    if (!body) { return; }
+    var isOpen = body.classList.contains('open');
+    document.querySelectorAll('.tv-body').forEach(function(b) { b.classList.remove('open'); });
+    document.querySelectorAll('.tv-arrow').forEach(function(a) { a.classList.remove('open'); });
+    if (!isOpen) { body.classList.add('open'); arrow.classList.add('open'); }
+  };
+
+  // ── Page URL for TV display ──
+  var urlEl = document.getElementById('pageUrl');
+  if (urlEl) { urlEl.textContent = window.location.href; }
+
+  // ── Lazy load HLS.js only when Sport Vision tab is selected ──
+  // (already handled by sw() calling loadHLS() which checks typeof Hls)
+  // Load HLS.js script deferred
+  var hlsScript = document.createElement('script');
+  hlsScript.src = 'https://cdn.jsdelivr.net/npm/hls.js@1.4.12/dist/hls.min.js';
+  hlsScript.defer = true;
+  document.head.appendChild(hlsScript);
+
+})();
+</script>
+</body>
+</html>

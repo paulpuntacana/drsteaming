@@ -66,6 +66,14 @@
     .topbar.scrolled { padding:8px 16px 7px; }
     .topbar.scrolled .logo-full { height:0; opacity:0; }
     .topbar.scrolled .logo-fav  { height:40px; opacity:1; }
+    /* Mobile: start with compact logo — don't need to scroll to shrink it */
+    @media (max-width:767px) {
+      .logo-full { height:44px; }
+      .topbar { padding:10px 14px 9px; }
+      .topbar.scrolled { padding:7px 14px 6px; }
+      .topbar.scrolled .logo-full { height:0; opacity:0; }
+      .topbar.scrolled .logo-fav  { height:36px; opacity:1; }
+    }
     .badge-live {
       display:flex; align-items:center; gap:5px;
       background:rgba(34,197,94,0.1); border:1px solid rgba(34,197,94,0.25);
@@ -233,9 +241,14 @@
       font-size:19px; padding:2px 3px; border-radius:5px; cursor:pointer;
       border:2px solid transparent; background:none; line-height:1;
       opacity:0.45; transition:opacity 0.12s, border-color 0.12s;
+      /* ensure a minimum 44×44px tap target on mobile */
+      min-width:36px; min-height:36px;
+      display:flex; align-items:center; justify-content:center;
     }
     .lang-btn:hover { opacity:0.8; }
     .lang-btn.active { opacity:1; border-color:rgba(255,255,255,0.22); }
+    /* on mobile, raise opacity so buttons look tappable */
+    @media (max-width:767px) { .lang-btn { opacity:0.75; } .lang-btn.active { opacity:1; } }
 
     /* ── STATS DRAWER (under video) ── */
     .stats-toggle-btn {
@@ -1138,7 +1151,7 @@
 <div class="stats-drawer" id="statsDrawer">
   <div class="stats-drawer-inner">
 
-    <!-- Lijst view -->
+    <!-- List view -->
     <div id="statsListView">
       <div class="stats-drawer-head"><svg class="ic" style="color:var(--blue)"><use href="#i-signal"/></svg> WC 2026 · Live Stats</div>
       <input type="text" id="statsSearch" class="stats-search" placeholder="🔍 Search team or match…" autocomplete="off">
@@ -2002,13 +2015,13 @@
     }
   };
 
-  // Zoekbalk
+  // Search bar
   document.getElementById('statsSearch').addEventListener('input', function() {
     var q = this.value.toLowerCase().trim();
     renderList(q ? allEvents.filter(function(ev) { return ev.name.toLowerCase().indexOf(q) > -1; }) : allEvents);
   });
 
-  // Terug-knop
+  // Back button
   document.getElementById('statsBack').addEventListener('click', function() {
     document.getElementById('statsDetailView').style.display = 'none';
     document.getElementById('statsListView').style.display = 'block';
@@ -2070,12 +2083,12 @@
   function loadDetail(eventId) {
     document.getElementById('statsListView').style.display = 'none';
     document.getElementById('statsDetailView').style.display = 'block';
-    document.getElementById('statsDetail').innerHTML = '<div class="stats-empty">⚽ Laden…</div>';
+    document.getElementById('statsDetail').innerHTML = '<div class="stats-empty">' + getST('stats-loading-detail') + '</div>';
     fetch(ESPN + 'summary?event=' + eventId)
       .then(function(r) { return r.json(); })
       .then(renderDetail)
       .catch(function() {
-        document.getElementById('statsDetail').innerHTML = '<div class="stats-empty">Kon details niet laden.</div>';
+        document.getElementById('statsDetail').innerHTML = '<div class="stats-empty">' + getST('stats-error') + '</div>';
       });
   }
 
@@ -2110,12 +2123,12 @@
       '</div>';
     }
 
-    // ── Events (doelpunten, kaarten, wissels) ──
+    // ── Events (goals, cards, subs) ──
     var plays = (data.plays || []).filter(function(p) {
       return p.scoringPlay || (p.type && /goal|card|sub|yellow|red/i.test(p.type.text || ''));
     });
     if (plays.length) {
-      html += '<div class="sd-section-title">📋 Wedstrijdevents</div><div class="sd-events">';
+      html += '<div class="sd-section-title">' + getST('stats-events') + '</div><div class="sd-events">';
       plays.forEach(function(p) {
         var icon = p.scoringPlay ? '⚽' :
           /yellow/i.test(p.type && p.type.text || '') ? '🟨' :
@@ -2132,10 +2145,10 @@
       html += '</div>';
     }
 
-    // ── Statistieken ──
+    // ── Statistics ──
     var bsTeams = boxscore.teams || [];
     if (bsTeams.length === 2) {
-      var statMap = { possessionPct:'Balbezit %', shotsTotal:'Schoten', shotsOnTarget:'Op doel', fouls:'Overtredingen', yellowCards:'Gele kaarten', cornerKicks:'Hoekschoppen', offsides:'Buitenspel' };
+      var statMap = { possessionPct: getST('stat-possession'), shotsTotal: getST('stat-shots'), shotsOnTarget: getST('stat-shots-target'), fouls: getST('stat-fouls'), yellowCards: getST('stat-yellow'), cornerKicks: getST('stat-corners'), offsides: getST('stat-offside') };
       var rows = Object.keys(statMap).map(function(key) {
         var h = (bsTeams[0].statistics || []).find(function(s) { return s.name === key; });
         var a = (bsTeams[1].statistics || []).find(function(s) { return s.name === key; });
@@ -2153,28 +2166,29 @@
         '</div>';
       }).filter(Boolean);
       if (rows.length) {
-        html += '<div class="sd-section-title">📊 Statistieken</div><div class="sd-stats">' + rows.join('') + '</div>';
+        html += '<div class="sd-section-title">' + getST('stats-stats') + '</div><div class="sd-stats">' + rows.join('') + '</div>';
       }
     }
 
-    // ── Opstelling ──
-    if (bsTeams.length === 2) {
-      var cols = bsTeams.map(function(t) {
-        var starters = (t.roster || []).filter(function(p) { return p.starter; });
+    // ── Lineup — data lives in data.rosters[], not in boxscore.teams[].roster ──
+    var rosters = data.rosters || [];
+    if (rosters.length >= 2) {
+      var cols = rosters.slice(0, 2).map(function(r) {
+        var starters = (r.roster || []).filter(function(p) { return p.starter; });
         if (!starters.length) return '';
         return '<div class="sd-lineup-col">' +
-          '<div class="sd-lineup-team">' + esc(t.team ? t.team.displayName : '') + '</div>' +
+          '<div class="sd-lineup-team">' + esc(r.team ? r.team.displayName : '') + '</div>' +
           starters.map(function(p) {
-            return '<div class="sd-player"><span class="sd-jersey">' + esc(p.jersey || '') + '</span>' + esc(p.athlete.displayName) + '</div>';
+            return '<div class="sd-player"><span class="sd-jersey">' + esc(p.jersey || '') + '</span>' + esc(p.athlete ? p.athlete.displayName : '') + '</div>';
           }).join('') +
         '</div>';
       });
       if (cols[0] || cols[1]) {
-        html += '<div class="sd-section-title">👕 Opstelling</div><div class="sd-lineup">' + cols.join('') + '</div>';
+        html += '<div class="sd-section-title">' + getST('stats-lineup') + '</div><div class="sd-lineup">' + cols.join('') + '</div>';
       }
     }
 
-    document.getElementById('statsDetail').innerHTML = html || '<div class="stats-empty">Geen gedetailleerde data beschikbaar.</div>';
+    document.getElementById('statsDetail').innerHTML = html || '<div class="stats-empty">' + getST('stats-no-data') + '</div>';
   }
 })();
 </script>

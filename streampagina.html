@@ -13,6 +13,7 @@
 
   <!-- PWA icon inline SVG as data URI -->
   <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='100' fill='%230a0a0f'/%3E%3Ccircle cx='256' cy='220' r='120' fill='none' stroke='%23e63946' stroke-width='12'/%3E%3Cellipse cx='256' cy='220' rx='48' ry='120' fill='none' stroke='%23e63946' stroke-width='8'/%3E%3Cline x1='136' y1='220' x2='376' y2='220' stroke='%23e63946' stroke-width='8'/%3E%3Cpath d='M160 148 Q256 180 352 148' fill='none' stroke='%23e63946' stroke-width='8'/%3E%3Cpath d='M160 292 Q256 260 352 292' fill='none' stroke='%23e63946' stroke-width='8'/%3E%3Crect x='180' y='360' width='152' height='20' rx='4' fill='%23e63946'/%3E%3Crect x='140' y='380' width='232' height='12' rx='4' fill='%23333'/%3E%3C/svg%3E">
+  <link rel="manifest" href="favicon/site.webmanifest">
 
   <style>
     *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
@@ -251,10 +252,19 @@
       .footer { padding-bottom:calc(20px + env(safe-area-inset-bottom)); }
     }
 
+    /* ── PWA INSTALL BANNER ── */
+    #pwa-banner { display:none; align-items:center; gap:10px; padding:10px 16px; background:linear-gradient(90deg,rgba(230,57,70,0.1),rgba(230,57,70,0.04)); border-bottom:1px solid rgba(230,57,70,0.18); }
+    #pwa-banner.show { display:flex; }
+    .pwa-icon { font-size:20px; flex-shrink:0; }
+    .pwa-text { flex:1; font-size:12px; font-weight:600; color:var(--text); line-height:1.4; }
+    .pwa-text small { display:block; font-size:10px; color:var(--muted); font-weight:400; margin-top:2px; }
+    .pwa-btn { flex-shrink:0; padding:7px 13px; border-radius:8px; background:var(--red); color:#fff; font-size:11px; font-weight:700; border:none; cursor:pointer; white-space:nowrap; }
+    .pwa-x { flex-shrink:0; width:26px; height:26px; border-radius:6px; background:var(--s2); border:1px solid var(--border2); color:var(--muted); font-size:13px; cursor:pointer; display:flex; align-items:center; justify-content:center; line-height:1; }
+
     /* ── DESKTOP CENTER ── */
     @media (min-width:600px) {
       body { display:flex; flex-direction:column; align-items:center; }
-      .topbar, .wc-bar, .tabs-wrap, .section, .tv-guide, .footer { width:100%; max-width:560px; }
+      .topbar, #pwa-banner, .wc-bar, .tabs-wrap, .section, .tv-guide, .footer { width:100%; max-width:560px; }
     }
 
     /* Cast toast */
@@ -290,6 +300,14 @@
     </div>
   </div>
   <div class="badge-live"><div class="dot-live"></div>Live</div>
+</div>
+
+<!-- PWA Install Banner -->
+<div id="pwa-banner">
+  <div class="pwa-icon">📲</div>
+  <div class="pwa-text" id="pwa-text"></div>
+  <button class="pwa-btn" id="pwa-btn" style="display:none"></button>
+  <button class="pwa-x" id="pwa-x">✕</button>
 </div>
 
 <!-- WC BANNER -->
@@ -664,6 +682,92 @@
   hlsScript.defer = true;
   document.head.appendChild(hlsScript);
 
+})();
+
+// ── PWA Install Banner + Auto Picture-in-Picture ──
+(function() {
+  // Language: Spanish or English based on device
+  var es = (navigator.language || 'en').toLowerCase().startsWith('es');
+  var L = es ? {
+    title: 'Agregar al inicio',
+    sub: 'Acceso rápido y reproducción en segundo plano',
+    btn: 'Instalar',
+    ios: 'Pulsa Compartir \u2192 \u201cA\u00f1adir a inicio\u201d'
+  } : {
+    title: 'Add to Home Screen',
+    sub: 'Quick access & background playback',
+    btn: 'Install',
+    ios: 'Tap Share \u2192 \u201cAdd to Home Screen\u201d'
+  };
+
+  var isStandalone = window.matchMedia('(display-mode: standalone)').matches || !!navigator.standalone;
+  var dismissed = localStorage.getItem('pwa-dismissed');
+  var banner = document.getElementById('pwa-banner');
+  var textEl = document.getElementById('pwa-text');
+  var btn    = document.getElementById('pwa-btn');
+  var closeX = document.getElementById('pwa-x');
+  var deferred = null;
+
+  function showBanner(isIOS) {
+    if (isStandalone || dismissed) return;
+    textEl.innerHTML = '<strong>' + L.title + '</strong><small>' + (isIOS ? L.ios : L.sub) + '</small>';
+    if (!isIOS) { btn.textContent = L.btn; btn.style.display = ''; }
+    banner.classList.add('show');
+  }
+
+  // Android/Chrome: native install prompt
+  window.addEventListener('beforeinstallprompt', function(e) {
+    e.preventDefault();
+    deferred = e;
+    showBanner(false);
+  });
+
+  btn.addEventListener('click', function() {
+    if (!deferred) return;
+    deferred.prompt();
+    deferred.userChoice.then(function(result) {
+      if (result.outcome === 'accepted') banner.classList.remove('show');
+      deferred = null;
+    });
+  });
+
+  // iOS Safari: show manual hint (no programmatic install prompt on iOS)
+  var isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent) && !window.MSStream;
+  var isSafari = /safari/i.test(navigator.userAgent) && !/chrome|crios|fxios/i.test(navigator.userAgent);
+  if (isIOS && isSafari && !isStandalone && !dismissed) showBanner(true);
+
+  closeX.addEventListener('click', function() {
+    banner.classList.remove('show');
+    localStorage.setItem('pwa-dismissed', '1');
+  });
+
+  // ── Auto Picture-in-Picture when leaving the app ──
+  // Works for the native <video> element (Sport Vision channel).
+  // iframes (Dailymotion etc.) already have allow="picture-in-picture"
+  // and handle PiP via their own player controls / OS behavior.
+  var pipVideo = null;
+
+  var vid = document.getElementById('pl-1');
+  if (vid) {
+    vid.addEventListener('play',  function() { pipVideo = vid; });
+    vid.addEventListener('pause', function() { if (pipVideo === vid) pipVideo = null; });
+    vid.addEventListener('ended', function() { if (pipVideo === vid) pipVideo = null; });
+  }
+
+  function tryAutoPiP() {
+    if (!document.pictureInPictureEnabled) return;
+    if (document.pictureInPictureElement) return;
+    var v = pipVideo;
+    if (v && !v.paused) {
+      v.requestPictureInPicture().catch(function() {});
+    }
+  }
+
+  document.addEventListener('visibilitychange', function() {
+    if (document.visibilityState === 'hidden') tryAutoPiP();
+  });
+  // pagehide fires on iOS when switching apps in standalone mode
+  window.addEventListener('pagehide', tryAutoPiP);
 })();
 </script>
 </body>

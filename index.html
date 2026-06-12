@@ -1478,7 +1478,8 @@
           : '<span class="vol-label">VOL</span><input type="range" class="vol-range" min="0" max="100" value="100"><span class="vol-hint">↑ hard<br>↓ zacht</span>'
         ) +
       '</div>';
-    wrap.querySelector('.vol-range').addEventListener('input', function(e) {
+    var volRange = wrap.querySelector('.vol-range');
+    if (volRange) volRange.addEventListener('input', function(e) {
       applyVol(e.target.value / 100);
       e.stopPropagation();
     });

@@ -139,6 +139,8 @@
     }
     .player-outer:hover .player-controls,
     .player-outer.touched .player-controls { opacity:1; pointer-events:auto; }
+    /* Op mobiel: geen overlay controls (action-row eronder doet hetzelfde, geen conflict met iframe controls) */
+    @media (max-width:767px) { .player-controls { display:none!important; } }
     .ctrl-btn {
       display:flex; align-items:center; justify-content:center;
       width:36px; height:36px; border-radius:7px;
@@ -572,15 +574,32 @@
       .footer { max-width:760px; margin:0 auto; }
     }
 
-    /* Cast toast */
-    #cast-toast {
-      position:fixed; bottom:20px; left:50%; transform:translateX(-50%) translateY(80px);
-      background:var(--s2); border:1px solid var(--border2); border-radius:10px;
-      padding:10px 16px; font-size:12px; color:var(--text); font-weight:600;
-      transition:transform 0.3s ease; z-index:100; white-space:nowrap;
-      box-shadow:0 4px 24px rgba(0,0,0,0.5);
+    /* iOS fake fullscreen */
+    .player-outer.ios-fs { position:fixed!important; inset:0!important; width:100vw!important; height:100vh!important; z-index:9990!important; border-radius:0!important; }
+    body.has-ios-fs { overflow:hidden; }
+    .ios-fs-close { position:fixed; top:calc(12px + env(safe-area-inset-top)); right:16px; z-index:9995; background:rgba(0,0,0,0.6); border:none; color:#fff; font-size:22px; width:36px; height:36px; border-radius:50%; cursor:pointer; display:none; align-items:center; justify-content:center; }
+    body.has-ios-fs .ios-fs-close { display:flex; }
+
+    /* Cast modal */
+    #cast-modal { position:fixed; inset:0; z-index:9980; display:none; align-items:flex-end; }
+    #cast-modal.show { display:flex; }
+    #cast-modal-bg { position:absolute; inset:0; background:rgba(0,0,0,0.55); }
+    #cast-modal-sheet {
+      position:relative; width:100%; background:var(--s1); border-radius:20px 20px 0 0;
+      padding:20px 20px calc(20px + env(safe-area-inset-bottom)); z-index:1;
+      box-shadow:0 -4px 40px rgba(0,0,0,0.5);
     }
-    #cast-toast.show { transform:translateX(-50%) translateY(0); }
+    .cast-modal-title { font-size:15px; font-weight:800; margin-bottom:4px; }
+    .cast-modal-sub { font-size:12px; color:var(--muted); margin-bottom:16px; }
+    .cast-opt { display:flex; align-items:center; gap:12px; padding:12px 14px; border-radius:12px; background:var(--s2); border:1px solid var(--border2); margin-bottom:10px; cursor:pointer; }
+    .cast-opt:hover { background:var(--s3); }
+    .cast-opt-icon { font-size:22px; }
+    .cast-opt-info strong { font-size:13px; font-weight:700; display:block; }
+    .cast-opt-info span { font-size:11px; color:var(--muted); }
+    .cast-modal-close { width:100%; margin-top:6px; padding:11px; border:none; border-radius:10px; background:var(--s3); color:var(--muted2); font-size:13px; font-weight:700; cursor:pointer; }
+
+    /* iOS volume hint */
+    .vol-ios-hint { font-size:10px; color:rgba(255,255,255,0.5); text-align:center; padding:4px 8px; line-height:1.3; }
 
     /* ════════════════ MODERN TYPE + ICON LAYER ════════════════ */
     body { font-family:'Geist',-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,sans-serif; -webkit-font-smoothing:antialiased; }
@@ -1270,7 +1289,29 @@
 
 </div><!-- /.app -->
 
-<div id="cast-toast">Open Chrome menu ⋮ → Cast → select your TV</div>
+<!-- Cast modal -->
+<button class="ios-fs-close" id="iosFsClose" onclick="exitIosFs()">✕</button>
+<video id="airplay-trigger" style="position:fixed;width:1px;height:1px;opacity:0;pointer-events:none" x-webkit-airplay="allow" playsinline></video>
+<div id="cast-modal">
+  <div id="cast-modal-bg" onclick="closeCastModal()"></div>
+  <div id="cast-modal-sheet">
+    <div class="cast-modal-title">📺 Zet op TV</div>
+    <div class="cast-modal-sub">Kies hoe je de stream naar je TV stuurt</div>
+    <div class="cast-opt" id="castAirplay">
+      <span class="cast-opt-icon">📡</span>
+      <div class="cast-opt-info"><strong>AirPlay</strong><span>iPhone/iPad → Apple TV of AirPlay TV</span></div>
+    </div>
+    <div class="cast-opt" id="castChrome">
+      <span class="cast-opt-icon">🖥️</span>
+      <div class="cast-opt-info"><strong>Chromecast / Google TV</strong><span>Android Chrome → Cast apparaat kiezen</span></div>
+    </div>
+    <div class="cast-opt" id="castMirror">
+      <span class="cast-opt-icon">🪞</span>
+      <div class="cast-opt-info"><strong>Scherm spiegelen</strong><span>Android: meldingenvenster → Casten. Samsung: Smart View</span></div>
+    </div>
+    <button class="cast-modal-close" onclick="closeCastModal()">Sluiten</button>
+  </div>
+</div>
 
 <button class="chat-fab" id="chatFab" onclick="toggleChat(true)"><span class="dot-live"></span><svg class="ic"><use href="#i-chat"/></svg> Live chat</button>
 
@@ -1384,14 +1425,47 @@
   }
 
   // ── Fullscreen (fullscreen the 16:9 container so video-js + iframes all fill cleanly) ──
+  var isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent);
+
   window.doFS = function(id, e) {
-    if (e) { e.stopPropagation(); }
+    if (e) e.stopPropagation();
     var el = document.getElementById(id);
-    if (!el) { return; }
+    if (!el) return;
     var target = el.closest('.player-outer') || el;
-    var req = target.requestFullscreen || target.webkitRequestFullscreen || target.mozRequestFullScreen || target.msRequestFullscreen;
-    if (req) { req.call(target); }
+    if (isIOS) {
+      target.classList.add('ios-fs');
+      document.body.classList.add('has-ios-fs');
+    } else {
+      var req = target.requestFullscreen || target.webkitRequestFullscreen || target.mozRequestFullScreen || target.msRequestFullscreen;
+      if (req) req.call(target);
+    }
   };
+
+  window.exitIosFs = function() {
+    document.querySelectorAll('.player-outer.ios-fs').forEach(function(p) { p.classList.remove('ios-fs'); });
+    document.body.classList.remove('has-ios-fs');
+  };
+
+  // Auto-fullscreen bij draaien naar landscape
+  window.addEventListener('orientationchange', function() {
+    setTimeout(function() {
+      var landscape = window.innerWidth > window.innerHeight;
+      if (landscape) {
+        var active = document.querySelector('.section.active .player-outer');
+        if (!active) return;
+        if (isIOS) {
+          active.classList.add('ios-fs');
+          document.body.classList.add('has-ios-fs');
+        } else {
+          var req = active.requestFullscreen || active.webkitRequestFullscreen;
+          if (req) req.call(active);
+        }
+      } else {
+        window.exitIosFs();
+        if (!isIOS && document.exitFullscreen) document.exitFullscreen().catch(function(){});
+      }
+    }, 100);
+  });
 
   // ── Wide / theater mode (desktop) ──
   window.toggleTheater = function() {
@@ -1407,24 +1481,42 @@
 
   // ── Cast ──
   window.doCast = function(e) {
-    if (e) { e.stopPropagation(); }
-
-    // Try Presentation API
-    if (window.PresentationRequest) {
-      try {
-        var req = new PresentationRequest([window.location.href]);
-        req.start().then(function() {}).catch(function() { showCastToast(); });
-        return;
-      } catch(err) {}
-    }
-    showCastToast();
+    if (e) e.stopPropagation();
+    document.getElementById('cast-modal').classList.add('show');
   };
 
-  function showCastToast() {
-    var t = document.getElementById('cast-toast');
-    t.classList.add('show');
-    setTimeout(function() { t.classList.remove('show'); }, 4000);
-  }
+  window.closeCastModal = function() {
+    document.getElementById('cast-modal').classList.remove('show');
+  };
+
+  document.getElementById('castAirplay').addEventListener('click', function() {
+    closeCastModal();
+    var vid = document.getElementById('airplay-trigger');
+    if (vid && vid.webkitShowPlaybackTargetPicker) {
+      vid.webkitShowPlaybackTargetPicker(); // toont AirPlay device picker op iOS
+    } else {
+      alert('AirPlay: gebruik het AirPlay icoon in je Control Center of in de video controls.');
+    }
+  });
+
+  document.getElementById('castChrome').addEventListener('click', function() {
+    closeCastModal();
+    var vid = document.getElementById('airplay-trigger');
+    if (vid && vid.remote && vid.remote.prompt) {
+      vid.remote.prompt().catch(function() {}); // Remote Playback API (Chrome/Android)
+    } else if (window.PresentationRequest) {
+      try {
+        new PresentationRequest([window.location.href]).start().catch(function() {});
+      } catch(err) {}
+    } else {
+      alert('Chromecast: open Chrome menu ⋮ → Casten → kies je apparaat.');
+    }
+  });
+
+  document.getElementById('castMirror').addEventListener('click', function() {
+    closeCastModal();
+    alert('Android: trek meldingenvenster naar beneden → Casten / Smart View → kies je TV.');
+  });
 
   // ── Touch controls show/hide on mobile ──
   window.touchToggle = function(idx) {
@@ -1597,12 +1689,14 @@
     wrap.className = 'vol-wrap ctrl-btn';
     wrap.style.cssText = 'position:relative;flex-shrink:0;';
     var hasVideo = !!wrap.closest('.section, [id^="sec-"]');
+    var isIOSvol = /iPhone|iPad|iPod/.test(navigator.userAgent);
     wrap.innerHTML =
       '<svg class="vol-icon ic" style="pointer-events:none"><use href="#i-vol"/></svg>' +
       '<div class="vol-popup">' +
-        '<span class="vol-label">VOL</span>' +
-        '<input type="range" class="vol-range" min="0" max="100" value="100">' +
-        '<span class="vol-hint">↑ hard<br>↓ zacht</span>' +
+        (isIOSvol
+          ? '<span class="vol-ios-hint">Gebruik de zijknoppen van je iPhone voor volume</span>'
+          : '<span class="vol-label">VOL</span><input type="range" class="vol-range" min="0" max="100" value="100"><span class="vol-hint">↑ hard<br>↓ zacht</span>'
+        ) +
       '</div>';
     wrap.querySelector('.vol-range').addEventListener('input', function(e) {
       applyVol(e.target.value / 100);

@@ -256,8 +256,9 @@
       border-top:1px solid transparent;
     }
     .stats-drawer.open {
-      max-height:600px;
+      max-height:80vh;
       border-top-color:var(--border);
+      overflow-y:auto;
     }
     .stats-drawer-inner { padding:14px 16px 20px; }
     .stats-drawer-head { font-size:13px; font-weight:800; margin-bottom:4px; }
@@ -1139,10 +1140,10 @@
 
     <!-- Lijst view -->
     <div id="statsListView">
-      <div class="stats-drawer-head"><svg class="ic" style="color:var(--blue)"><use href="#i-signal"/></svg> WK 2026 · Live Stats</div>
-      <input type="text" id="statsSearch" class="stats-search" placeholder="🔍 Zoek team of wedstrijd…" autocomplete="off">
+      <div class="stats-drawer-head"><svg class="ic" style="color:var(--blue)"><use href="#i-signal"/></svg> WC 2026 · Live Stats</div>
+      <input type="text" id="statsSearch" class="stats-search" placeholder="🔍 Search team or match…" autocomplete="off">
       <div class="stats-cards" id="statsCards">
-        <div class="stats-empty">⚽ Laden…</div>
+        <div class="stats-empty">⚽ Loading…</div>
       </div>
       <div class="stats-quick">
         <a class="stats-ql" href="https://www.sofascore.com/tournament/football/world/fifa-world-cup/16" target="_blank" rel="noopener">Sofascore ↗</a>
@@ -1154,7 +1155,7 @@
 
     <!-- Detail view -->
     <div id="statsDetailView" style="display:none">
-      <button class="stats-back" id="statsBack">← Terug naar overzicht</button>
+      <button class="stats-back" id="statsBack">← Back to overview</button>
       <div id="statsDetail"></div>
     </div>
 
@@ -1765,6 +1766,23 @@
       'cast-mirror-label': 'Screen Mirror',
       'cast-mirror-sub': 'Android: notification panel → Cast. Samsung: Smart View',
       'cast-close': 'Close',
+      'stats-search-ph': 'Search team or match…',
+      'stats-back': '← Back to overview',
+      'stats-empty': '⚽ No WC matches found. Use the links below.',
+      'stats-events': '📋 Match Events',
+      'stats-stats': '📊 Statistics',
+      'stats-lineup': '👕 Lineup',
+      'stats-no-data': 'No detailed data available.',
+      'stats-error': 'Could not load details.',
+      'stats-loading-detail': '⚽ Loading…',
+      'stats-details': 'Details →',
+      'stat-possession': 'Possession %',
+      'stat-shots': 'Shots',
+      'stat-shots-target': 'On Target',
+      'stat-fouls': 'Fouls',
+      'stat-yellow': 'Yellow Cards',
+      'stat-corners': 'Corners',
+      'stat-offside': 'Offsides',
     },
     es: {
       'wide': 'Ancho', 'live': 'En Vivo',
@@ -1799,6 +1817,23 @@
       'cast-mirror-label': 'Duplicar pantalla',
       'cast-mirror-sub': 'Android: panel de notificaciones → Transmitir. Samsung: Smart View',
       'cast-close': 'Cerrar',
+      'stats-search-ph': 'Buscar equipo o partido…',
+      'stats-back': '← Volver al listado',
+      'stats-empty': '⚽ No hay partidos del Mundial. Usa los enlaces de abajo.',
+      'stats-events': '📋 Eventos del Partido',
+      'stats-stats': '📊 Estadísticas',
+      'stats-lineup': '👕 Alineación',
+      'stats-no-data': 'No hay datos disponibles.',
+      'stats-error': 'No se pudieron cargar los detalles.',
+      'stats-loading-detail': '⚽ Cargando…',
+      'stats-details': 'Detalles →',
+      'stat-possession': 'Posesión %',
+      'stat-shots': 'Tiros',
+      'stat-shots-target': 'Al arco',
+      'stat-fouls': 'Faltas',
+      'stat-yellow': 'Tarjetas amarillas',
+      'stat-corners': 'Córners',
+      'stat-offside': 'Fuera de juego',
     }
   };
 
@@ -1911,6 +1946,12 @@
     var chatTitle = document.querySelector('.chat-title');
     if (chatTitle) chatTitle.textContent = t['chat-title'];
 
+    // Stats search placeholder + back button
+    var sSrch = document.getElementById('statsSearch');
+    if (sSrch && t['stats-search-ph']) sSrch.placeholder = '🔍 ' + t['stats-search-ph'];
+    var sBack = document.getElementById('statsBack');
+    if (sBack && t['stats-back']) sBack.textContent = t['stats-back'];
+
     // Lang button states
     document.querySelectorAll('.lang-btn').forEach(function(b) {
       b.classList.toggle('active', b.dataset.lang === lang);
@@ -1983,11 +2024,21 @@
       .catch(function() { renderList([]); });
   }
 
+  function getLang() { return document.documentElement.lang || localStorage.getItem('drLang') || 'en'; }
+  function getST(key) {
+    var lang = getLang();
+    var strings = {
+      en: { 'stats-empty':'⚽ No WC matches found. Use the links below.', 'stats-details':'Details →', 'stats-events':'📋 Match Events', 'stats-stats':'📊 Statistics', 'stats-lineup':'👕 Lineup', 'stats-no-data':'No detailed data available.', 'stats-error':'Could not load details.', 'stats-loading-detail':'⚽ Loading…', 'stat-possession':'Possession %', 'stat-shots':'Shots', 'stat-shots-target':'On Target', 'stat-fouls':'Fouls', 'stat-yellow':'Yellow Cards', 'stat-corners':'Corners', 'stat-offside':'Offsides' },
+      es: { 'stats-empty':'⚽ No hay partidos del Mundial. Usa los enlaces de abajo.', 'stats-details':'Detalles →', 'stats-events':'📋 Eventos del Partido', 'stats-stats':'📊 Estadísticas', 'stats-lineup':'👕 Alineación', 'stats-no-data':'No hay datos disponibles.', 'stats-error':'No se pudieron cargar los detalles.', 'stats-loading-detail':'⚽ Cargando…', 'stat-possession':'Posesión %', 'stat-shots':'Tiros', 'stat-shots-target':'Al arco', 'stat-fouls':'Faltas', 'stat-yellow':'Tarjetas amarillas', 'stat-corners':'Córners', 'stat-offside':'Fuera de juego' }
+    };
+    return (strings[lang] || strings.en)[key] || key;
+  }
+
   function renderList(events) {
     var el = document.getElementById('statsCards');
     if (!el) return;
     if (!events.length) {
-      el.innerHTML = '<div class="stats-empty">⚽ Geen WK wedstrijden gevonden. Gebruik de links hieronder.</div>';
+      el.innerHTML = '<div class="stats-empty">' + getST('stats-empty') + '</div>';
       return;
     }
     el.innerHTML = events.map(function(ev) {
@@ -2008,7 +2059,7 @@
           '</div>' +
           '<div class="stats-team">' + (away ? away.team.displayName : '') + '</div>' +
         '</div>' +
-        '<span class="stats-sofabtn">Details →</span>' +
+        '<span class="stats-sofabtn">' + getST('stats-details') + '</span>' +
       '</div>';
     }).join('');
     el.querySelectorAll('.stats-card-click').forEach(function(card) {

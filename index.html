@@ -591,6 +591,8 @@
     /* iOS fake fullscreen */
     .player-outer.ios-fs { position:fixed!important; inset:0!important; width:100vw!important; height:100vh!important; z-index:9990!important; border-radius:0!important; }
     body.has-ios-fs { overflow:hidden; }
+    /* Keep chat FAB visible above iOS fullscreen layer */
+    body.has-ios-fs .chat-fab { z-index:9995; }
     .ios-fs-close { position:fixed; top:calc(12px + env(safe-area-inset-top)); right:16px; z-index:9995; background:rgba(0,0,0,0.6); border:none; color:#fff; font-size:22px; width:36px; height:36px; border-radius:50%; cursor:pointer; display:none; align-items:center; justify-content:center; }
     body.has-ios-fs .ios-fs-close { display:flex; }
 
@@ -1415,7 +1417,13 @@
     // Safari / iOS native HLS
     if (video.canPlayType('application/vnd.apple.mpegurl')) {
       video.src = HLS_URL;
-      video.addEventListener('loadeddata', function() { loading.classList.add('hidden'); });
+      video.addEventListener('loadeddata', function() {
+        loading.classList.add('hidden');
+        // Seek to live edge (most recent moment)
+        if (video.seekable && video.seekable.length) {
+          video.currentTime = video.seekable.end(video.seekable.length - 1);
+        }
+      });
       video.addEventListener('error', onFail);
       video.play().catch(function() {});
       return;
@@ -1428,6 +1436,9 @@
       hls.attachMedia(video);
       hls.on(Hls.Events.MANIFEST_PARSED, function() {
         loading.classList.add('hidden');
+        // Seek to live edge via HLS.js
+        if (hls.liveSyncPosition != null) { video.currentTime = hls.liveSyncPosition; }
+        else if (video.seekable && video.seekable.length) { video.currentTime = video.seekable.end(video.seekable.length - 1); }
         video.play().catch(function() {});
       });
       hls.on(Hls.Events.ERROR, function(e, data) {
@@ -1647,6 +1658,12 @@
   loadMessages();
   setInterval(loadMessages, 3000);
 
+  // Auto-assign a name if none stored (prompt() is blocked on Android PWA)
+  if (!myName) {
+    myName = 'Fan' + Math.floor(Math.random() * 900 + 100);
+    localStorage.setItem('drchat_name', myName);
+  }
+
   form.addEventListener('submit', function(e){
     e.preventDefault();
     var v = input.value.trim();
@@ -1654,10 +1671,6 @@
     var now = Date.now();
     if (now - lastSent < 1500) return;
     lastSent = now;
-    if (!myName) {
-      myName = ((prompt('Kies een naam voor de chat:') || 'Fan').trim()).slice(0, 20) || 'Fan';
-      localStorage.setItem('drchat_name', myName);
-    }
     input.value = '';
     fetch('/api/chat', {
       method: 'POST',
@@ -1665,6 +1678,16 @@
       body: JSON.stringify({ name: myName, text: v })
     }).then(loadMessages).catch(function(){});
   });
+
+  // Mobile keyboard pushes chat input behind keyboard — lift it with visualViewport
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener('resize', function() {
+      var chat = document.getElementById('chat');
+      if (!chat || !document.body.classList.contains('chat-open')) return;
+      var kbH = Math.max(0, window.innerHeight - window.visualViewport.height - window.visualViewport.offsetTop);
+      chat.style.bottom = kbH > 50 ? kbH + 'px' : '';
+    });
+  }
 
   // ── Dismissible in-video chatbubble (echte berichten van anderen) ──
   var vMuteUntil = 0;
@@ -1680,7 +1703,22 @@
   }
   function maybeVideo(name, text){ if (Date.now() < vMuteUntil) return; if (Math.random() > 0.4) return; showVideoMsg(name, text); }
 
-  window.toggleChat = function(open){ document.body.classList.toggle('chat-open', !!open); };
+  window.toggleChat = function(open){
+    document.body.classList.toggle('chat-open', !!open);
+    if (!open) {
+      var chat = document.getElementById('chat');
+      if (chat) chat.style.bottom = '';
+    }
+    if (open) { setTimeout(function(){ input && input.focus(); }, 380); }
+  };
+
+  // Tap on in-video chat bubble → open full chat
+  document.addEventListener('click', function(e) {
+    var vchat = e.target.closest('.vchat');
+    if (vchat && !e.target.classList.contains('vchat-x')) {
+      window.toggleChat(true);
+    }
+  });
 })();
 
 // ── Volume control ──

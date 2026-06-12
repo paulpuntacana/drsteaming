@@ -288,6 +288,40 @@
     .stats-ql:hover { color:var(--text); background:var(--s3); }
     .stats-empty { text-align:center; padding:24px; color:var(--muted); font-size:12px; }
 
+    /* ── STATS SEARCH ── */
+    .stats-search { width:100%; padding:8px 11px; border-radius:8px; border:1px solid var(--border2); background:var(--s2); color:var(--text); font-size:12px; outline:none; margin-bottom:10px; }
+    .stats-search:focus { border-color:rgba(51,104,218,0.5); }
+    .stats-card-click { cursor:pointer; }
+    .stats-card-click:hover { background:var(--s3); }
+    .stats-min.live { color:var(--green); animation:pulse 1.8s ease-in-out infinite; }
+    .stats-back { background:none; border:none; color:var(--muted2); font-size:12px; font-weight:700; cursor:pointer; padding:0 0 10px 0; display:flex; align-items:center; gap:4px; }
+    .stats-back:hover { color:var(--text); }
+
+    /* ── STATS DETAIL VIEW ── */
+    .sd-header { display:flex; align-items:center; gap:8px; justify-content:center; padding:12px 0 14px; border-bottom:1px solid var(--border); margin-bottom:12px; }
+    .sd-team { flex:1; text-align:center; font-size:12px; font-weight:700; display:flex; flex-direction:column; align-items:center; gap:5px; }
+    .sd-flag { width:32px; height:32px; object-fit:contain; border-radius:4px; }
+    .sd-score-col { text-align:center; min-width:70px; }
+    .sd-scorenum { font-size:22px; font-weight:900; letter-spacing:-1px; }
+    .sd-status { font-size:10px; font-weight:700; color:var(--green); letter-spacing:0.5px; margin-top:2px; }
+    .sd-section-title { font-size:11px; font-weight:800; color:var(--muted); letter-spacing:0.5px; text-transform:uppercase; margin:14px 0 7px; }
+    .sd-events { display:flex; flex-direction:column; gap:6px; }
+    .sd-event { display:flex; align-items:center; gap:8px; font-size:12px; }
+    .sd-event-min { font-size:10px; font-weight:700; color:var(--muted2); min-width:28px; font-family:var(--font-mono,monospace); }
+    .sd-event-icon { font-size:14px; }
+    .sd-event-info { flex:1; color:var(--text); }
+    .sd-stats { display:flex; flex-direction:column; gap:8px; }
+    .sd-stat-row { display:flex; align-items:center; gap:8px; font-size:12px; }
+    .sd-stat-val { min-width:28px; font-weight:800; text-align:center; }
+    .sd-stat-mid { flex:1; }
+    .sd-stat-label { font-size:10px; color:var(--muted); display:block; text-align:center; margin-bottom:3px; }
+    .sd-stat-bar { height:4px; background:var(--s3); border-radius:2px; position:relative; }
+    .sd-stat-home { position:absolute; left:0; top:0; height:100%; background:var(--blue); border-radius:2px; transition:width 0.4s; }
+    .sd-lineup { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+    .sd-lineup-team { font-size:11px; font-weight:800; color:var(--muted2); margin-bottom:6px; padding-bottom:4px; border-bottom:1px solid var(--border); }
+    .sd-player { font-size:11px; padding:3px 0; display:flex; align-items:center; gap:5px; }
+    .sd-jersey { font-size:9px; font-weight:800; color:var(--muted); background:var(--s3); border-radius:3px; padding:1px 4px; min-width:18px; text-align:center; }
+
     /* ── CHANNEL INFO BAR ── */
     .ch-info {
       display:flex; align-items:center; gap:12px;
@@ -1083,17 +1117,28 @@
 <!-- ===== STATS DRAWER (global, below video) ===== -->
 <div class="stats-drawer" id="statsDrawer">
   <div class="stats-drawer-inner">
-    <div class="stats-drawer-head"><svg class="ic" style="color:var(--blue)"><use href="#i-signal"/></svg> <span data-i18n="stats-head">Live Match Statistics</span></div>
-    <div class="stats-drawer-sub" data-i18n="stats-sub">Real-time scores — click a match for full stats on Sofascore</div>
-    <div class="stats-cards" id="statsCards">
-      <div class="stats-empty" id="statsLoading" data-i18n="stats-loading">⚽ Loading…</div>
+
+    <!-- Lijst view -->
+    <div id="statsListView">
+      <div class="stats-drawer-head"><svg class="ic" style="color:var(--blue)"><use href="#i-signal"/></svg> WK 2026 · Live Stats</div>
+      <input type="text" id="statsSearch" class="stats-search" placeholder="🔍 Zoek team of wedstrijd…" autocomplete="off">
+      <div class="stats-cards" id="statsCards">
+        <div class="stats-empty">⚽ Laden…</div>
+      </div>
+      <div class="stats-quick">
+        <a class="stats-ql" href="https://www.sofascore.com/tournament/football/world/fifa-world-cup/16" target="_blank" rel="noopener">Sofascore ↗</a>
+        <a class="stats-ql" href="https://www.livescore.com/en/football/world-cup/" target="_blank" rel="noopener">Livescore ↗</a>
+        <a class="stats-ql" href="https://www.flashscore.com/football/world/world-cup/" target="_blank" rel="noopener">FlashScore ↗</a>
+        <a class="stats-ql" href="https://www.fotmob.com/tournaments/77/worldcup" target="_blank" rel="noopener">FotMob ↗</a>
+      </div>
     </div>
-    <div class="stats-quick">
-      <a class="stats-ql" href="https://www.sofascore.com/tournament/football/world/fifa-world-cup/16" target="_blank" rel="noopener">Sofascore ↗</a>
-      <a class="stats-ql" href="https://www.livescore.com/en/football/world-cup/" target="_blank" rel="noopener">Livescore ↗</a>
-      <a class="stats-ql" href="https://www.flashscore.com/football/world/world-cup/" target="_blank" rel="noopener">FlashScore ↗</a>
-      <a class="stats-ql" href="https://www.fotmob.com/tournaments/77/worldcup" target="_blank" rel="noopener">FotMob ↗</a>
+
+    <!-- Detail view -->
+    <div id="statsDetailView" style="display:none">
+      <button class="stats-back" id="statsBack">← Terug naar overzicht</button>
+      <div id="statsDetail"></div>
     </div>
+
   </div>
 </div>
 
@@ -1777,12 +1822,13 @@
   window.setLang(lang);
 })();
 
-// ── Stats drawer ──
+// ── Stats drawer ── ESPN API (WK 2026, gratis, geen key)
 (function() {
   var open = false;
   var loaded = false;
+  var allEvents = [];
+  var ESPN = 'https://site.api.espn.com/apis/site/v2/sports/soccer/fifa.world/';
 
-  // Inject stats toggle button into every action-row
   document.querySelectorAll('.action-row').forEach(function(row) {
     var btn = document.createElement('button');
     btn.className = 'act-btn stats-toggle-btn';
@@ -1803,46 +1849,169 @@
     }
   };
 
+  // Zoekbalk
+  document.getElementById('statsSearch').addEventListener('input', function() {
+    var q = this.value.toLowerCase().trim();
+    renderList(q ? allEvents.filter(function(ev) { return ev.name.toLowerCase().indexOf(q) > -1; }) : allEvents);
+  });
+
+  // Terug-knop
+  document.getElementById('statsBack').addEventListener('click', function() {
+    document.getElementById('statsDetailView').style.display = 'none';
+    document.getElementById('statsListView').style.display = 'block';
+  });
+
   function loadLiveStats() {
-    var today = new Date().toISOString().slice(0,10);
-    fetch('https://www.thesportsdb.com/api/v1/json/3/eventsday.php?d=' + today + '&s=Soccer')
+    fetch(ESPN + 'scoreboard')
       .then(function(r) { return r.json(); })
       .then(function(data) {
-        var events = (data.events || []).filter(function(e) {
-          return e.strLeague && e.strLeague.toLowerCase().indexOf('world cup') > -1;
-        });
-        if (!events.length) events = (data.events || []).slice(0,8);
-        renderStats(events);
+        allEvents = data.events || [];
+        renderList(allEvents);
       })
-      .catch(function() { renderStats([]); });
+      .catch(function() { renderList([]); });
   }
 
-  function renderStats(events) {
+  function renderList(events) {
     var el = document.getElementById('statsCards');
     if (!el) return;
-    var lang = document.documentElement.lang || 'en';
     if (!events.length) {
-      el.innerHTML = '<div class="stats-empty">' + (lang==='es'
-        ? '⚽ No hay partidos en vivo ahora. Usa los enlaces de abajo para seguir el marcador.'
-        : '⚽ No live matches right now. Use the links below to follow live scores.') + '</div>';
+      el.innerHTML = '<div class="stats-empty">⚽ Geen WK wedstrijden gevonden. Gebruik de links hieronder.</div>';
       return;
     }
-    el.innerHTML = events.map(function(e) {
-      var home = e.intHomeScore !== null ? e.intHomeScore : '';
-      var away = e.intAwayScore !== null ? e.intAwayScore : '';
-      var score = (home !== '' && away !== '') ? home + ' – ' + away : 'vs';
-      var st = e.strStatus || '';
-      var timeHtml = (st && st !== 'NS') ? '<span class="stats-min">' + (st==='FT'?'FT':st+"'") + '</span>' : '';
-      var q = encodeURIComponent((e.strHomeTeam||'') + ' ' + (e.strAwayTeam||''));
-      return '<div class="stats-card">' +
+    el.innerHTML = events.map(function(ev) {
+      var comp = ev.competitions && ev.competitions[0]; if (!comp) return '';
+      var home = comp.competitors.find(function(c) { return c.homeAway === 'home'; });
+      var away = comp.competitors.find(function(c) { return c.homeAway === 'away'; });
+      var st = ev.status && ev.status.type;
+      var isLive = st && st.description === 'In Progress';
+      var isFt = st && st.completed;
+      var statusText = isLive ? (st.shortDetail || 'LIVE') : (isFt ? 'FT' : (st ? st.shortDetail : ''));
+      var homeScore = home ? (home.score || '0') : '0';
+      var awayScore = away ? (away.score || '0') : '0';
+      return '<div class="stats-card stats-card-click" data-id="' + ev.id + '">' +
         '<div class="stats-teams">' +
-          '<div class="stats-team">' + (e.strHomeTeam||'') + '</div>' +
-          '<div class="stats-score">' + score + timeHtml + '</div>' +
-          '<div class="stats-team">' + (e.strAwayTeam||'') + '</div>' +
+          '<div class="stats-team">' + (home ? home.team.displayName : '') + '</div>' +
+          '<div class="stats-score">' + homeScore + ' – ' + awayScore +
+            '<span class="stats-min' + (isLive ? ' live' : '') + '">' + statusText + '</span>' +
+          '</div>' +
+          '<div class="stats-team">' + (away ? away.team.displayName : '') + '</div>' +
         '</div>' +
-        '<a class="stats-sofabtn" href="https://www.sofascore.com/search/' + q + '" target="_blank" rel="noopener">Stats ↗</a>' +
+        '<span class="stats-sofabtn">Details →</span>' +
       '</div>';
     }).join('');
+    el.querySelectorAll('.stats-card-click').forEach(function(card) {
+      card.addEventListener('click', function() { loadDetail(this.dataset.id); });
+    });
+  }
+
+  function loadDetail(eventId) {
+    document.getElementById('statsListView').style.display = 'none';
+    document.getElementById('statsDetailView').style.display = 'block';
+    document.getElementById('statsDetail').innerHTML = '<div class="stats-empty">⚽ Laden…</div>';
+    fetch(ESPN + 'summary?event=' + eventId)
+      .then(function(r) { return r.json(); })
+      .then(renderDetail)
+      .catch(function() {
+        document.getElementById('statsDetail').innerHTML = '<div class="stats-empty">Kon details niet laden.</div>';
+      });
+  }
+
+  function esc(s) { return String(s).replace(/[&<>"]/g, function(m) { return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]; }); }
+
+  function renderDetail(data) {
+    var html = '';
+    var header = data.header || {};
+    var comp = header.competitions && header.competitions[0];
+    var boxscore = data.boxscore || {};
+
+    // ── Scorebord header ──
+    if (comp) {
+      var home = comp.competitors.find(function(c) { return c.homeAway === 'home'; });
+      var away = comp.competitors.find(function(c) { return c.homeAway === 'away'; });
+      var st = comp.status || {};
+      var isLive = st.type && st.type.description === 'In Progress';
+      var statusLabel = isLive ? (st.type.shortDetail || 'LIVE') : (st.type && st.type.shortDetail) || '';
+      html += '<div class="sd-header">' +
+        '<div class="sd-team">' +
+          (home && home.team.logo ? '<img src="' + esc(home.team.logo) + '" class="sd-flag" onerror="this.style.display=\'none\'">' : '') +
+          '<span>' + esc(home ? home.team.displayName : '') + '</span>' +
+        '</div>' +
+        '<div class="sd-score-col">' +
+          '<div class="sd-scorenum">' + esc(home ? home.score : '0') + ' – ' + esc(away ? away.score : '0') + '</div>' +
+          '<div class="sd-status">' + esc(statusLabel) + '</div>' +
+        '</div>' +
+        '<div class="sd-team">' +
+          (away && away.team.logo ? '<img src="' + esc(away.team.logo) + '" class="sd-flag" onerror="this.style.display=\'none\'">' : '') +
+          '<span>' + esc(away ? away.team.displayName : '') + '</span>' +
+        '</div>' +
+      '</div>';
+    }
+
+    // ── Events (doelpunten, kaarten, wissels) ──
+    var plays = (data.plays || []).filter(function(p) {
+      return p.scoringPlay || (p.type && /goal|card|sub|yellow|red/i.test(p.type.text || ''));
+    });
+    if (plays.length) {
+      html += '<div class="sd-section-title">📋 Wedstrijdevents</div><div class="sd-events">';
+      plays.forEach(function(p) {
+        var icon = p.scoringPlay ? '⚽' :
+          /yellow/i.test(p.type && p.type.text || '') ? '🟨' :
+          /red/i.test(p.type && p.type.text || '') ? '🟥' : '🔄';
+        var player = p.athletesInvolved && p.athletesInvolved[0] ? p.athletesInvolved[0].displayName : '';
+        var clock = p.clock ? p.clock.displayValue : '';
+        var team = p.team ? p.team.displayName : '';
+        html += '<div class="sd-event">' +
+          '<span class="sd-event-min">' + esc(clock) + '</span>' +
+          '<span class="sd-event-icon">' + icon + '</span>' +
+          '<span class="sd-event-info"><strong>' + esc(player) + '</strong>' + (team ? ' · ' + esc(team) : '') + '</span>' +
+        '</div>';
+      });
+      html += '</div>';
+    }
+
+    // ── Statistieken ──
+    var bsTeams = boxscore.teams || [];
+    if (bsTeams.length === 2) {
+      var statMap = { possessionPct:'Balbezit %', shotsTotal:'Schoten', shotsOnTarget:'Op doel', fouls:'Overtredingen', yellowCards:'Gele kaarten', cornerKicks:'Hoekschoppen', offsides:'Buitenspel' };
+      var rows = Object.keys(statMap).map(function(key) {
+        var h = (bsTeams[0].statistics || []).find(function(s) { return s.name === key; });
+        var a = (bsTeams[1].statistics || []).find(function(s) { return s.name === key; });
+        if (!h && !a) return null;
+        var hv = parseFloat(h ? h.displayValue : 0) || 0;
+        var av = parseFloat(a ? a.displayValue : 0) || 0;
+        var pct = Math.round(hv / (hv + av || 1) * 100);
+        return '<div class="sd-stat-row">' +
+          '<span class="sd-stat-val">' + esc(h ? h.displayValue : '0') + '</span>' +
+          '<div class="sd-stat-mid">' +
+            '<span class="sd-stat-label">' + statMap[key] + '</span>' +
+            '<div class="sd-stat-bar"><div class="sd-stat-home" style="width:' + pct + '%"></div></div>' +
+          '</div>' +
+          '<span class="sd-stat-val">' + esc(a ? a.displayValue : '0') + '</span>' +
+        '</div>';
+      }).filter(Boolean);
+      if (rows.length) {
+        html += '<div class="sd-section-title">📊 Statistieken</div><div class="sd-stats">' + rows.join('') + '</div>';
+      }
+    }
+
+    // ── Opstelling ──
+    if (bsTeams.length === 2) {
+      var cols = bsTeams.map(function(t) {
+        var starters = (t.roster || []).filter(function(p) { return p.starter; });
+        if (!starters.length) return '';
+        return '<div class="sd-lineup-col">' +
+          '<div class="sd-lineup-team">' + esc(t.team ? t.team.displayName : '') + '</div>' +
+          starters.map(function(p) {
+            return '<div class="sd-player"><span class="sd-jersey">' + esc(p.jersey || '') + '</span>' + esc(p.athlete.displayName) + '</div>';
+          }).join('') +
+        '</div>';
+      });
+      if (cols[0] || cols[1]) {
+        html += '<div class="sd-section-title">👕 Opstelling</div><div class="sd-lineup">' + cols.join('') + '</div>';
+      }
+    }
+
+    document.getElementById('statsDetail').innerHTML = html || '<div class="stats-empty">Geen gedetailleerde data beschikbaar.</div>';
   }
 })();
 </script>

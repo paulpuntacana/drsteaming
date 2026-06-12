@@ -1788,7 +1788,7 @@
     btn.className = 'act-btn stats-toggle-btn';
     btn.id = 'statsBtnInRow_' + row.closest('.section').id;
     btn.innerHTML = '<svg class="ic"><use href="#i-signal"/></svg><span data-i18n="stats-btn">📊 Live Stats</span><span class="sarrow"><svg class="ic"><use href="#i-chevron"/></svg></span>';
-    btn.addEventListener('click', window.toggleStats);
+    btn.addEventListener('click', function() { window.toggleStats && window.toggleStats(); });
     row.appendChild(btn);
   });
 

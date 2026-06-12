@@ -69,8 +69,8 @@
     /* Mobile: start with compact logo — don't need to scroll to shrink it */
     @media (max-width:767px) {
       .logo-full { height:44px; }
-      .topbar { padding:10px 14px 9px; }
-      .topbar.scrolled { padding:7px 14px 6px; }
+      .topbar { padding:calc(10px + env(safe-area-inset-top)) calc(14px + env(safe-area-inset-right)) 9px calc(14px + env(safe-area-inset-left)); }
+      .topbar.scrolled { padding:calc(7px + env(safe-area-inset-top)) calc(14px + env(safe-area-inset-right)) 6px calc(14px + env(safe-area-inset-left)); }
       .topbar.scrolled .logo-full { height:0; opacity:0; }
       .topbar.scrolled .logo-fav  { height:36px; opacity:1; }
     }
@@ -238,11 +238,10 @@
     /* ── LANG TOGGLE ── */
     .lang-btns { display:flex; gap:3px; }
     .lang-btn {
-      font-size:19px; padding:2px 3px; border-radius:5px; cursor:pointer;
+      font-size:20px; padding:4px 5px; border-radius:5px; cursor:pointer;
       border:2px solid transparent; background:none; line-height:1;
-      opacity:0.45; transition:opacity 0.12s, border-color 0.12s;
-      /* ensure a minimum 44×44px tap target on mobile */
-      min-width:36px; min-height:36px;
+      opacity:0.55; transition:opacity 0.12s, border-color 0.12s;
+      min-width:44px; min-height:44px;
       display:flex; align-items:center; justify-content:center;
     }
     .lang-btn:hover { opacity:0.8; }
@@ -591,8 +590,6 @@
     /* iOS fake fullscreen */
     .player-outer.ios-fs { position:fixed!important; inset:0!important; width:100vw!important; height:100vh!important; z-index:9990!important; border-radius:0!important; }
     body.has-ios-fs { overflow:hidden; }
-    /* Keep chat FAB visible above iOS fullscreen layer */
-    body.has-ios-fs .chat-fab { z-index:9995; }
     .ios-fs-close { position:fixed; top:calc(12px + env(safe-area-inset-top)); right:16px; z-index:9995; background:rgba(0,0,0,0.6); border:none; color:#fff; font-size:22px; width:36px; height:36px; border-radius:50%; cursor:pointer; display:none; align-items:center; justify-content:center; }
     body.has-ios-fs .ios-fs-close { display:flex; }
 
@@ -631,8 +628,7 @@
 
     /* broadcast display face for scoreboard-style labels */
     .badge-live, .tab-num, .stream-group-label, .tv-guide-title,
-    .wc-header h2, .partners-head .ph-label, .hero-title,
-    .chat-title, .chat-tag, .ch-num-face {
+    .wc-header h2, .partners-head .ph-label, .hero-title {
       font-family:'Bebas Neue',Impact,sans-serif;
     }
     .hero-title { letter-spacing:0 !important; font-weight:400; line-height:0.92; }
@@ -698,106 +694,9 @@
     .act-btn .ic, .hero-btn .ic, .ctrl-btn .ic { width:16px; height:16px; }
     .ctrl-btn { border-radius:9px; }
 
-    /* ════════════════ LIVE MATCH CHAT ════════════════ */
-    .chat {
-      display:flex; flex-direction:column;
-      background:linear-gradient(180deg, var(--s1), var(--bg));
-      border:1px solid var(--border); border-radius:16px; overflow:hidden;
-      margin-bottom:14px; box-shadow:0 10px 40px rgba(0,0,0,0.35);
-    }
-    .chat-head {
-      display:flex; align-items:center; gap:9px; padding:13px 14px;
-      background:linear-gradient(90deg, rgba(207,32,35,0.14), transparent);
-      border-bottom:1px solid var(--border);
-    }
-    .chat-spark { width:26px; height:26px; border-radius:8px; flex-shrink:0;
-      display:flex; align-items:center; justify-content:center;
-      background:linear-gradient(145deg,var(--red),var(--red2)); color:#fff; box-shadow:0 2px 10px rgba(207,32,35,0.4); }
-    .chat-spark .ic { width:15px; height:15px; }
-    .chat-title { font-size:18px; letter-spacing:0.8px; line-height:1; }
-    .chat-sub { font-size:10px; color:var(--muted); margin-top:1px; display:flex; align-items:center; gap:5px; }
-    .chat-sub .ic { width:11px; height:11px; }
-    .chat-online { display:inline-flex; align-items:center; gap:4px; color:var(--green); font-weight:700; }
-    .chat-online .dot-live { width:5px; height:5px; }
-    .chat-close { margin-left:auto; display:none; width:30px; height:30px; border-radius:8px; align-items:center; justify-content:center;
-      background:var(--s2); border:1px solid var(--border2); color:var(--muted2); cursor:pointer; }
-    .chat-close .ic { width:16px; height:16px; }
-
-    .chat-feed { flex:1; min-height:0; overflow-y:auto; padding:12px 13px; display:flex; flex-direction:column; gap:11px;
-      scrollbar-width:thin; scrollbar-color:var(--s3) transparent; }
-    .chat-feed::-webkit-scrollbar { width:6px; }
-    .chat-feed::-webkit-scrollbar-thumb { background:var(--s3); border-radius:3px; }
-    .msg { display:flex; gap:9px; align-items:flex-start; animation:msgIn 0.25s ease; }
-    @keyframes msgIn { from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:none;} }
-    .msg-av { width:28px; height:28px; border-radius:9px; flex-shrink:0; display:flex; align-items:center; justify-content:center;
-      font-size:12px; font-weight:800; color:#fff; }
-    .msg-body { min-width:0; flex:1; }
-    .msg-meta { display:flex; align-items:baseline; gap:6px; }
-    .msg-name { font-size:11.5px; font-weight:700; color:var(--text); }
-    .msg-time { font-size:9px; color:var(--muted); font-family:'Geist Mono',monospace; }
-    .msg-text { font-size:12.5px; line-height:1.45; color:var(--muted2); margin-top:1px; word-wrap:break-word; }
-    .msg.me .msg-name { color:var(--gold); }
-    .msg.sys { justify-content:center; }
-    .msg.sys .msg-sys {
-      font-size:11px; font-weight:800; letter-spacing:0.4px; text-transform:uppercase;
-      color:var(--gold); background:rgba(51,104,218,0.1); border:1px solid rgba(51,104,218,0.25);
-      padding:5px 11px; border-radius:20px; display:inline-flex; gap:6px; align-items:center;
-    }
-    .msg.sys .msg-sys.goal { color:var(--green); background:rgba(34,197,94,0.12); border-color:rgba(34,197,94,0.3); }
-    .msg.sys .ic { width:13px; height:13px; }
-
-    .chat-input { display:flex; gap:8px; padding:10px 11px; border-top:1px solid var(--border); background:var(--s1); }
-    .chat-input input {
-      flex:1; min-width:0; background:var(--bg); border:1px solid var(--border2); border-radius:10px;
-      padding:10px 12px; color:var(--text); font-size:12.5px; font-family:inherit; outline:none;
-      transition:border-color 0.15s;
-    }
-    .chat-input input::placeholder { color:var(--muted); }
-    .chat-input input:focus { border-color:rgba(207,32,35,0.5); }
-    .chat-send {
-      width:40px; flex-shrink:0; border:none; border-radius:10px; cursor:pointer; color:#fff;
-      background:linear-gradient(135deg,var(--red),var(--red2)); display:flex; align-items:center; justify-content:center;
-      box-shadow:0 2px 10px rgba(207,32,35,0.35); transition:transform 0.1s, opacity 0.12s;
-    }
-    .chat-send:active { transform:scale(0.94); }
-    .chat-send .ic { width:17px; height:17px; }
-
-    /* desktop: chat lives in right rail, sits above TV guide, fixed pleasant height */
-    @media (min-width:1024px) {
-      .chat { height:420px; }
-      .chat-feed { min-height:0; }
-    }
-
-    /* mobile / tablet: chat is a slide-up drawer toggled by a FAB */
-    .chat-fab {
-      position:fixed; right:16px; bottom:16px; z-index:60;
-      display:flex; align-items:center; gap:8px; padding:12px 16px 11px; border:none; cursor:pointer;
-      border-radius:30px; color:#fff; font-family:'Bebas Neue',sans-serif; font-size:15px; letter-spacing:1px;
-      background:linear-gradient(135deg,var(--red),var(--red2)); box-shadow:0 8px 26px rgba(207,32,35,0.5);
-    }
-    .chat-fab .ic { width:18px; height:18px; }
-    .chat-fab .dot-live { width:6px; height:6px; }
-    @supports (padding-bottom: env(safe-area-inset-bottom)) {
-      .chat-fab { bottom:calc(16px + env(safe-area-inset-bottom)); }
-    }
-    @media (max-width:1023px) {
-      .chat {
-        position:fixed; z-index:70; left:0; right:0; bottom:0; margin:0;
-        height:72vh; border-radius:18px 18px 0 0; transform:translateY(105%);
-        transition:transform 0.32s cubic-bezier(.22,.61,.36,1);
-      }
-      body.chat-open .chat { transform:translateY(0); }
-      body.chat-open .chat-fab { display:none; }
-      .chat-close { display:flex; }
-      .chat-backdrop {
-        position:fixed; inset:0; z-index:65; background:rgba(0,0,0,0.5); opacity:0; pointer-events:none;
-        transition:opacity 0.3s; backdrop-filter:blur(2px);
-      }
-      body.chat-open .chat-backdrop { opacity:1; pointer-events:auto; }
-    }
-    @media (min-width:1024px) {
-      .chat-fab, .chat-backdrop { display:none; }
-    }
+    /* ── Go Live button ── */
+    .act-live { background:linear-gradient(135deg,#059669,#10b981); color:#fff; box-shadow:0 2px 10px rgba(5,150,105,0.3); }
+    .act-live:hover { filter:brightness(1.08); box-shadow:0 7px 24px rgba(5,150,105,0.45); }
 
     /* ════════════ VIBE POLISH ════════════ */
     /* refined buttons */
@@ -814,36 +713,8 @@
     .ctrl-btn:hover { background:rgba(0,0,0,0.72); border-color:rgba(255,255,255,0.3); }
     .ctrl-btn:active { transform:scale(0.94); }
 
-    /* typing indicator in chat */
-    .typing-dots { display:inline-flex; gap:4px; align-items:center; padding:5px 0 2px; }
-    .typing-dots span { width:6px; height:6px; border-radius:50%; background:var(--muted2); animation:td 1.1s infinite ease-in-out; }
-    .typing-dots span:nth-child(2){ animation-delay:.16s; }
-    .typing-dots span:nth-child(3){ animation-delay:.32s; }
-    @keyframes td { 0%,60%,100%{ opacity:.3; transform:translateY(0);} 30%{ opacity:1; transform:translateY(-4px);} }
-
-    /* dismissible single in-video chat bubble */
-    .vchat {
-      position:absolute; left:10px; bottom:10px; z-index:6; max-width:74%;
-      display:flex; align-items:center; gap:8px; padding:8px 30px 8px 11px;
-      background:rgba(3,11,22,0.7); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px);
-      border:1px solid var(--border2); border-radius:13px; box-shadow:0 8px 26px rgba(0,0,0,0.5);
-      opacity:0; transform:translateY(12px) scale(.96); transition:opacity .3s ease, transform .3s ease;
-    }
-    .vchat.show { opacity:1; transform:none; }
-    .vchat-name { font-size:11px; font-weight:800; color:#7ea6ff; white-space:nowrap; flex-shrink:0; }
-    .vchat-text { font-size:12px; color:#eef3fa; line-height:1.3; overflow:hidden; }
-    .vchat-x { position:absolute; top:4px; right:5px; width:20px; height:20px; border:none; border-radius:6px;
-      background:transparent; color:var(--muted2); font-size:16px; line-height:1; cursor:pointer;
-      display:flex; align-items:center; justify-content:center; }
-    .vchat-x:hover { background:rgba(255,255,255,0.12); color:#fff; }
-    @media (max-width:600px){ .vchat { max-width:84%; left:8px; bottom:8px; } }
-
     /* home-screen / notch safe-areas */
     #cast-toast { bottom:calc(20px + env(safe-area-inset-bottom)); }
-    @media (max-width:1023px) {
-      .chat-input { padding-bottom:calc(10px + env(safe-area-inset-bottom)); }
-      .chat-fab { right:calc(16px + env(safe-area-inset-right)); }
-    }
   </style>
 </head>
 <body>
@@ -1181,24 +1052,6 @@
 
 <aside class="side-col">
 
-<!-- LIVE MATCH CHAT -->
-<div class="chat-backdrop" onclick="toggleChat(false)"></div>
-<div class="chat" id="chat">
-  <div class="chat-head">
-    <div class="chat-spark"><svg class="ic"><use href="#i-chat"/></svg></div>
-    <div>
-      <div class="chat-title">Match Chat</div>
-      <div class="chat-sub"><span class="chat-online"><span class="dot-live"></span><span id="chatCount">1,240</span> watching</span> · live now</div>
-    </div>
-    <div class="chat-close" onclick="toggleChat(false)"><svg class="ic"><use href="#i-close"/></svg></div>
-  </div>
-  <div class="chat-feed" id="chatFeed"></div>
-  <form class="chat-input" id="chatForm" autocomplete="off">
-    <input id="chatInput" maxlength="240" placeholder="Say something…" aria-label="Chat message">
-    <button class="chat-send" type="submit" aria-label="Send"><svg class="ic"><use href="#i-send"/></svg></button>
-  </form>
-</div>
-
 <!-- TV GUIDE (always visible below active section) -->
 <div class="tv-guide">
   <div class="tv-guide-title"><svg class="ic" style="width:18px;height:18px;vertical-align:-3px;color:var(--gold)"><use href="#i-tv"/></svg> Get it on your TV</div>
@@ -1328,8 +1181,6 @@
     <button class="cast-modal-close" data-i18n="cast-close" onclick="closeCastModal()">Close</button>
   </div>
 </div>
-
-<button class="chat-fab" id="chatFab" onclick="toggleChat(true)"><span class="dot-live"></span><svg class="ic"><use href="#i-chat"/></svg> Live chat</button>
 
 <script>
 (function() {
@@ -1599,128 +1450,6 @@
 })();
 </script>
 
-<!-- LIVE MATCH CHAT (Vercel API + Upstash Redis) -->
-<script>
-(function(){
-  'use strict';
-  var feed = document.getElementById('chatFeed'); if (!feed) return;
-  var form = document.getElementById('chatForm');
-  var input = document.getElementById('chatInput');
-  var countEl = document.getElementById('chatCount');
-  var colors = ['#cf2023','#3368da','#22c55e','#5b8def','#a855f7','#ec4899','#14b8a6','#f97316'];
-
-  function esc(s){return s.replace(/[&<>"]/g,function(m){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m];});}
-  function hash(s){var h=0,i;for(i=0;i<s.length;i++){h=s.charCodeAt(i)+((h<<5)-h);}return Math.abs(h);}
-  function fmtTime(ts){var d=ts?new Date(ts):new Date();return ('0'+d.getHours()).slice(-2)+':'+('0'+d.getMinutes()).slice(-2);}
-  function initial(s){var m=s.match(/[A-Za-z0-9]/);return (m?m[0]:'•').toUpperCase();}
-
-  var atBottom = true;
-  feed.addEventListener('scroll', function(){atBottom = feed.scrollHeight - feed.scrollTop - feed.clientHeight < 40;});
-  function trim(){while(feed.children.length > 100){feed.removeChild(feed.firstChild);}}
-
-  var seenKeys = {};
-  function add(key, name, text, me, ts){
-    if (key && seenKeys[key]) return;
-    if (key) seenKeys[key] = true;
-    var d = document.createElement('div'); d.className = 'msg' + (me ? ' me' : '');
-    var col = colors[hash(name) % colors.length];
-    d.innerHTML = '<div class="msg-av" style="background:' + col + '">' + esc(initial(name)) + '</div>' +
-      '<div class="msg-body"><div class="msg-meta"><span class="msg-name">' + esc(name) + '</span><span class="msg-time">' + fmtTime(ts) + '</span></div>' +
-      '<div class="msg-text">' + esc(text) + '</div></div>';
-    feed.appendChild(d); trim();
-    if (atBottom) { feed.scrollTop = feed.scrollHeight; }
-  }
-
-  // ── Chat: polling elke 3 seconden via /api/chat ──
-  var myName = localStorage.getItem('drchat_name') || '';
-  var lastSent = 0;
-  var prevCount = 0;
-
-  function loadMessages(){
-    fetch('/api/chat')
-      .then(function(r){ return r.json(); })
-      .then(function(msgs){
-        if (!Array.isArray(msgs)) return;
-        var newMsgs = [];
-        msgs.forEach(function(m){
-          if (!seenKeys[m.id]) { newMsgs.push(m); }
-          add(m.id, m.name, m.text, m.name === myName, m.ts);
-        });
-        // toon bericht van ander als video bubble
-        if (newMsgs.length && newMsgs[newMsgs.length-1].name !== myName) {
-          var last = newMsgs[newMsgs.length-1];
-          maybeVideo(last.name, last.text);
-        }
-      })
-      .catch(function(){});
-  }
-
-  loadMessages();
-  setInterval(loadMessages, 3000);
-
-  // Auto-assign a name if none stored (prompt() is blocked on Android PWA)
-  if (!myName) {
-    myName = 'Fan' + Math.floor(Math.random() * 900 + 100);
-    localStorage.setItem('drchat_name', myName);
-  }
-
-  form.addEventListener('submit', function(e){
-    e.preventDefault();
-    var v = input.value.trim();
-    if (!v || v.length > 200) return;
-    var now = Date.now();
-    if (now - lastSent < 1500) return;
-    lastSent = now;
-    input.value = '';
-    fetch('/api/chat', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name: myName, text: v })
-    }).then(loadMessages).catch(function(){});
-  });
-
-  // Mobile keyboard pushes chat input behind keyboard — lift it with visualViewport
-  if (window.visualViewport) {
-    window.visualViewport.addEventListener('resize', function() {
-      var chat = document.getElementById('chat');
-      if (!chat || !document.body.classList.contains('chat-open')) return;
-      var kbH = Math.max(0, window.innerHeight - window.visualViewport.height - window.visualViewport.offsetTop);
-      chat.style.bottom = kbH > 50 ? kbH + 'px' : '';
-    });
-  }
-
-  // ── Dismissible in-video chatbubble (echte berichten van anderen) ──
-  var vMuteUntil = 0;
-  function showVideoMsg(name, text){
-    var po = document.querySelector('.section.active .player-outer'); if (!po) return;
-    var old = po.querySelector('.vchat'); if (old) old.remove();
-    var b = document.createElement('div'); b.className = 'vchat';
-    b.innerHTML = '<span class="vchat-name">' + esc(name) + '</span><span class="vchat-text">' + esc(text) + '</span><button class="vchat-x" aria-label="Dismiss">&times;</button>';
-    po.appendChild(b); requestAnimationFrame(function(){ b.classList.add('show'); });
-    var to = setTimeout(hide, 5200);
-    function hide(){ b.classList.remove('show'); setTimeout(function(){ if (b.parentNode) b.remove(); }, 300); }
-    b.querySelector('.vchat-x').addEventListener('click', function(ev){ ev.stopPropagation(); clearTimeout(to); vMuteUntil = Date.now() + 180000; hide(); });
-  }
-  function maybeVideo(name, text){ if (Date.now() < vMuteUntil) return; if (Math.random() > 0.4) return; showVideoMsg(name, text); }
-
-  window.toggleChat = function(open){
-    document.body.classList.toggle('chat-open', !!open);
-    if (!open) {
-      var chat = document.getElementById('chat');
-      if (chat) chat.style.bottom = '';
-    }
-    if (open) { setTimeout(function(){ input && input.focus(); }, 380); }
-  };
-
-  // Tap on in-video chat bubble → open full chat
-  document.addEventListener('click', function(e) {
-    var vchat = e.target.closest('.vchat');
-    if (vchat && !e.target.classList.contains('vchat-x')) {
-      window.toggleChat(true);
-    }
-  });
-})();
-
 // ── Volume control ──
 (function() {
   var curVol = 1;
@@ -1834,6 +1563,7 @@
       'stat-yellow': 'Yellow Cards',
       'stat-corners': 'Corners',
       'stat-offside': 'Offsides',
+      'live-btn': '⏩ Go Live',
     },
     es: {
       'wide': 'Ancho', 'live': 'En Vivo',
@@ -1885,6 +1615,7 @@
       'stat-yellow': 'Tarjetas amarillas',
       'stat-corners': 'Córners',
       'stat-offside': 'Fuera de juego',
+      'live-btn': '⏩ En Vivo',
     }
   };
 
@@ -2024,6 +1755,54 @@
     lang = nl.startsWith('es') ? 'es' : 'en';
   }
   window.setLang(lang);
+})();
+
+// ── Go Live button ──
+(function() {
+  window.goLive = function(idx) {
+    var sec = document.getElementById('sec-' + idx);
+    if (!sec) return;
+    // Brightcove video-js (PIO)
+    var vjs = sec.querySelector('video-js');
+    if (vjs && window.videojs) {
+      try {
+        var player = window.videojs(vjs.id);
+        if (player) {
+          var s = player.seekable();
+          if (s && s.length) { player.currentTime(s.end(0)); }
+          player.play();
+          return;
+        }
+      } catch(e) {}
+    }
+    // Native HLS video
+    var vid = sec.querySelector('video');
+    if (vid && vid.seekable && vid.seekable.length > 0) {
+      vid.currentTime = vid.seekable.end(vid.seekable.length - 1);
+      vid.play().catch(function(){});
+      return;
+    }
+    // Iframe — reload to reconnect to live
+    var iframe = sec.querySelector('iframe');
+    if (iframe) {
+      var src = iframe.dataset.src || iframe.src;
+      if (src && src !== 'about:blank') {
+        iframe.src = 'about:blank';
+        setTimeout(function() { iframe.src = src; }, 50);
+      }
+    }
+  };
+
+  document.querySelectorAll('.action-row').forEach(function(row) {
+    var sec = row.closest('.section');
+    if (!sec) return;
+    var idx = sec.id.replace('sec-', '');
+    var btn = document.createElement('button');
+    btn.className = 'act-btn act-live';
+    btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style="flex-shrink:0"><polygon points="5 3 19 12 5 21 5 3"/><rect x="19" y="3" width="2.5" height="18" rx="1"/></svg><span data-i18n="live-btn">⏩ Go Live</span>';
+    btn.addEventListener('click', function() { window.goLive(idx); });
+    row.insertBefore(btn, row.firstChild);
+  });
 })();
 
 // ── Stats drawer ── ESPN API (WK 2026, gratis, geen key)

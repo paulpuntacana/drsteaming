@@ -1295,21 +1295,21 @@
 <div id="cast-modal">
   <div id="cast-modal-bg" onclick="closeCastModal()"></div>
   <div id="cast-modal-sheet">
-    <div class="cast-modal-title">📺 Zet op TV</div>
-    <div class="cast-modal-sub">Kies hoe je de stream naar je TV stuurt</div>
+    <div class="cast-modal-title" data-i18n="cast-modal-title">📺 Cast to TV</div>
+    <div class="cast-modal-sub" data-i18n="cast-modal-sub">Choose how to send the stream to your TV</div>
     <div class="cast-opt" id="castAirplay">
       <span class="cast-opt-icon">📡</span>
-      <div class="cast-opt-info"><strong>AirPlay</strong><span>iPhone/iPad → Apple TV of AirPlay TV</span></div>
+      <div class="cast-opt-info"><strong data-i18n="cast-airplay-label">AirPlay</strong><span data-i18n="cast-airplay-sub">iPhone/iPad → Apple TV or AirPlay TV</span></div>
     </div>
     <div class="cast-opt" id="castChrome">
       <span class="cast-opt-icon">🖥️</span>
-      <div class="cast-opt-info"><strong>Chromecast / Google TV</strong><span>Android Chrome → Cast apparaat kiezen</span></div>
+      <div class="cast-opt-info"><strong data-i18n="cast-chrome-label">Chromecast / Google TV</strong><span data-i18n="cast-chrome-sub">Android Chrome → select Cast device</span></div>
     </div>
     <div class="cast-opt" id="castMirror">
       <span class="cast-opt-icon">🪞</span>
-      <div class="cast-opt-info"><strong>Scherm spiegelen</strong><span>Android: meldingenvenster → Casten. Samsung: Smart View</span></div>
+      <div class="cast-opt-info"><strong data-i18n="cast-mirror-label">Screen Mirror</strong><span data-i18n="cast-mirror-sub">Android: notification panel → Cast. Samsung: Smart View</span></div>
     </div>
-    <button class="cast-modal-close" onclick="closeCastModal()">Sluiten</button>
+    <button class="cast-modal-close" data-i18n="cast-close" onclick="closeCastModal()">Close</button>
   </div>
 </div>
 
@@ -1756,6 +1756,15 @@
       'open-original': 'Open on original site →',
       'tv-guide-title': '📺 Get it on your TV',
       'chat-title': 'Match Chat',
+      'cast-modal-title': '📺 Cast to TV',
+      'cast-modal-sub': 'Choose how to send the stream to your TV',
+      'cast-airplay-label': 'AirPlay',
+      'cast-airplay-sub': 'iPhone/iPad → Apple TV or AirPlay TV',
+      'cast-chrome-label': 'Chromecast / Google TV',
+      'cast-chrome-sub': 'Android Chrome → select Cast device',
+      'cast-mirror-label': 'Screen Mirror',
+      'cast-mirror-sub': 'Android: notification panel → Cast. Samsung: Smart View',
+      'cast-close': 'Close',
     },
     es: {
       'wide': 'Ancho', 'live': 'En Vivo',
@@ -1781,6 +1790,15 @@
       'open-original': 'Abrir en el sitio original →',
       'tv-guide-title': '📺 Ver en mi TV',
       'chat-title': 'Chat del Partido',
+      'cast-modal-title': '📺 Enviar al TV',
+      'cast-modal-sub': 'Elige cómo enviar la transmisión a tu TV',
+      'cast-airplay-label': 'AirPlay',
+      'cast-airplay-sub': 'iPhone/iPad → Apple TV o TV con AirPlay',
+      'cast-chrome-label': 'Chromecast / Google TV',
+      'cast-chrome-sub': 'Chrome en Android → seleccionar dispositivo Cast',
+      'cast-mirror-label': 'Duplicar pantalla',
+      'cast-mirror-sub': 'Android: panel de notificaciones → Transmitir. Samsung: Smart View',
+      'cast-close': 'Cerrar',
     }
   };
 

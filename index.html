@@ -11,6 +11,15 @@
   <meta name="description" content="Free live DR sports TV — World Cup 2026">
   <title>DR Sports TV · WC 2026</title>
 
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-4L0E26VE37"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-4L0E26VE37');
+  </script>
+
   <!-- Fonts: Bebas Neue (broadcast display) + Geist (UI) + Geist Mono (numerics) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -44,14 +53,14 @@
       --r:        12px;
     }
 
-    html { height:100%; background:var(--bg); }
+    html { height:100%; background:var(--bg); overflow-x:hidden; }
     body { min-height:100%; background:var(--bg); color:var(--text); font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,sans-serif; overflow-x:hidden; }
 
     .app { width:100%; }
 
     /* ── TOPBAR ── */
     .topbar {
-      position:sticky; top:0; z-index:30;
+      position:relative; z-index:30;
       display:flex; align-items:center; justify-content:space-between;
       padding:calc(11px + env(safe-area-inset-top)) calc(16px + env(safe-area-inset-right)) 11px calc(16px + env(safe-area-inset-left));
       background:rgba(3,11,22,0.92);
@@ -524,26 +533,28 @@
     }
     .sp-name { font-size:13px; font-weight:800; color:var(--text); letter-spacing:-0.2px; }
     .sp-tag  { font-size:12.5px; font-weight:500; color:var(--muted2); }
-    /* logo tiles */
-    .partners-logos { display:grid; grid-template-columns:repeat(2,1fr); gap:10px; max-width:560px; margin:0 auto; }
+    /* logo tiles — marquee ticker */
+    .partners-logos-outer { overflow:hidden; width:100%; }
+    .partners-logos-track {
+      display:flex; gap:12px;
+      animation:marquee-logos 22s linear infinite;
+      width:max-content;
+    }
+    .partners-logos-track:hover { animation-play-state:paused; }
+    @keyframes marquee-logos { to { transform:translateX(-50%); } }
     .plogo {
-      display:flex; align-items:center; justify-content:center;
-      height:58px; padding:11px 14px;
+      display:flex; align-items:center; justify-content:center; gap:10px;
+      flex-shrink:0; width:160px; height:60px; padding:10px 14px;
       background:#fbfbfd; border:1px solid var(--border); border-radius:12px;
-      opacity:0.72; transition:opacity 0.35s ease, transform 0.2s ease, box-shadow 0.35s ease, border-color 0.35s ease;
+      text-decoration:none;
+      opacity:0.75; transition:opacity 0.35s ease, transform 0.2s ease, box-shadow 0.35s ease;
     }
-    .plogo img { max-height:100%; max-width:100%; width:auto; height:auto; object-fit:contain; display:block; }
-    .plogo[data-i="2"] img { filter:invert(1); }   /* white DHS logo -> dark on light tile */
-    .plogo.has-name { gap:9px; padding:9px 11px; }
-    .plogo.has-name img { max-height:36px; flex-shrink:0; }
-    .plogo { text-decoration:none; }
-    .plogo-name { font-size:11px; font-weight:800; line-height:1.05; letter-spacing:-0.2px; color:#191920; text-align:left; text-decoration:none; }
-    .plogo[data-i="3"] .plogo-name { font-size:15px; font-weight:900; letter-spacing:-0.5px; color:#0a0a14; }
-    .plogo:hover { opacity:1; transform:translateY(-2px); }
-    .plogo.spot {
-      opacity:1; border-color:rgba(255,255,255,0.45);
-      box-shadow:0 0 0 1px rgba(255,255,255,0.18), 0 8px 24px rgba(0,0,0,0.4);
-    }
+    .plogo img { width:36px; height:36px; object-fit:contain; flex-shrink:0; display:block; }
+    .plogo[data-i="0"] img, .plogo[data-i="1"] img { width:auto; max-width:124px; height:34px; }
+    .plogo[data-i="2"] img { filter:invert(1); }
+    .plogo-name { font-size:11px; font-weight:800; color:#191920; letter-spacing:-0.2px; white-space:nowrap; }
+    .plogo:hover { opacity:1; transform:translateY(-1px); }
+    .plogo.spot { opacity:1; box-shadow:0 0 0 1px rgba(255,255,255,0.18), 0 8px 24px rgba(0,0,0,0.4); }
 
     /* ── FOOTER ── */
     .footer { padding:20px 16px; text-align:center; font-size:10px; color:var(--muted); line-height:1.7; }
@@ -582,8 +593,10 @@
       .tv-guide { padding:0; }
       .tv-guide .tv-card:last-child { margin-bottom:0; }
       .partners { max-width:none; padding:26px 22px 22px; }
-      .partners-logos { grid-template-columns:repeat(4,1fr); max-width:760px; }
-      .plogo { height:64px; }
+      .partners-logos-outer { overflow:visible; }
+      .partners-logos-track { animation:none; justify-content:center; width:auto; flex-wrap:wrap; gap:12px; }
+      .plogo { width:160px; }
+      .plogo-dup { display:none; }
       .footer { max-width:760px; margin:0 auto; }
     }
 
@@ -715,6 +728,74 @@
 
     /* home-screen / notch safe-areas */
     #cast-toast { bottom:calc(20px + env(safe-area-inset-bottom)); }
+
+    /* ── Desktop action-row: natural-width pill buttons ── */
+    @media (min-width:768px) {
+      .action-row { justify-content:flex-start; gap:8px; padding:12px 18px; }
+      .act-btn { flex:0 0 auto; padding:9px 18px; font-size:13px; font-weight:700; letter-spacing:0.15px; }
+      .act-btn svg.ic { width:17px; height:17px; }
+      .act-btn > svg:not(.ic) { width:17px!important; height:17px!important; }
+      .stats-toggle-btn { gap:8px; }
+    }
+
+    /* ── Mobile action-row: compact icon-only buttons ── */
+    @media (max-width:767px) {
+      .action-row { gap:6px; padding:8px 12px; }
+      .act-btn { padding:11px 8px; gap:0; }
+      .act-btn .act-lbl,
+      .stats-toggle-btn [data-i18n="stats-btn"],
+      .stats-toggle-btn .sarrow { display:none; }
+      .act-btn > svg { width:20px!important; height:20px!important; }
+      .act-btn svg.ic { width:20px!important; height:20px!important; }
+    }
+
+  /* ── AD TOAST ── */
+  #ad-toast {
+    position:fixed; bottom:22px; right:18px; z-index:9999;
+    width:270px;
+    background:rgba(5,15,28,0.88);
+    border:1px solid rgba(255,255,255,0.10);
+    border-radius:10px;
+    padding:9px 32px 9px 12px;
+    backdrop-filter:blur(14px);
+    -webkit-backdrop-filter:blur(14px);
+    box-shadow:0 6px 28px rgba(0,0,0,0.45);
+    overflow:hidden;
+    opacity:0; transform:translateX(30px);
+    transition:opacity 0.4s ease, transform 0.4s ease;
+    pointer-events:none;
+  }
+  #ad-toast.show { opacity:1; transform:translateX(0); pointer-events:auto; }
+  /* ticker track */
+  #ad-toast-track {
+    display:inline-block;
+    white-space:nowrap;
+    font-size:11.5px; line-height:1.4; color:var(--muted2);
+    animation:none;
+  }
+  #ad-toast.scrolling #ad-toast-track {
+    animation:adScroll var(--scroll-dur,12s) linear forwards;
+  }
+  @keyframes adScroll {
+    0%   { transform:translateX(0); }
+    100% { transform:translateX(var(--scroll-dist,-100%)); }
+  }
+  #ad-toast a { color:#c8d8f0; font-weight:700; text-decoration:none; }
+  #ad-toast a:hover { color:#fff; text-decoration:underline; }
+  #ad-toast-close {
+    position:absolute; top:7px; right:8px;
+    background:none; border:none; color:var(--muted); cursor:pointer;
+    font-size:12px; line-height:1; padding:0; opacity:0.6;
+  }
+  #ad-toast-close:hover { opacity:1; }
+  /* sponsored label */
+  #ad-toast::before {
+    content:'AD'; position:absolute; top:4px; left:10px;
+    font-size:8px; font-weight:800; letter-spacing:0.8px; color:rgba(255,255,255,0.2);
+  }
+  @media (max-width:480px) {
+    #ad-toast { bottom:12px; right:10px; left:10px; width:auto; }
+  }
   </style>
 </head>
 <body>
@@ -843,6 +924,10 @@
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M8 2v3M16 2v3M3 9h18M5 5h14a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1z"/></svg>
         Schedule
       </a>
+      <button class="hero-btn ghost" onclick="refreshPage()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+        <span data-i18n="refresh-btn">Refresh Page</span>
+      </button>
     </div>
   </div>
 </div>
@@ -875,8 +960,8 @@
   <div class="fallback-bar"><svg class="ic"><use href="#i-alert"/></svg> Stream not loading? <a href="https://fifa.piodeportes.com/transmision" target="_blank">Open PIO Deportes directly →</a></div>
   <div class="ch-info"><div class="ch-info-main"><div class="ch-name">🇩🇴 PIO Deportes · WC Live</div><div class="ch-desc">Official Dominican FIFA World Cup 2026 feed — auto-switches to the current live match</div></div><span class="ch-tag tag-wc"><svg class="ic"><use href="#i-trophy"/></svg>WC</span></div>
   <div class="action-row">
-    <button class="act-btn act-cast" onclick="doCast()"><svg class="ic"><use href="#i-cast"/></svg>Cast to TV</button>
-    <button class="act-btn act-fs" onclick="doFS('pl-7')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>Fullscreen</button>
+    <button class="act-btn act-cast" onclick="doCast()"><svg class="ic"><use href="#i-cast"/></svg><span class="act-lbl">Cast to TV</span></button>
+    <button class="act-btn act-fs" onclick="doFS('pl-7')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg><span class="act-lbl">Fullscreen</span></button>
   </div>
 </div>
 
@@ -899,14 +984,8 @@
   <div class="fallback-bar"><svg class="ic"><use href="#i-alert"/></svg> Stream not loading? <a href="https://canalesdominicanos.live/cdn-sports-max-canal-67" target="_blank">Open on original site →</a></div>
   <div class="ch-info"><div class="ch-info-main"><div class="ch-name">CDN Deportes · Canal 67</div><div class="ch-desc">Dedicated DR sports — baseball, basketball, football & international events</div></div><span class="ch-tag tag-sport"><svg class="ic"><use href="#i-ball"/></svg>Sports</span></div>
   <div class="action-row">
-    <button class="act-btn act-cast" onclick="doCast()">
-      <svg class="ic"><use href="#i-cast"/></svg>
-      Cast to TV
-    </button>
-    <button class="act-btn act-fs" onclick="doFS('pl-0')">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
-      Fullscreen
-    </button>
+    <button class="act-btn act-cast" onclick="doCast()"><svg class="ic"><use href="#i-cast"/></svg><span class="act-lbl">Cast to TV</span></button>
+    <button class="act-btn act-fs" onclick="doFS('pl-0')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg><span class="act-lbl">Fullscreen</span></button>
   </div>
 </div>
 
@@ -924,8 +1003,8 @@
   <div class="fallback-bar"><svg class="ic"><use href="#i-alert"/></svg> Stream not loading? <a href="https://canalesdominicanos.live/color-vision-canal-9" target="_blank">Open on original site →</a></div>
   <div class="ch-info"><div class="ch-info-main"><div class="ch-name">Color Visión · Canal 9</div><div class="ch-desc">Major DR network — broadcasting World Cup & big international tournaments</div></div><span class="ch-tag tag-wc"><svg class="ic"><use href="#i-trophy"/></svg>WC</span></div>
   <div class="action-row">
-    <button class="act-btn act-cast" onclick="doCast()"><svg class="ic"><use href="#i-cast"/></svg>Cast to TV</button>
-    <button class="act-btn act-fs" onclick="doFS('pl-2')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>Fullscreen</button>
+    <button class="act-btn act-cast" onclick="doCast()"><svg class="ic"><use href="#i-cast"/></svg><span class="act-lbl">Cast to TV</span></button>
+    <button class="act-btn act-fs" onclick="doFS('pl-2')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg><span class="act-lbl">Fullscreen</span></button>
   </div>
 </div>
 
@@ -943,8 +1022,8 @@
   <div class="fallback-bar"><svg class="ic"><use href="#i-alert"/></svg> Stream not loading? <a href="https://canalesdominicanos.live/telemicro-canal-5" target="_blank">Open on original site →</a></div>
   <div class="ch-info"><div class="ch-info-main"><div class="ch-name">Telemicro · Canal 5</div><div class="ch-desc">Entertainment & news — covers sports events and national programming</div></div><span class="ch-tag tag-gen"><svg class="ic"><use href="#i-tv"/></svg>General</span></div>
   <div class="action-row">
-    <button class="act-btn act-cast" onclick="doCast()"><svg class="ic"><use href="#i-cast"/></svg>Cast to TV</button>
-    <button class="act-btn act-fs" onclick="doFS('pl-3')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>Fullscreen</button>
+    <button class="act-btn act-cast" onclick="doCast()"><svg class="ic"><use href="#i-cast"/></svg><span class="act-lbl">Cast to TV</span></button>
+    <button class="act-btn act-fs" onclick="doFS('pl-3')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg><span class="act-lbl">Fullscreen</span></button>
   </div>
 </div>
 
@@ -1059,61 +1138,61 @@
   <div class="tv-card">
     <div class="tv-card-head" onclick="tog(0)">
       <div class="tv-icon"><svg class="ic"><use href="#i-phone"/></svg></div>
-      <div class="tv-info"><div class="tv-title">Screen Mirror (Android)</div><div class="tv-sub">Any Android TV · No extra hardware</div></div>
+      <div class="tv-info"><div class="tv-title" data-i18n="tv0-title">Screen Mirror (Android)</div><div class="tv-sub" data-i18n="tv0-sub">Any Android TV · No extra hardware</div></div>
       <div class="tv-arrow" id="a0"><svg class="ic"><use href="#i-chevron"/></svg></div>
     </div>
     <div class="tv-body" id="b0">
-      <ol><li>Pull down notification shade → tap <strong>Cast</strong> / <strong>Smart View</strong> / <strong>Screen Cast</strong></li><li>Select your Android TV from the list</li><li>Your full screen appears on the TV — open this app and pick a channel</li></ol>
-      <div class="tip"><svg class="ic"><use href="#i-bulb"/></svg>Not visible? Settings → Connected devices → Cast</div>
+      <ol data-i18n="tv0-body"><li>Pull down notification shade → tap <strong>Cast</strong> / <strong>Smart View</strong> / <strong>Screen Cast</strong></li><li>Select your Android TV from the list</li><li>Your full screen appears on the TV — open this app and pick a channel</li></ol>
+      <div class="tip"><svg class="ic"><use href="#i-bulb"/></svg><span data-i18n="tv0-tip">Not visible? Settings → Connected devices → Cast</span></div>
     </div>
   </div>
 
   <div class="tv-card">
     <div class="tv-card-head" onclick="tog(1)">
       <div class="tv-icon"><svg class="ic"><use href="#i-airplay"/></svg></div>
-      <div class="tv-info"><div class="tv-title">AirPlay (Apple TV)</div><div class="tv-sub">iPhone/iPad → Apple TV · Same WiFi</div></div>
+      <div class="tv-info"><div class="tv-title" data-i18n="tv1-title">AirPlay (Apple TV)</div><div class="tv-sub" data-i18n="tv1-sub">iPhone/iPad → Apple TV · Same WiFi</div></div>
       <div class="tv-arrow" id="a1"><svg class="ic"><use href="#i-chevron"/></svg></div>
     </div>
     <div class="tv-body" id="b1">
-      <ol><li>Swipe down from top-right → open <strong>Control Center</strong></li><li>Tap <strong>Screen Mirroring</strong> → select your Apple TV</li><li>Full phone screen mirrors to TV including this app</li></ol>
-      <div class="tip"><svg class="ic"><use href="#i-bulb"/></svg>Tap the AirPlay icon inside the video player itself for a cleaner direct stream to TV</div>
+      <ol data-i18n="tv1-body"><li>Swipe down from top-right → open <strong>Control Center</strong></li><li>Tap <strong>Screen Mirroring</strong> → select your Apple TV</li><li>Full phone screen mirrors to TV including this app</li></ol>
+      <div class="tip"><svg class="ic"><use href="#i-bulb"/></svg><span data-i18n="tv1-tip">Tap the AirPlay icon inside the video player itself for a cleaner direct stream to TV</span></div>
     </div>
   </div>
 
   <div class="tv-card">
     <div class="tv-card-head" onclick="tog(2)">
       <div class="tv-icon"><svg class="ic"><use href="#i-cast"/></svg></div>
-      <div class="tv-info"><div class="tv-title">Chromecast / Cast via Chrome</div><div class="tv-sub">Android TV has Chromecast built in · Same WiFi</div></div>
+      <div class="tv-info"><div class="tv-title" data-i18n="tv2-title">Chromecast / Cast via Chrome</div><div class="tv-sub" data-i18n="tv2-sub">Android TV has Chromecast built in · Same WiFi</div></div>
       <div class="tv-arrow" id="a2"><svg class="ic"><use href="#i-chevron"/></svg></div>
     </div>
     <div class="tv-body" id="b2">
-      <ol><li>Open this page in <strong>Chrome</strong> on your phone</li><li>Chrome menu <strong>⋮</strong> → <strong>Cast</strong></li><li>Select your Android TV — it has Chromecast built in, no dongle needed</li><li>Chrome casts the full tab including the video to your TV</li></ol>
-      <div class="tip"><svg class="ic"><use href="#i-bulb"/></svg>Both devices must be on the same WiFi network</div>
+      <ol data-i18n="tv2-body"><li>Open this page in <strong>Chrome</strong> on your phone</li><li>Chrome menu <strong>⋮</strong> → <strong>Cast</strong></li><li>Select your Android TV — it has Chromecast built in, no dongle needed</li><li>Chrome casts the full tab including the video to your TV</li></ol>
+      <div class="tip"><svg class="ic"><use href="#i-bulb"/></svg><span data-i18n="tv2-tip">Both devices must be on the same WiFi network</span></div>
     </div>
   </div>
 
   <div class="tv-card">
     <div class="tv-card-head" onclick="tog(3)">
       <div class="tv-icon"><svg class="ic"><use href="#i-monitor"/></svg></div>
-      <div class="tv-info"><div class="tv-title">Open directly on Android TV</div><div class="tv-sub">Best quality · No phone needed</div></div>
+      <div class="tv-info"><div class="tv-title" data-i18n="tv3-title">Open directly on Android TV</div><div class="tv-sub" data-i18n="tv3-sub">Best quality · No phone needed</div></div>
       <div class="tv-arrow" id="a3"><svg class="ic"><use href="#i-chevron"/></svg></div>
     </div>
     <div class="tv-body" id="b3">
-      <ol><li>On Android TV, open <strong>Chrome</strong> (install from Play Store if needed)</li><li>Navigate to this URL on the TV:</li></ol>
+      <ol data-i18n="tv3-body"><li>On Android TV, open <strong>Chrome</strong> (install from Play Store if needed)</li><li>Navigate to this URL on the TV:</li></ol>
       <div class="url-box" id="pageUrl">loading…</div>
-      <div class="tip"><svg class="ic"><use href="#i-bulb"/></svg>Or install the <strong>Canales Dominicanos</strong> app from Android TV Play Store</div>
+      <div class="tip"><svg class="ic"><use href="#i-bulb"/></svg><span data-i18n="tv3-tip">Or install the <strong>Canales Dominicanos</strong> app from Android TV Play Store</span></div>
     </div>
   </div>
 
   <div class="tv-card" style="margin-bottom:0">
     <div class="tv-card-head" onclick="tog(4)">
       <div class="tv-icon"><svg class="ic"><use href="#i-cable"/></svg></div>
-      <div class="tv-info"><div class="tv-title">HDMI cable</div><div class="tv-sub">Always works · No WiFi needed</div></div>
+      <div class="tv-info"><div class="tv-title" data-i18n="tv4-title">HDMI cable</div><div class="tv-sub" data-i18n="tv4-sub">Always works · No WiFi needed</div></div>
       <div class="tv-arrow" id="a4"><svg class="ic"><use href="#i-chevron"/></svg></div>
     </div>
     <div class="tv-body" id="b4">
-      <ol><li>USB-C to HDMI adapter (~$10) or Lightning to HDMI for older iPhones</li><li>Plug phone → adapter → TV's HDMI port</li><li>Switch TV input to that HDMI — phone screen mirrors instantly</li></ol>
-      <div class="tip"><svg class="ic"><use href="#i-bulb"/></svg>The nuclear option — works on any TV, any phone, zero setup, no WiFi</div>
+      <ol data-i18n="tv4-body"><li>USB-C to HDMI adapter (~$10) or Lightning to HDMI for older iPhones</li><li>Plug phone → adapter → TV's HDMI port</li><li>Switch TV input to that HDMI — phone screen mirrors instantly</li></ol>
+      <div class="tip"><svg class="ic"><use href="#i-bulb"/></svg><span data-i18n="tv4-tip">The nuclear option — works on any TV, any phone, zero setup, no WiFi</span></div>
     </div>
   </div>
 </div>
@@ -1124,30 +1203,47 @@
 <div class="partners">
   <div class="partners-head">
     <span class="ph-line"></span>
-    <span class="ph-label">Brought to you by</span>
+    <span class="ph-label" data-i18n="partners-label">Brought to you by</span>
     <span class="ph-line"></span>
   </div>
 
   <div class="spotlight" id="spotlight">
-    <a class="sp on" href="https://www.anyhouse.app" target="_blank" rel="noopener">
-      <span class="sp-name">AnyHouse</span><span class="sp-tag">Find your new home in the DR</span>
+    <a class="sp" href="https://www.anyhouse.app" target="_blank" rel="noopener">
+      <span class="sp-name">AnyHouse</span>
+      <span class="sp-tag" data-i18n="sp-tag-0">Find your new home in the DR</span>
     </a>
     <a class="sp" href="https://drsimplified.com" target="_blank" rel="noopener">
-      <span class="sp-name">DR Simplified</span><span class="sp-tag">Your DR trip, made simple — excursions & more</span>
+      <span class="sp-name">DR Simplified</span>
+      <span class="sp-tag" data-i18n="sp-tag-1">Your DR trip, made simple</span>
     </a>
-    <a class="sp" href="https://denhartogh.solutions" target="_blank" rel="noopener">
-      <span class="sp-name">Den Hartogh Solutions</span><span class="sp-tag">AI systems that automate real work & create value</span>
+    <a class="sp" href="https://dhsleads.com/" target="_blank" rel="noopener">
+      <span class="sp-name">DHS Leads</span>
+      <span class="sp-tag" data-i18n="sp-tag-2">Smarter Lead Generation — AI powered</span>
     </a>
     <a class="sp" href="https://saleslobe.com" target="_blank" rel="noopener">
-      <span class="sp-name">SalesLobe</span><span class="sp-tag">AI reply governance for agencies & sales teams</span>
+      <span class="sp-name">SalesLobe</span>
+      <span class="sp-tag" data-i18n="sp-tag-3">AI reply governance for agencies</span>
+    </a>
+    <a class="sp">
+      <span class="sp-name">Checa Makeup</span>
+      <span class="sp-tag" data-i18n="sp-tag-4">Professional bridal makeup · Punta Cana</span>
     </a>
   </div>
 
-  <div class="partners-logos" id="partnersLogos">
-    <a class="plogo spot" data-i="0" href="https://www.anyhouse.app" target="_blank" rel="noopener" aria-label="AnyHouse"><img src="anyhouse.svg" alt="AnyHouse"></a>
-    <a class="plogo" data-i="1" href="https://drsimplified.com" target="_blank" rel="noopener" aria-label="DR Simplified"><img src="drsimplified.avif" alt="DR Simplified"></a>
-    <a class="plogo has-name" data-i="2" href="https://denhartogh.solutions" target="_blank" rel="noopener" aria-label="Den Hartogh Solutions"><img src="dhs-white.png" alt="Den Hartogh Solutions"><span class="plogo-name">Den Hartogh<br>Solutions</span></a>
-    <a class="plogo has-name" data-i="3" href="https://saleslobe.com" target="_blank" rel="noopener" aria-label="SalesLobe"><img src="logo-transparent-saleslobe.png" alt="SalesLobe"><span class="plogo-name">SalesLobe</span></a>
+  <div class="partners-logos-outer" id="partnersLogos">
+    <div class="partners-logos-track">
+      <a class="plogo" data-i="0" href="https://www.anyhouse.app" target="_blank" rel="noopener"><img src="anyhouse.svg" alt="AnyHouse"></a>
+      <a class="plogo" data-i="1" href="https://drsimplified.com" target="_blank" rel="noopener"><img src="drsimplified.avif" alt="DR Simplified"></a>
+      <a class="plogo" data-i="2" href="https://dhsleads.com/" target="_blank" rel="noopener"><img src="dhs-white.png" alt="DHS Leads"><span class="plogo-name">DHS Leads</span></a>
+      <a class="plogo" data-i="3" href="https://saleslobe.com" target="_blank" rel="noopener"><img src="logo-transparent-saleslobe.png" alt="SalesLobe"><span class="plogo-name">SalesLobe</span></a>
+      <a class="plogo" data-i="4"><img src="checa-makeup.png" alt="Checa Makeup"><span class="plogo-name">Checa Makeup</span></a>
+      <!-- duplicate set for seamless mobile loop -->
+      <a class="plogo plogo-dup" data-i="0" href="https://www.anyhouse.app" target="_blank" rel="noopener" aria-hidden="true" tabindex="-1"><img src="anyhouse.svg" alt=""></a>
+      <a class="plogo plogo-dup" data-i="1" href="https://drsimplified.com" target="_blank" rel="noopener" aria-hidden="true" tabindex="-1"><img src="drsimplified.avif" alt=""></a>
+      <a class="plogo plogo-dup" data-i="2" href="https://dhsleads.com/" target="_blank" rel="noopener" aria-hidden="true" tabindex="-1"><img src="dhs-white.png" alt=""><span class="plogo-name">DHS Leads</span></a>
+      <a class="plogo plogo-dup" data-i="3" href="https://saleslobe.com" target="_blank" rel="noopener" aria-hidden="true" tabindex="-1"><img src="logo-transparent-saleslobe.png" alt=""><span class="plogo-name">SalesLobe</span></a>
+      <a class="plogo plogo-dup" data-i="4" aria-hidden="true" tabindex="-1"><img src="checa-makeup.png" alt=""><span class="plogo-name">Checa Makeup</span></a>
+    </div>
   </div>
 </div>
 
@@ -1157,6 +1253,12 @@
 </div>
 
 </div><!-- /.app -->
+
+<!-- Ad toast -->
+<div id="ad-toast" role="status" aria-live="polite">
+  <button id="ad-toast-close" aria-label="Close">✕</button>
+  <div id="ad-toast-track"></div>
+</div>
 
 <!-- Cast modal -->
 <button class="ios-fs-close" id="iosFsClose" onclick="exitIosFs()">✕</button>
@@ -1348,6 +1450,12 @@
     document.body.classList.toggle('theater');
   };
 
+  // ── Refresh page (cache-free) ──
+  window.refreshPage = function() {
+    var clean = location.origin + location.pathname;
+    location.replace(clean + '?t=' + Date.now());
+  };
+
   // ── Hero CTA → jump to the PIO live channel ──
   window.watchLive = function() {
     window.sw(7);
@@ -1495,20 +1603,89 @@
   });
 })();
 
-// ── Scroll: compact logo ──
+// ── Ad toast rotator ──
 (function() {
-  var topbar = document.querySelector('.topbar');
-  var ticking = false;
-  window.addEventListener('scroll', function() {
-    if (!ticking) {
-      requestAnimationFrame(function() {
-        topbar.classList.toggle('scrolled', window.scrollY > 60);
-        ticking = false;
-      });
-      ticking = true;
-    }
-  }, { passive: true });
+  var ADS = {
+    en: [
+      { text: 'Searching for more leads for your company? Visit ', link: 'dhsleads.com',    href: 'https://dhsleads.com/' },
+      { text: 'Searching for your new dream home in the DR? Visit ', link: 'Anyhouse.app',  href: 'https://www.anyhouse.app' },
+      { text: 'Want to know what to do in the DR and find the best excursions? Visit ', link: 'DRSimplified.com', href: 'https://drsimplified.com' },
+      { text: 'Want AI to organize your inbox with company guidelines & governance? Visit ', link: 'SalesLobe.com', href: 'https://saleslobe.com' },
+      { text: 'Want to look brilliant for a wedding, birthday or special occasion? Visit ', link: 'ChecaMakeup', href: null }
+    ],
+    es: [
+      { text: '\u00bfBuscas m\u00e1s leads para tu empresa? Visita ', link: 'dhsleads.com',    href: 'https://dhsleads.com/' },
+      { text: '\u00bfBuscas tu nuevo hogar en la RD? Visita ', link: 'Anyhouse.app',          href: 'https://www.anyhouse.app' },
+      { text: '\u00bfQuieres saber qu\u00e9 hacer en la RD y encontrar las mejores excursiones? Visita ', link: 'DRSimplified.com', href: 'https://drsimplified.com' },
+      { text: '\u00bfQuieres que la IA organice tu bandeja de entrada seg\u00fan las normas de tu empresa? Visita ', link: 'SalesLobe.com', href: 'https://saleslobe.com' },
+      { text: '\u00bfQuieres lucir brillante en una boda, cumplea\u00f1os u ocasi\u00f3n especial? Visita ', link: 'ChecaMakeup', href: null }
+    ]
+  };
+
+  var SHOW_MS   = 8000;   // visible duration
+  var INTERVAL  = 8 * 60 * 1000;
+  var TOAST_W   = 246;    // inner text area width (px) — toast 270 minus padding/close
+
+  var idx   = 0;
+  var toast = document.getElementById('ad-toast');
+  var track = document.getElementById('ad-toast-track');
+  var closeBtn = document.getElementById('ad-toast-close');
+  if (!toast || !track) return;
+
+  closeBtn.addEventListener('click', function() {
+    toast.classList.remove('show');
+  });
+
+  function getLang() {
+    return document.documentElement.lang === 'es' ? 'es' : 'en';
+  }
+
+  function showAd() {
+    var lang = getLang();
+    var list = ADS[lang] || ADS.en;
+    var ad   = list[idx % list.length];
+    idx++;
+
+    // Build inner HTML
+    var linkHtml = ad.href
+      ? '<a href="' + ad.href + '" target="_blank" rel="noopener">' + ad.link + '</a>'
+      : '<strong>' + ad.link + '</strong>';
+    track.innerHTML = ad.text + linkHtml;
+
+    // Measure overflow and decide whether to scroll
+    toast.classList.remove('scrolling');
+    track.style.animation = 'none';
+    track.style.transform = 'translateX(0)';
+
+    // Allow layout to settle before measuring
+    requestAnimationFrame(function() {
+      var textW = track.scrollWidth;
+      if (textW > TOAST_W) {
+        // Scroll: move the full text width plus a tiny gap out to the left
+        var dist   = -(textW + 20);
+        var dur    = Math.max(6, textW / 40); // ~40px/s
+        toast.style.setProperty('--scroll-dist', dist + 'px');
+        toast.style.setProperty('--scroll-dur', dur + 's');
+        // Restart animation
+        track.style.animation = 'none';
+        void track.offsetWidth;
+        toast.classList.add('scrolling');
+      }
+
+      toast.classList.add('show');
+      setTimeout(function() {
+        toast.classList.remove('show', 'scrolling');
+      }, SHOW_MS);
+    });
+  }
+
+  // First fire after 8 min, then repeat
+  setTimeout(function() {
+    showAd();
+    setInterval(showAd, INTERVAL);
+  }, INTERVAL);
 })();
+
 
 // ── Language system ──
 (function() {
@@ -1564,6 +1741,33 @@
       'stat-corners': 'Corners',
       'stat-offside': 'Offsides',
       'live-btn': '⏩ Go Live',
+      'refresh-btn': 'Refresh Page',
+      'partners-label': 'Brought to you by',
+      'sp-tag-0': 'Find your new home in the DR',
+      'sp-tag-1': 'Your DR trip, made simple — excursions &amp; more',
+      'sp-tag-2': 'Smarter Lead Generation — Powered by AI, Driven by Humans',
+      'sp-tag-3': 'AI reply governance for agencies &amp; sales teams',
+      'sp-tag-4': 'Professional bridal makeup in Punta Cana',
+      'tv0-title': 'Screen Mirror (Android)',
+      'tv0-sub': 'Any Android TV · No extra hardware',
+      'tv0-body': '<li>Pull down notification shade → tap <strong>Cast</strong> / <strong>Smart View</strong> / <strong>Screen Cast</strong></li><li>Select your Android TV from the list</li><li>Your full screen appears on the TV — open this app and pick a channel</li>',
+      'tv0-tip': 'Not visible? Settings → Connected devices → Cast',
+      'tv1-title': 'AirPlay (Apple TV)',
+      'tv1-sub': 'iPhone/iPad → Apple TV · Same WiFi',
+      'tv1-body': '<li>Swipe down from top-right → open <strong>Control Center</strong></li><li>Tap <strong>Screen Mirroring</strong> → select your Apple TV</li><li>Full phone screen mirrors to TV including this app</li>',
+      'tv1-tip': 'Tap the AirPlay icon inside the video player itself for a cleaner direct stream to TV',
+      'tv2-title': 'Chromecast / Cast via Chrome',
+      'tv2-sub': 'Android TV has Chromecast built in · Same WiFi',
+      'tv2-body': '<li>Open this page in <strong>Chrome</strong> on your phone</li><li>Chrome menu <strong>⋮</strong> → <strong>Cast</strong></li><li>Select your Android TV — it has Chromecast built in, no dongle needed</li><li>Chrome casts the full tab including the video to your TV</li>',
+      'tv2-tip': 'Both devices must be on the same WiFi network',
+      'tv3-title': 'Open directly on Android TV',
+      'tv3-sub': 'Best quality · No phone needed',
+      'tv3-body': '<li>On Android TV, open <strong>Chrome</strong> (install from Play Store if needed)</li><li>Navigate to this URL on the TV:</li>',
+      'tv3-tip': 'Or install the <strong>Canales Dominicanos</strong> app from Android TV Play Store',
+      'tv4-title': 'HDMI cable',
+      'tv4-sub': 'Always works · No WiFi needed',
+      'tv4-body': '<li>USB-C to HDMI adapter (~$10) or Lightning to HDMI for older iPhones</li><li>Plug phone → adapter → TV\'s HDMI port</li><li>Switch TV input to that HDMI — phone screen mirrors instantly</li>',
+      'tv4-tip': 'The nuclear option — works on any TV, any phone, zero setup, no WiFi',
     },
     es: {
       'wide': 'Ancho', 'live': 'En Vivo',
@@ -1616,6 +1820,33 @@
       'stat-corners': 'Córners',
       'stat-offside': 'Fuera de juego',
       'live-btn': '⏩ En Vivo',
+      'refresh-btn': 'Recargar Página',
+      'partners-label': 'Presentado por',
+      'sp-tag-0': 'Encuentra tu nuevo hogar en RD',
+      'sp-tag-1': 'Tu viaje a RD, simplificado — excursiones y más',
+      'sp-tag-2': 'Generación de Leads Más Inteligente — Impulsada por IA, Impulsada por Humanos',
+      'sp-tag-3': 'Gobernanza de IA para agencias y equipos de ventas',
+      'sp-tag-4': 'Maquillaje profesional para novias en Punta Cana',
+      'tv0-title': 'Duplicar pantalla (Android)',
+      'tv0-sub': 'Cualquier Android TV · Sin hardware adicional',
+      'tv0-body': '<li>Baja el panel de notificaciones → toca <strong>Transmitir</strong> / <strong>Smart View</strong> / <strong>Duplicar pantalla</strong></li><li>Selecciona tu Android TV de la lista</li><li>Tu pantalla completa aparece en el TV — abre esta app y elige un canal</li>',
+      'tv0-tip': '¿No aparece? Ajustes → Dispositivos conectados → Transmitir',
+      'tv1-title': 'AirPlay (Apple TV)',
+      'tv1-sub': 'iPhone/iPad → Apple TV · Mismo WiFi',
+      'tv1-body': '<li>Desliza desde la esquina superior derecha → abre <strong>Centro de control</strong></li><li>Toca <strong>Duplicar pantalla</strong> → selecciona tu Apple TV</li><li>La pantalla completa del teléfono se duplica en el TV</li>',
+      'tv1-tip': 'Toca el ícono de AirPlay dentro del reproductor para una transmisión directa más limpia al TV',
+      'tv2-title': 'Chromecast / Transmitir con Chrome',
+      'tv2-sub': 'Android TV tiene Chromecast integrado · Mismo WiFi',
+      'tv2-body': '<li>Abre esta página en <strong>Chrome</strong> en tu teléfono</li><li>Menú de Chrome <strong>⋮</strong> → <strong>Transmitir</strong></li><li>Selecciona tu Android TV — tiene Chromecast integrado, sin dongle</li><li>Chrome transmite la pestaña completa con el video al TV</li>',
+      'tv2-tip': 'Ambos dispositivos deben estar en la misma red WiFi',
+      'tv3-title': 'Abrir directamente en Android TV',
+      'tv3-sub': 'Mejor calidad · Sin teléfono',
+      'tv3-body': '<li>En Android TV, abre <strong>Chrome</strong> (instala desde Play Store si es necesario)</li><li>Navega a esta URL en el TV:</li>',
+      'tv3-tip': 'O instala la app <strong>Canales Dominicanos</strong> desde Android TV Play Store',
+      'tv4-title': 'Cable HDMI',
+      'tv4-sub': 'Siempre funciona · Sin WiFi',
+      'tv4-body': '<li>Adaptador USB-C a HDMI (~$10) o Lightning a HDMI para iPhones antiguos</li><li>Conecta teléfono → adaptador → puerto HDMI del TV</li><li>Cambia la entrada del TV a ese HDMI — la pantalla se duplica al instante</li>',
+      'tv4-tip': 'La opción infalible — funciona con cualquier TV, cualquier teléfono, sin configuración, sin WiFi',
     }
   };
 
@@ -1711,13 +1942,13 @@
       var ic = btn.querySelector('svg');
       btn.innerHTML = '';
       if (ic) btn.appendChild(ic);
-      btn.appendChild(document.createTextNode(t['cast-btn']));
+      var lbl = document.createElement('span'); lbl.className = 'act-lbl'; lbl.textContent = t['cast-btn']; btn.appendChild(lbl);
     });
     document.querySelectorAll('.act-btn.act-fs').forEach(function(btn) {
       var ic = btn.querySelector('svg');
       btn.innerHTML = '';
       if (ic) btn.appendChild(ic);
-      btn.appendChild(document.createTextNode(t['fs-btn']));
+      var lbl = document.createElement('span'); lbl.className = 'act-lbl'; lbl.textContent = t['fs-btn']; btn.appendChild(lbl);
     });
 
     // TV Guide title
@@ -1799,7 +2030,7 @@
     var idx = sec.id.replace('sec-', '');
     var btn = document.createElement('button');
     btn.className = 'act-btn act-live';
-    btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style="flex-shrink:0"><polygon points="5 3 19 12 5 21 5 3"/><rect x="19" y="3" width="2.5" height="18" rx="1"/></svg><span data-i18n="live-btn">⏩ Go Live</span>';
+    btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style="flex-shrink:0"><polygon points="5 3 19 12 5 21 5 3"/><rect x="19" y="3" width="2.5" height="18" rx="1"/></svg><span class="act-lbl" data-i18n="live-btn">⏩ Go Live</span>';
     btn.addEventListener('click', function() { window.goLive(idx); });
     row.insertBefore(btn, row.firstChild);
   });
@@ -1816,7 +2047,7 @@
     var btn = document.createElement('button');
     btn.className = 'act-btn stats-toggle-btn';
     btn.id = 'statsBtnInRow_' + row.closest('.section').id;
-    btn.innerHTML = '<svg class="ic"><use href="#i-signal"/></svg><span data-i18n="stats-btn">📊 Live Stats</span><span class="sarrow"><svg class="ic"><use href="#i-chevron"/></svg></span>';
+    btn.innerHTML = '<svg class="ic"><use href="#i-signal"/></svg><span class="act-lbl" data-i18n="stats-btn">📊 Live Stats</span><span class="sarrow"><svg class="ic"><use href="#i-chevron"/></svg></span>';
     btn.addEventListener('click', function() { window.toggleStats && window.toggleStats(); });
     row.appendChild(btn);
   });

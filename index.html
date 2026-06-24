@@ -951,7 +951,10 @@
 <!-- ===== SECTION 7: PIO Deportes (auto match) ===== -->
 <div class="section active" id="sec-7">
   <div class="player-outer" id="po-7" onclick="touchToggle(7)">
-    <video-js id="pl-7" data-account="6416149296001" data-player="wGz5kLfA8" data-embed="default" data-video-id="6398695154112" controls autoplay playsinline webkit-playsinline></video-js>
+    <iframe id="pl-7"
+      data-src="https://players.brightcove.net/6416149296001/wGz5kLfA8_default/index.html?videoId=6398695154112&livePlaybackToken=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJtbiI6InBsYXlsaXN0IiwiaXNzIjoiYmxpdmUtcGxheWJhY2stbWFuYWdlbWVudC1hcGkiLCJzdWIiOiJwbGF5YmFja3Rva2VuIiwiYXVkIjpbIjY0MTYxNDkyOTYwMDEiXSwianRpIjoiNjM5ODY5NTE1NDExMiJ9.VxKbeFsrQwchu89DNq_m5ZhpUkaeyXrf-RkHDDIzPgk"
+      allowfullscreen allow="autoplay;fullscreen;encrypted-media"
+      referrerpolicy="no-referrer-when-downgrade"></iframe>
     <div class="player-controls">
       <div class="ctrl-btn" onclick="doCast(event)" title="Cast to TV"><svg class="ic"><use href="#i-cast"/></svg></div>
       <div class="ctrl-btn" onclick="doFS('pl-7',event)" title="Fullscreen"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg></div>
@@ -1288,16 +1291,6 @@
 (function() {
   'use strict';
 
-  // ── PIO Brightcove player (loads only the player, not the whole site) ──
-  var pioInited = false;
-  function initPio() {
-    if (pioInited) { return; }
-    pioInited = true;
-    var s = document.createElement('script');
-    s.src = 'https://players.brightcove.net/6416149296001/wGz5kLfA8_default/index.min.js';
-    document.body.appendChild(s);
-  }
-
   // ── Stop every player so nothing keeps playing in the background ──
   function stopAllMedia() {
     document.querySelectorAll('.section video').forEach(function(v) { try { v.pause(); } catch (e) {} });
@@ -1340,9 +1333,6 @@
         }, 3000);
       }
     }
-
-    // PIO Brightcove player (player-only, lazy load)
-    if (idx === 7) { initPio(); }
 
     // Resume any paused <video> in the active channel
     var av = sec.querySelector('video');
@@ -1993,19 +1983,6 @@
   window.goLive = function(idx) {
     var sec = document.getElementById('sec-' + idx);
     if (!sec) return;
-    // Brightcove video-js (PIO)
-    var vjs = sec.querySelector('video-js');
-    if (vjs && window.videojs) {
-      try {
-        var player = window.videojs(vjs.id);
-        if (player) {
-          var s = player.seekable();
-          if (s && s.length) { player.currentTime(s.end(0)); }
-          player.play();
-          return;
-        }
-      } catch(e) {}
-    }
     // Native HLS video
     var vid = sec.querySelector('video');
     if (vid && vid.seekable && vid.seekable.length > 0) {

@@ -938,7 +938,8 @@
 <!-- TABS -->
 <div class="tabs-wrap">
   <div class="tabs" id="tabs">
-    <div class="tab active" onclick="sw(7)" id="tab-7"><div class="tab-name">PIO Live</div><div class="tab-num">World Cup</div><div class="tab-pip gold"><svg class="ic"><use href="#i-trophy"/></svg>LIVE</div></div>
+    <div class="tab active" onclick="sw(7)" id="tab-7"><div class="tab-name">PIO Señal 2</div><div class="tab-num">World Cup</div><div class="tab-pip gold"><svg class="ic"><use href="#i-trophy"/></svg>LIVE</div></div>
+    <div class="tab" onclick="sw(8)" id="tab-8"><div class="tab-name">PIO Señal 1</div><div class="tab-num">World Cup</div><div class="tab-pip gold"><svg class="ic"><use href="#i-trophy"/></svg>LIVE</div></div>
     <div class="tab" onclick="sw(0)" id="tab-0"><div class="tab-name">CDN 67</div><div class="tab-num">Sports</div><div class="tab-pip"><svg class="ic"><use href="#i-ball"/></svg></div></div>
     <div class="tab" onclick="sw(2)" id="tab-2"><div class="tab-name">Color Visión</div><div class="tab-num">Canal 9</div><div class="tab-pip gold"><svg class="ic"><use href="#i-trophy"/></svg>WC</div></div>
     <div class="tab" onclick="sw(3)" id="tab-3"><div class="tab-name">Telemicro</div><div class="tab-num">Canal 5</div><div class="tab-pip"><svg class="ic"><use href="#i-tv"/></svg></div></div>
@@ -965,6 +966,26 @@
   <div class="action-row">
     <button class="act-btn act-cast" onclick="doCast()"><svg class="ic"><use href="#i-cast"/></svg><span class="act-lbl">Cast to TV</span></button>
     <button class="act-btn act-fs" onclick="doFS('pl-7')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg><span class="act-lbl">Fullscreen</span></button>
+  </div>
+</div>
+
+<!-- ===== SECTION 8: PIO Deportes Señal 1 ===== -->
+<div class="section" id="sec-8">
+  <div class="player-outer" id="po-8" onclick="touchToggle(8)">
+    <iframe id="pl-8"
+      data-src="https://players.brightcove.net/6416149296001/wGz5kLfA8_default/index.html?videoId=6399037151112"
+      allowfullscreen allow="autoplay;fullscreen;encrypted-media"
+      referrerpolicy="no-referrer-when-downgrade"></iframe>
+    <div class="player-controls">
+      <div class="ctrl-btn" onclick="doCast(event)" title="Cast to TV"><svg class="ic"><use href="#i-cast"/></svg></div>
+      <div class="ctrl-btn" onclick="doFS('pl-8',event)" title="Fullscreen"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg></div>
+    </div>
+  </div>
+  <div class="fallback-bar"><svg class="ic"><use href="#i-alert"/></svg> Stream not loading? <a href="https://fifa.piodeportes.com/transmision" target="_blank">Open PIO Deportes directly →</a></div>
+  <div class="ch-info"><div class="ch-info-main"><div class="ch-name">🇩🇴 PIO Deportes · Señal 1</div><div class="ch-desc">PIO alternate signal — use if Señal 2 shows a clip</div></div><span class="ch-tag tag-wc"><svg class="ic"><use href="#i-trophy"/></svg>WC</span></div>
+  <div class="action-row">
+    <button class="act-btn act-cast" onclick="doCast()"><svg class="ic"><use href="#i-cast"/></svg><span class="act-lbl">Cast to TV</span></button>
+    <button class="act-btn act-fs" onclick="doFS('pl-8')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg><span class="act-lbl">Fullscreen</span></button>
   </div>
 </div>
 

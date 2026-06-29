@@ -158,6 +158,20 @@
     .player-outer.touched .player-controls { opacity:1; pointer-events:auto; }
     /* Op mobiel: geen overlay controls (action-row eronder doet hetzelfde, geen conflict met iframe controls) */
     @media (max-width:767px) { .player-controls { display:none!important; } }
+    /* ── Fullscreen reload button (TV) ── */
+    .fs-reload-btn {
+      position:absolute; bottom:16px; left:16px; z-index:200;
+      width:56px; height:56px; border-radius:10px;
+      background:rgba(0,0,0,0.55); border:2px solid rgba(255,255,255,0.22);
+      color:#fff; cursor:pointer;
+      display:none; align-items:center; justify-content:center;
+      -webkit-tap-highlight-color:transparent;
+    }
+    :fullscreen .fs-reload-btn,
+    :-webkit-full-screen .fs-reload-btn,
+    .ios-fs .fs-reload-btn { display:flex; }
+    .fs-reload-btn:focus { outline:3px solid #fff; outline-offset:3px; }
+    .fs-reload-btn:active { background:rgba(255,255,255,0.2); }
     .ctrl-btn {
       display:flex; align-items:center; justify-content:center;
       width:36px; height:36px; border-radius:7px;
@@ -1557,6 +1571,28 @@
 
   // ── Load the default channel ──
   window.sw(7);
+
+  // ── Fullscreen reload button (TV) ──
+  window.reloadStream = function(po) {
+    var iframe = po.querySelector('iframe');
+    if (iframe) {
+      var src = iframe.dataset.src || iframe.src;
+      iframe.src = 'about:blank';
+      setTimeout(function() { iframe.src = src; }, 80);
+    }
+    var video = po.querySelector('video');
+    if (video) { video.load(); video.play().catch(function(){}); }
+  };
+  document.querySelectorAll('.player-outer').forEach(function(po) {
+    var btn = document.createElement('button');
+    btn.className = 'fs-reload-btn';
+    btn.tabIndex = 0;
+    btn.title = 'Reload stream';
+    btn.setAttribute('aria-label', 'Reload stream');
+    btn.innerHTML = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>';
+    btn.addEventListener('click', function(e) { e.stopPropagation(); reloadStream(po); });
+    po.appendChild(btn);
+  });
 
   // ── Lazy load HLS.js only when Sport Vision tab is selected ──
   // (already handled by sw() calling loadHLS() which checks typeof Hls)

@@ -765,53 +765,34 @@
       .act-btn svg.ic { width:20px!important; height:20px!important; }
     }
 
-  /* ── AD TOAST ── */
-  #ad-toast {
-    position:fixed; bottom:22px; right:18px; z-index:9999;
-    width:270px;
-    background:rgba(5,15,28,0.88);
-    border:1px solid rgba(255,255,255,0.10);
-    border-radius:10px;
-    padding:9px 32px 9px 12px;
-    backdrop-filter:blur(14px);
-    -webkit-backdrop-filter:blur(14px);
-    box-shadow:0 6px 28px rgba(0,0,0,0.45);
-    overflow:hidden;
-    opacity:0; transform:translateX(30px);
-    transition:opacity 0.4s ease, transform 0.4s ease;
-    pointer-events:none;
+  /* ── FULLSCREEN SPONSOR TICKER ── */
+  /* Only visible inside the player-outer when it is fullscreen */
+  .fs-ticker {
+    display:none;
+    position:absolute; bottom:0; left:0; right:0;
+    padding:28px 0 20px;
+    background:linear-gradient(transparent, rgba(0,0,0,0.68));
+    pointer-events:none; z-index:150; overflow:hidden;
   }
-  #ad-toast.show { opacity:1; transform:translateX(0); pointer-events:auto; }
-  /* ticker track */
-  #ad-toast-track {
-    display:inline-block;
-    white-space:nowrap;
-    font-size:11.5px; line-height:1.4; color:var(--muted2);
-    animation:none;
+  :fullscreen .fs-ticker,
+  :-webkit-full-screen .fs-ticker,
+  .ios-fs .fs-ticker { display:block; }
+  .fs-ticker-inner {
+    display:inline-block; white-space:nowrap;
+    padding-left:28px;
+    font-size:21px; font-weight:500; line-height:1.35;
+    color:rgba(255,255,255,0.95);
+    text-shadow:0 1px 10px rgba(0,0,0,1), 0 0 24px rgba(0,0,0,0.7);
+    letter-spacing:0.01em;
   }
-  #ad-toast.scrolling #ad-toast-track {
-    animation:adScroll var(--scroll-dur,12s) linear forwards;
+  .fs-ticker-inner.rolling {
+    animation:fs-roll var(--tick-dur,16s) linear forwards;
   }
-  @keyframes adScroll {
-    0%   { transform:translateX(0); }
-    100% { transform:translateX(var(--scroll-dist,-100%)); }
+  @keyframes fs-roll {
+    from { transform:translateX(100vw); }
+    to   { transform:translateX(calc(-100% - 28px)); }
   }
-  #ad-toast a { color:#c8d8f0; font-weight:700; text-decoration:none; }
-  #ad-toast a:hover { color:#fff; text-decoration:underline; }
-  #ad-toast-close {
-    position:absolute; top:7px; right:8px;
-    background:none; border:none; color:var(--muted); cursor:pointer;
-    font-size:12px; line-height:1; padding:0; opacity:0.6;
-  }
-  #ad-toast-close:hover { opacity:1; }
-  /* sponsored label */
-  #ad-toast::before {
-    content:'AD'; position:absolute; top:4px; left:10px;
-    font-size:8px; font-weight:800; letter-spacing:0.8px; color:rgba(255,255,255,0.2);
-  }
-  @media (max-width:480px) {
-    #ad-toast { bottom:12px; right:10px; left:10px; width:auto; }
-  }
+  .fs-ticker-inner a { color:#fff; font-weight:700; text-decoration:none; }
   </style>
 </head>
 <body>
@@ -1294,11 +1275,6 @@
 
 </div><!-- /.app -->
 
-<!-- Ad toast -->
-<div id="ad-toast" role="status" aria-live="polite">
-  <button id="ad-toast-close" aria-label="Close">✕</button>
-  <div id="ad-toast-track"></div>
-</div>
 
 <!-- Cast modal -->
 <button class="ios-fs-close" id="iosFsClose" onclick="exitIosFs()">✕</button>
@@ -1600,6 +1576,13 @@
     btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>';
     btn.addEventListener('click', function(e) { e.stopPropagation(); reloadStream(po); });
     po.appendChild(btn);
+    // Fullscreen sponsor ticker (CSS shows it only inside a fullscreen player-outer)
+    var ticker = document.createElement('div');
+    ticker.className = 'fs-ticker';
+    var tickerInner = document.createElement('span');
+    tickerInner.className = 'fs-ticker-inner';
+    ticker.appendChild(tickerInner);
+    po.appendChild(ticker);
   });
 
   // ── Auto-reload on stall: <video> elements (HLS) ──
@@ -1741,86 +1724,79 @@
   });
 })();
 
-// ── Ad toast rotator ──
+// ── Fullscreen sponsor ticker ──
+// Scrolls once across the bottom of the screen (subtitle style).
+// Only fires when the player is in fullscreen — invisible on desktop/mobile.
 (function() {
   var ADS = {
     en: [
-      { text: 'Searching for more leads for your company? Visit ', link: 'dhsleads.com',    href: 'https://dhsleads.com/' },
-      { text: 'Searching for your new dream home in the DR? Visit ', link: 'Anyhouse.app',  href: 'https://www.anyhouse.app' },
-      { text: 'Want to know what to do in the DR and find the best excursions? Visit ', link: 'DRSimplified.com', href: 'https://drsimplified.com' },
-      { text: 'Want AI to organize your inbox with company guidelines & governance? Visit ', link: 'SalesLobe.com', href: 'https://saleslobe.com' },
-      { text: 'Want to look brilliant for a wedding, birthday or special occasion? Visit ', link: 'ChecaMakeup', href: null }
+      { text: 'Looking for more leads for your business? Visit ', link: 'dhsleads.com', href: 'https://dhsleads.com/' },
+      { text: 'Searching for your dream home in the Dominican Republic? Visit ', link: 'Anyhouse.app', href: 'https://www.anyhouse.app' },
+      { text: 'Planning your DR trip? Find the best excursions at ', link: 'DRSimplified.com', href: 'https://drsimplified.com' },
+      { text: 'Want AI to manage your sales inbox with company guidelines? Visit ', link: 'SalesLobe.com', href: 'https://saleslobe.com' },
+      { text: 'Professional bridal & event makeup in Punta Cana \u2014 ', link: 'ChecaMakeup', href: null }
     ],
     es: [
-      { text: '\u00bfBuscas m\u00e1s leads para tu empresa? Visita ', link: 'dhsleads.com',    href: 'https://dhsleads.com/' },
-      { text: '\u00bfBuscas tu nuevo hogar en la RD? Visita ', link: 'Anyhouse.app',          href: 'https://www.anyhouse.app' },
+      { text: '\u00bfBuscas m\u00e1s leads para tu empresa? Visita ', link: 'dhsleads.com', href: 'https://dhsleads.com/' },
+      { text: '\u00bfBuscas tu nuevo hogar en la RD? Visita ', link: 'Anyhouse.app', href: 'https://www.anyhouse.app' },
       { text: '\u00bfQuieres saber qu\u00e9 hacer en la RD y encontrar las mejores excursiones? Visita ', link: 'DRSimplified.com', href: 'https://drsimplified.com' },
-      { text: '\u00bfQuieres que la IA organice tu bandeja de entrada seg\u00fan las normas de tu empresa? Visita ', link: 'SalesLobe.com', href: 'https://saleslobe.com' },
-      { text: '\u00bfQuieres lucir brillante en una boda, cumplea\u00f1os u ocasi\u00f3n especial? Visita ', link: 'ChecaMakeup', href: null }
+      { text: '\u00bfQuieres que la IA organice tu bandeja con normas de empresa? Visita ', link: 'SalesLobe.com', href: 'https://saleslobe.com' },
+      { text: 'Maquillaje profesional para novias y eventos en Punta Cana \u2014 ', link: 'ChecaMakeup', href: null }
     ]
   };
 
-  var SHOW_MS   = 8000;   // visible duration
-  var INTERVAL  = 8 * 60 * 1000;
-  var TOAST_W   = 246;    // inner text area width (px) — toast 270 minus padding/close
-
-  var idx   = 0;
-  var toast = document.getElementById('ad-toast');
-  var track = document.getElementById('ad-toast-track');
-  var closeBtn = document.getElementById('ad-toast-close');
-  if (!toast || !track) return;
-
-  closeBtn.addEventListener('click', function() {
-    toast.classList.remove('show');
-  });
+  var INTERVAL = 7 * 60 * 1000; // every 7 minutes
+  var idx = 0;
 
   function getLang() {
     return document.documentElement.lang === 'es' ? 'es' : 'en';
   }
 
-  function showAd() {
+  function getFullscreenPlayerOuter() {
+    var fsEl = document.fullscreenElement || document.webkitFullscreenElement;
+    if (fsEl) {
+      if (fsEl.classList.contains('player-outer')) return fsEl;
+      // iframe/video went fullscreen — find parent player-outer
+      if (fsEl.parentElement && fsEl.parentElement.classList.contains('player-outer')) return fsEl.parentElement;
+      return fsEl.closest ? fsEl.closest('.player-outer') : null;
+    }
+    // iOS fake fullscreen
+    return document.querySelector('.player-outer.ios-fs') || null;
+  }
+
+  function showTicker() {
+    var po = getFullscreenPlayerOuter();
+    if (!po) return; // not fullscreen — nothing to show
+
     var lang = getLang();
     var list = ADS[lang] || ADS.en;
     var ad   = list[idx % list.length];
     idx++;
 
-    // Build inner HTML
     var linkHtml = ad.href
       ? '<a href="' + ad.href + '" target="_blank" rel="noopener">' + ad.link + '</a>'
       : '<strong>' + ad.link + '</strong>';
-    track.innerHTML = ad.text + linkHtml;
 
-    // Measure overflow and decide whether to scroll
-    toast.classList.remove('scrolling');
-    track.style.animation = 'none';
-    track.style.transform = 'translateX(0)';
+    var inner = po.querySelector('.fs-ticker-inner');
+    if (!inner) return;
 
-    // Allow layout to settle before measuring
+    // Reset animation
+    inner.classList.remove('rolling');
+    inner.innerHTML = ad.text + linkHtml;
+
     requestAnimationFrame(function() {
-      var textW = track.scrollWidth;
-      if (textW > TOAST_W) {
-        // Scroll: move the full text width plus a tiny gap out to the left
-        var dist   = -(textW + 20);
-        var dur    = Math.max(6, textW / 40); // ~40px/s
-        toast.style.setProperty('--scroll-dist', dist + 'px');
-        toast.style.setProperty('--scroll-dur', dur + 's');
-        // Restart animation
-        track.style.animation = 'none';
-        void track.offsetWidth;
-        toast.classList.add('scrolling');
-      }
-
-      toast.classList.add('show');
-      setTimeout(function() {
-        toast.classList.remove('show', 'scrolling');
-      }, SHOW_MS);
+      void inner.offsetWidth; // force layout so scrollWidth is accurate
+      var vw  = window.innerWidth || 1280;
+      var dur = Math.max(8, (vw + inner.scrollWidth) / 150); // ~150px/s
+      inner.closest('.fs-ticker').style.setProperty('--tick-dur', dur + 's');
+      inner.classList.add('rolling');
     });
   }
 
-  // First fire after 8 min, then repeat
+  // First fire after INTERVAL, then repeat
   setTimeout(function() {
-    showAd();
-    setInterval(showAd, INTERVAL);
+    showTicker();
+    setInterval(showTicker, INTERVAL);
   }, INTERVAL);
 })();
 

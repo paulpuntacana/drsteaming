@@ -161,7 +161,7 @@
     /* ── Fullscreen reload button (TV) ── */
     .fs-reload-btn {
       position:absolute; bottom:16px; left:16px; z-index:200;
-      width:56px; height:56px; border-radius:10px;
+      width:28px; height:28px; border-radius:7px;
       background:rgba(0,0,0,0.55); border:2px solid rgba(255,255,255,0.22);
       color:#fff; cursor:pointer;
       display:none; align-items:center; justify-content:center;
@@ -172,6 +172,8 @@
     .ios-fs .fs-reload-btn { display:flex; }
     .fs-reload-btn:focus { outline:3px solid #fff; outline-offset:3px; }
     .fs-reload-btn:active { background:rgba(255,255,255,0.2); }
+    /* Hide overlay controls briefly after reload so they don't stay visible */
+    .player-outer.reloading .player-controls { opacity:0!important; pointer-events:none!important; }
     .ctrl-btn {
       display:flex; align-items:center; justify-content:center;
       width:36px; height:36px; border-radius:7px;
@@ -1573,6 +1575,7 @@
   window.sw(7);
 
   // ── Fullscreen reload button (TV) ──
+  var iframeLastSeen = {};
   window.reloadStream = function(po) {
     var iframe = po.querySelector('iframe');
     if (iframe) {
@@ -1582,6 +1585,11 @@
     }
     var video = po.querySelector('video');
     if (video) { video.load(); video.play().catch(function(){}); }
+    // Reset heartbeat so stall detection doesn't fire again immediately
+    if (po.id) { delete iframeLastSeen[po.id]; }
+    // Suppress overlay controls for 3s after reload (prevents them getting stuck visible)
+    po.classList.add('reloading');
+    setTimeout(function() { po.classList.remove('reloading'); }, 3000);
   };
   document.querySelectorAll('.player-outer').forEach(function(po) {
     var btn = document.createElement('button');
@@ -1589,9 +1597,92 @@
     btn.tabIndex = 0;
     btn.title = 'Reload stream';
     btn.setAttribute('aria-label', 'Reload stream');
-    btn.innerHTML = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>';
+    btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>';
     btn.addEventListener('click', function(e) { e.stopPropagation(); reloadStream(po); });
     po.appendChild(btn);
+  });
+
+  // ── Auto-reload on stall: <video> elements (HLS) ──
+  document.querySelectorAll('.player-outer video').forEach(function(video) {
+    var po = video.closest('.player-outer');
+    if (!po) return;
+    var lastTime = -1;
+    var stallTimer = null;
+    var hasStarted = false;
+
+    function clearStall() {
+      if (stallTimer) { clearTimeout(stallTimer); stallTimer = null; }
+    }
+    function armStall() {
+      if (stallTimer || !hasStarted || video.paused || video.ended) return;
+      stallTimer = setTimeout(function() {
+        stallTimer = null;
+        if (!video.paused && !video.ended && hasStarted) reloadStream(po);
+      }, 5000);
+    }
+
+    video.addEventListener('playing', function() { hasStarted = true; clearStall(); });
+    video.addEventListener('pause',   clearStall);
+    video.addEventListener('ended',   clearStall);
+    video.addEventListener('stalled', armStall);
+    video.addEventListener('waiting', armStall);
+    video.addEventListener('timeupdate', function() {
+      if (video.currentTime !== lastTime) { lastTime = video.currentTime; clearStall(); }
+    });
+    // Periodic fallback check every 2s
+    setInterval(function() {
+      if (!hasStarted || video.paused || video.ended) return;
+      if (video.currentTime === lastTime) { armStall(); }
+      else { lastTime = video.currentTime; clearStall(); }
+    }, 2000);
+  });
+
+  // ── Auto-reload on stall: iframes via postMessage heartbeat ──
+  // Brightcove and Dailymotion send frequent postMessage events while playing.
+  // If we stop receiving them for 25s the stream is likely hung.
+  window.addEventListener('message', function(e) {
+    document.querySelectorAll('.player-outer').forEach(function(po) {
+      var iframe = po.querySelector('iframe');
+      if (!iframe) return;
+      try {
+        if (iframe.contentWindow !== e.source) return;
+        var d = e.data;
+        if (d && typeof d === 'object') {
+          var evt = d.event || d.type;
+          if (evt === 'error' || d.error) {
+            // Player reported an error — reload after 5s
+            setTimeout(function() {
+              var sec = po.closest('.section');
+              if (sec && sec.classList.contains('active')) reloadStream(po);
+            }, 5000);
+            return;
+          }
+        }
+        if (po.id) iframeLastSeen[po.id] = Date.now();
+      } catch(err) {}
+    });
+  });
+  setInterval(function() {
+    if (document.hidden) return;
+    var sec = document.querySelector('.section.active');
+    if (!sec) return;
+    var po = sec.querySelector('.player-outer');
+    if (!po || !po.id) return;
+    if (!po.querySelector('iframe')) return;
+    var last = iframeLastSeen[po.id];
+    if (last && (Date.now() - last) > 25000) {
+      reloadStream(po);
+    }
+  }, 12000);
+
+  // ── Auto-reload on network recovery ──
+  window.addEventListener('online', function() {
+    setTimeout(function() {
+      var sec = document.querySelector('.section.active');
+      if (!sec) return;
+      var po = sec.querySelector('.player-outer');
+      if (po) reloadStream(po);
+    }, 1500);
   });
 
   // ── Lazy load HLS.js only when Sport Vision tab is selected ──

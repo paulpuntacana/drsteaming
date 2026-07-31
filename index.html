@@ -2653,8 +2653,12 @@
 	      .layout {
 	        display:flex;
 	        flex-direction:column;
+	        align-items:stretch;
 	        padding:10px;
 	        gap:10px;
+	      }
+	      .main-col {
+	        width:100%;
 	      }
 	      .side-col {
 	        position:static;
@@ -3617,7 +3621,7 @@
 </div>
 
 <button class="ios-fs-close" id="iosFsClose" onclick="exitIosFs()">×</button>
-<video id="airplay-trigger" style="position:fixed;width:1px;height:1px;opacity:0;pointer-events:none" x-webkit-airplay="allow" playsinline></video>
+<video id="airplay-trigger" style="position:fixed;width:1px;height:1px;opacity:0;pointer-events:none" x-webkit-airplay="allow" playsinline preload="none"></video>
 
 <div id="cast-modal">
   <div id="cast-modal-bg" onclick="closeCastModal()"></div>
@@ -5758,7 +5762,7 @@
 	      if (ch.type === 'iframe') {
 	        player = '<iframe id="pl-' + esc(ch.id) + '" data-src="' + esc(ch.src) + '" tabindex="-1" onload="iframeReady(\'' + esc(ch.id) + '\')" allowfullscreen allow="autoplay;fullscreen;picture-in-picture;encrypted-media;web-share;cast" referrerpolicy="no-referrer-when-downgrade"></iframe><button class="remote-guard" id="guard-' + esc(ch.id) + '" tabindex="0" onclick="event.stopPropagation(); remotePlayerTap(\'' + esc(ch.id) + '\', this);" aria-label="TV remote focus"></button><div class="player-loading iframe-loading" id="load-' + esc(ch.id) + '">' + loadingHtml(ch, 12, t('loading')) + '</div>';
 	      } else if (ch.type === 'hls') {
-	        player = '<video id="pl-' + esc(ch.id) + '" controls autoplay playsinline webkit-playsinline preload="metadata" controlslist="noplaybackrate nodownload" disablepictureinpicture></video><div class="player-loading" id="load-' + esc(ch.id) + '">' + loadingHtml(ch, 8, t('loading')) + '</div>';
+	        player = '<video id="pl-' + esc(ch.id) + '" controls autoplay playsinline webkit-playsinline x-webkit-airplay="allow" preload="metadata" controlslist="noplaybackrate nodownload" disablepictureinpicture></video><div class="player-loading" id="load-' + esc(ch.id) + '">' + loadingHtml(ch, 8, t('loading')) + '</div>';
 	      } else {
         player = '<div class="ext-panel"><div class="ext-icon"><svg class="ic"><use href="#i-tv"/></svg></div><h2>' + t('external-title') + '</h2><p>' + t('external-body') + '</p><a class="act-btn act-ext" href="' + esc(ch.fallback) + '" target="_blank" rel="noopener"><svg class="ic"><use href="#i-play"/></svg><span class="act-lbl">' + t('open-original') + '</span></a></div>';
       }
@@ -6268,9 +6272,13 @@
     document.getElementById('cast-modal').classList.remove('show');
   };
 
+  function activeCastVideo() {
+    return document.querySelector('#sec-' + activeId + ' video') || document.getElementById('airplay-trigger');
+  }
+
   document.getElementById('castAirplay').addEventListener('click', function() {
     closeCastModal();
-    var vid = document.getElementById('airplay-trigger');
+    var vid = activeCastVideo();
     if (vid && vid.webkitShowPlaybackTargetPicker) {
       vid.webkitShowPlaybackTargetPicker();
     } else {
@@ -6280,7 +6288,7 @@
 
   document.getElementById('castChrome').addEventListener('click', function() {
     closeCastModal();
-    var vid = document.getElementById('airplay-trigger');
+    var vid = activeCastVideo();
     if (vid && vid.remote && vid.remote.prompt) {
       vid.remote.prompt().catch(function() {});
     } else {

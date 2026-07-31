@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="theme-color" content="#030b16">
+  <meta name="screen-orientation" content="auto">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -2098,6 +2099,7 @@
 	    .player-outer {
 	      background:#000;
 	      border-bottom:1px solid rgba(255,122,0,0.22);
+	      touch-action:pan-y;
 	    }
 	    .player-outer > video {
 	      background:#000;
@@ -2846,13 +2848,17 @@
 	    }
 	    .category-strip {
 	      display:grid;
-	      grid-template-columns:repeat(5,minmax(0,1fr));
+	      grid-template-columns:repeat(6,minmax(0,1fr));
 	      gap:12px;
 	      min-height:var(--category-h);
-	      padding:13px 26px 0;
-	      background:linear-gradient(180deg,#03080f 0%,#06101d 100%);
+	      padding:13px 26px;
+	      border-bottom:1px solid rgba(255,122,0,0.28);
+	      background:
+	        linear-gradient(90deg,rgba(0,45,98,0.36),rgba(255,255,255,0.06) 42%,rgba(206,17,38,0.22) 70%,rgba(255,122,0,0.18)),
+	        linear-gradient(180deg,#071424 0%,#03080f 100%);
 	    }
 	    .category-btn {
+	      position:relative;
 	      display:grid;
 	      grid-template-columns:42px minmax(0,1fr) auto;
 	      align-items:center;
@@ -2861,19 +2867,38 @@
 	      min-height:64px;
 	      padding:10px 12px;
 	      border-radius:8px;
-	      border:1px solid rgba(255,255,255,0.12);
-	      background:linear-gradient(180deg,#10233a,#071320);
+	      overflow:hidden;
+	      border:1px solid rgba(255,255,255,0.15);
+	      background:
+	        linear-gradient(135deg,rgba(255,255,255,0.08),rgba(255,255,255,0.02)),
+	        linear-gradient(145deg,#102f4d,#071320 64%,#12080c);
 	      color:#fff;
-	      box-shadow:0 14px 28px rgba(0,0,0,0.24),inset 0 1px 0 rgba(255,255,255,0.08);
+	      box-shadow:0 16px 30px rgba(0,0,0,0.24),inset 0 1px 0 rgba(255,255,255,0.10);
 	      cursor:pointer;
 	    }
+	    .category-btn::before {
+	      content:"";
+	      position:absolute;
+	      inset:0;
+	      pointer-events:none;
+	      background:linear-gradient(115deg,rgba(0,45,98,0.28),transparent 46%,rgba(206,17,38,0.22));
+	      opacity:0.9;
+	    }
+	    .category-btn > * {
+	      position:relative;
+	      z-index:1;
+	    }
 	    .category-btn:hover {
-	      border-color:rgba(255,122,0,0.46);
-	      background:linear-gradient(180deg,#142c48,#091725);
+	      border-color:rgba(255,122,0,0.64);
+	      background:
+	        linear-gradient(135deg,rgba(255,122,0,0.16),rgba(255,255,255,0.04)),
+	        linear-gradient(145deg,#153d63,#091725 64%,#190b0d);
 	    }
 	    .category-btn.active {
 	      border-color:rgba(255,122,0,0.92);
-	      background:linear-gradient(90deg,rgba(255,122,0,0.34),#10233a);
+	      background:
+	        linear-gradient(90deg,rgba(255,122,0,0.42),rgba(255,255,255,0.07)),
+	        linear-gradient(145deg,#16395c,#071320);
 	      box-shadow:inset 5px 0 0 #ff7a00,0 18px 36px rgba(0,0,0,0.32);
 	    }
 	    .category-btn:focus {
@@ -3011,6 +3036,7 @@
     <symbol id="i-news" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 0 6.5 22H19a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2v14.5"/><path d="M4 7H2v12.5A2.5 2.5 0 0 0 4.5 22"/><path d="M9 7h6"/><path d="M9 11h8"/><path d="M9 15h5"/></symbol>
     <symbol id="i-utensils" viewBox="0 0 24 24"><path d="M4 3v7"/><path d="M8 3v7"/><path d="M6 3v18"/><path d="M12 3c2.8 1.8 4 4.1 4 7v11"/><path d="M19 3v18"/></symbol>
     <symbol id="i-music" viewBox="0 0 24 24"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></symbol>
+    <symbol id="i-film" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M7 5v14"/><path d="M17 5v14"/><path d="M3 9h4"/><path d="M17 9h4"/><path d="M3 15h4"/><path d="M17 15h4"/></symbol>
     <symbol id="i-grid" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></symbol>
     <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></symbol>
     <symbol id="i-monitor" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></symbol>
@@ -3049,27 +3075,32 @@
   <nav class="category-strip" id="categoryStrip" aria-label="Channel categories">
     <button class="category-btn" data-category="sports" onclick="setCategory('sports')">
       <span class="category-icon"><svg class="ic"><use href="#i-trophy"/></svg></span>
-      <span class="category-label">SPORTS</span>
+      <span class="category-label">DEPORTES</span>
       <b class="category-count" id="cat-count-sports">0</b>
     </button>
     <button class="category-btn" data-category="news" onclick="setCategory('news')">
       <span class="category-icon"><svg class="ic"><use href="#i-news"/></svg></span>
-      <span class="category-label">NEWS</span>
+      <span class="category-label">NOTICIAS</span>
       <b class="category-count" id="cat-count-news">0</b>
     </button>
     <button class="category-btn" data-category="cooking" onclick="setCategory('cooking')">
       <span class="category-icon"><svg class="ic"><use href="#i-utensils"/></svg></span>
-      <span class="category-label">COOKING</span>
+      <span class="category-label">COCINA</span>
       <b class="category-count" id="cat-count-cooking">0</b>
     </button>
     <button class="category-btn" data-category="music" onclick="setCategory('music')">
       <span class="category-icon"><svg class="ic"><use href="#i-music"/></svg></span>
-      <span class="category-label">MUSIC</span>
+      <span class="category-label">MUSICA</span>
       <b class="category-count" id="cat-count-music">0</b>
+    </button>
+    <button class="category-btn" data-category="movies" onclick="setCategory('movies')">
+      <span class="category-icon"><svg class="ic"><use href="#i-film"/></svg></span>
+      <span class="category-label">CINE</span>
+      <b class="category-count" id="cat-count-movies">0</b>
     </button>
     <button class="category-btn" data-category="other" onclick="setCategory('other')">
       <span class="category-icon"><svg class="ic"><use href="#i-grid"/></svg></span>
-      <span class="category-label">OTHER</span>
+      <span class="category-label">OTROS</span>
       <b class="category-count" id="cat-count-other">0</b>
     </button>
   </nav>
@@ -4126,6 +4157,204 @@
       fallback:'https://maddogandmerrill.com/'
     },
     {
+      id:'tv5monde-chefs', group:'Cocina and Food', icon:'T5', logo:'https://www.google.com/s2/favicons?domain=tv5monde.com&sz=128', badge:'Food', badgeType:'good',
+      name:'TV5MONDE Chefs', short:'TV5MONDE Chefs', number:'Food',
+      tag:'Cooking', tagClass:'tag-tv', quality:'FHD', signal:82,
+      desc:'Chef and cooking programming with direct browser playback.',
+      type:'hls',
+      src:'https://tvf-tv5ch.otteravision.com/tvf/tv5ch/tv5ch.m3u8',
+      fallback:'https://www.tv5mondeplus.com/'
+    },
+    {
+      id:'cinesony', group:'Cine y Series Latino', icon:'CS', logo:'https://www.google.com/s2/favicons?domain=klowdtv.com&sz=128', badge:'ES', badgeType:'good',
+      name:'Cine Sony', short:'Cine Sony', number:'Latino',
+      tag:'Movies', tagClass:'tag-tv', quality:'HD', signal:88,
+      desc:'Spanish-language movie channel with direct HLS playback.',
+      type:'hls',
+      src:'https://a-cdn.klowdtv.com/live1/cine_720p/playlist.m3u8',
+      fallback:'https://www.klowdtv.com/'
+    },
+    {
+      id:'canal-cine-dios', group:'Cine y Series Latino', icon:'CD', logo:'https://www.google.com/s2/favicons?domain=canal.mediaserver.com.co&sz=128', badge:'CO', badgeType:'good',
+      name:'Canal Cine Dios', short:'Cine Dios', number:'Colombia',
+      tag:'Movies', tagClass:'tag-tv', quality:'HD', signal:84,
+      desc:'Colombian Spanish-language film channel with browser-friendly playback.',
+      type:'hls',
+      src:'https://canal.mediaserver.com.co/live/cinedios.m3u8',
+      fallback:'https://canal.mediaserver.com.co/'
+    },
+    {
+      id:'aurora-media-films', group:'Cine y Series Latino', icon:'AM', logo:'https://www.google.com/s2/favicons?domain=streamhispanatv.net&sz=128', badge:'GT', badgeType:'good',
+      name:'Aurora Media Films', short:'Aurora Films', number:'Guatemala',
+      tag:'Movies', tagClass:'tag-tv', quality:'HD', signal:82,
+      desc:'Spanish-language movie stream from Central America.',
+      type:'hls',
+      src:'https://cdn.streamhispanatv.net:3417/live/auroramflive.m3u8',
+      fallback:'https://streamhispanatv.net/'
+    },
+    {
+      id:'mega-cine-tv', group:'Cine y Series Latino', icon:'MC', logo:'https://www.google.com/s2/favicons?domain=hostlagarto.com&sz=128', badge:'DR', badgeType:'good',
+      name:'Mega Cine TV', short:'Mega Cine', number:'Dominican',
+      tag:'Movies', tagClass:'tag-tv', quality:'FHD', signal:84,
+      desc:'Dominican movie channel with direct HLS playback.',
+      type:'hls',
+      src:'https://cnn.hostlagarto.com/megacinetv/playlist.m3u8',
+      fallback:'https://canalesdominicanos.live/'
+    },
+    {
+      id:'boreal-do', group:'Cine y Series Latino', icon:'BO', logo:'https://www.google.com/s2/favicons?domain=essastream.com&sz=128', badge:'DR', badgeType:'good',
+      name:'Boreal Television', short:'Boreal TV', number:'Dominican',
+      tag:'Movies', tagClass:'tag-tv', quality:'HD', signal:80,
+      desc:'Dominican entertainment and movie-category live stream.',
+      type:'hls',
+      src:'https://edge.essastream.com/borealtelevision/tracks-v1a1/mono.m3u8',
+      fallback:'https://canalesdominicanos.live/'
+    },
+    {
+      id:'mci-television', group:'Cine y Series Latino', icon:'MCI', logo:'https://www.google.com/s2/favicons?domain=ejeserver.com&sz=128', badge:'CO', badgeType:'good',
+      name:'MCI Television', short:'MCI TV', number:'Colombia',
+      tag:'Movies', tagClass:'tag-tv', quality:'FHD', signal:82,
+      desc:'Colombian entertainment stream from the movie/series listings.',
+      type:'hls',
+      src:'https://video.ejeserver.com/live/mcitelevision.m3u8',
+      fallback:'https://www.facebook.com/mcitelevision/'
+    },
+    {
+      id:'mytime-spain', group:'Cine Espana FAST', icon:'MT', logo:'https://www.google.com/s2/favicons?domain=rakuten.tv&sz=128', badge:'ES', badgeType:'good',
+      name:'MyTime Movie Network Spain', short:'MyTime Spain', number:'Spain',
+      tag:'Movies', tagClass:'tag-tv', quality:'FHD', signal:86,
+      desc:'Free movie FAST channel for Spain with multiple quality levels.',
+      type:'hls',
+      src:'https://appletree-mytimespain-rakuten.amagi.tv/playlist.m3u8',
+      fallback:'https://rakuten.tv/'
+    },
+    {
+      id:'rakuten-top-movies-es', group:'Cine Espana FAST', icon:'RT', logo:'https://www.google.com/s2/favicons?domain=rakuten.tv&sz=128', badge:'ES', badgeType:'good',
+      name:'Rakuten TV Top Movies Spain', short:'Rakuten Top', number:'Spain',
+      tag:'Movies', tagClass:'tag-tv', quality:'FHD', signal:88,
+      desc:'Free Rakuten TV movie channel for Spain.',
+      type:'hls',
+      src:'https://ff335120300e4742a2b135ee9a9e7df8.mediatailor.eu-west-1.amazonaws.com/v1/master/0547f18649bd788bec7b67b746e47670f558b6b2/production-LiveChannel-5983/master.m3u8',
+      fallback:'https://rakuten.tv/'
+    },
+    {
+      id:'rakuten-action-es', group:'Cine Espana FAST', icon:'RA', logo:'https://www.google.com/s2/favicons?domain=rakuten.tv&sz=128', badge:'ES', badgeType:'good',
+      name:'Rakuten TV Action Movies Spain', short:'Rakuten Action', number:'Spain',
+      tag:'Movies', tagClass:'tag-tv', quality:'FHD', signal:88,
+      desc:'Free action movie FAST channel for Spain.',
+      type:'hls',
+      src:'https://a9c57ec7ec5e4b7daeacc6316a0bb404.mediatailor.eu-west-1.amazonaws.com/v1/master/0547f18649bd788bec7b67b746e47670f558b6b2/production-LiveChannel-6069/master.m3u8',
+      fallback:'https://rakuten.tv/'
+    },
+    {
+      id:'rakuten-comedy-es', group:'Cine Espana FAST', icon:'RC', logo:'https://www.google.com/s2/favicons?domain=rakuten.tv&sz=128', badge:'ES', badgeType:'good',
+      name:'Rakuten TV Comedy Movies Spain', short:'Rakuten Comedy', number:'Spain',
+      tag:'Movies', tagClass:'tag-tv', quality:'FHD', signal:88,
+      desc:'Free comedy movie FAST channel for Spain.',
+      type:'hls',
+      src:'https://71db867f03ce4d71a29e92155f07ab87.mediatailor.eu-west-1.amazonaws.com/v1/master/0547f18649bd788bec7b67b746e47670f558b6b2/production-LiveChannel-6180/master.m3u8',
+      fallback:'https://rakuten.tv/'
+    },
+    {
+      id:'rakuten-drama-es', group:'Cine Espana FAST', icon:'RD', logo:'https://www.google.com/s2/favicons?domain=rakuten.tv&sz=128', badge:'ES', badgeType:'good',
+      name:'Rakuten TV Drama Movies Spain', short:'Rakuten Drama', number:'Spain',
+      tag:'Movies', tagClass:'tag-tv', quality:'FHD', signal:88,
+      desc:'Free drama movie FAST channel for Spain.',
+      type:'hls',
+      src:'https://a7089c89d85f453d850c4a1518b43076.mediatailor.eu-west-1.amazonaws.com/v1/master/0547f18649bd788bec7b67b746e47670f558b6b2/production-LiveChannel-6092/master.m3u8',
+      fallback:'https://rakuten.tv/'
+    },
+    {
+      id:'rakuten-family-es', group:'Cine Espana FAST', icon:'RF', logo:'https://www.google.com/s2/favicons?domain=rakuten.tv&sz=128', badge:'ES', badgeType:'good',
+      name:'Rakuten TV Family Movies Spain', short:'Rakuten Family', number:'Spain',
+      tag:'Movies', tagClass:'tag-tv', quality:'FHD', signal:88,
+      desc:'Free family movie FAST channel for Spain.',
+      type:'hls',
+      src:'https://b0d59c8c98974e708e5ccb9a27cdfdfc.mediatailor.eu-west-1.amazonaws.com/v1/master/0547f18649bd788bec7b67b746e47670f558b6b2/production-LiveChannel-6205/master.m3u8',
+      fallback:'https://rakuten.tv/'
+    },
+    {
+      id:'xtrema-accion', group:'Cine Latino Accion', icon:'XA', logo:'https://www.google.com/s2/favicons?domain=voxtvhd.com.br&sz=128', badge:'ARG', badgeType:'good',
+      name:'Xtrema Accion', short:'Xtrema Accion', number:'Argentina',
+      tag:'Movies', tagClass:'tag-tv', quality:'SD', signal:78,
+      desc:'Spanish-language action movie channel with direct playback.',
+      type:'hls',
+      src:'https://stmv6.voxtvhd.com.br/cineaccion/cineaccion/playlist.m3u8',
+      fallback:'https://voxtvhd.com.br/'
+    },
+    {
+      id:'zylo-cine-friki', group:'Cine Espana FAST', icon:'ZF', logo:'https://www.google.com/s2/favicons?domain=zylo.tv&sz=128', badge:'ES', badgeType:'good',
+      name:'Zylo Cine Friki', short:'Cine Friki', number:'Spain',
+      tag:'Movies', tagClass:'tag-tv', quality:'FHD', signal:84,
+      desc:'Spanish-language fantasy and genre movie FAST channel.',
+      type:'hls',
+      src:'https://d2mr4fu91mjx9m.cloudfront.net/v1/master/3722c60a815c199d9c0ef36c5b73da68a62b09d1/cc-rb0tx75ojbc5u/CineFriki_ES.m3u8',
+      fallback:'https://zylo.tv/'
+    },
+    {
+      id:'zylo-cine-western', group:'Cine Espana FAST', icon:'ZW', logo:'https://www.google.com/s2/favicons?domain=zylo.tv&sz=128', badge:'ES', badgeType:'good',
+      name:'Zylo Cine Western', short:'Cine Western', number:'Spain',
+      tag:'Movies', tagClass:'tag-tv', quality:'FHD', signal:84,
+      desc:'Spanish-language western movie FAST channel.',
+      type:'hls',
+      src:'https://d2nq34q0i1r3la.cloudfront.net/v1/master/3722c60a815c199d9c0ef36c5b73da68a62b09d1/cc-awohw8g217ho8/CineWestern_ES.m3u8',
+      fallback:'https://zylo.tv/'
+    },
+    {
+      id:'free-movies-24h', group:'Free Movies English', icon:'24', logo:'https://www.google.com/s2/favicons?domain=distro.tv&sz=128', badge:'US', badgeType:'good',
+      name:'24 Hour Free Movies', short:'24H Movies', number:'USA',
+      tag:'Movies', tagClass:'tag-tv', quality:'HD', signal:86,
+      desc:'Free English-language movie channel with direct HLS playback.',
+      type:'hls',
+      src:'https://d1j2u714xk898n.cloudfront.net/scheduler/scheduleMaster/145.m3u8',
+      fallback:'https://www.distro.tv/'
+    },
+    {
+      id:'charge-tv', group:'Free Movies English', icon:'CH', logo:'https://www.google.com/s2/favicons?domain=watchcharge.com&sz=128', badge:'US', badgeType:'good',
+      name:'Charge!', short:'Charge!', number:'USA',
+      tag:'Movies', tagClass:'tag-tv', quality:'FHD', signal:86,
+      desc:'Free action and crime TV/movie channel.',
+      type:'hls',
+      src:'https://fast-channels.sinclairstoryline.com/CHARGE/index.m3u8',
+      fallback:'https://watchcharge.com/'
+    },
+    {
+      id:'artflix-classics', group:'Free Movies English', icon:'AF', logo:'https://www.google.com/s2/favicons?domain=artflixmovieclassics.com&sz=128', badge:'US', badgeType:'good',
+      name:'Artflix Movie Classics', short:'Artflix Classics', number:'Classics',
+      tag:'Movies', tagClass:'tag-tv', quality:'HD', signal:84,
+      desc:'Classic movie channel with direct browser playback.',
+      type:'hls',
+      src:'https://amogonetworx-artflix-1-nl.samsung.wurl.tv/playlist.m3u8',
+      fallback:'https://watch.plex.tv/live-tv/'
+    },
+    {
+      id:'film-detective', group:'Free Movies English', icon:'FD', logo:'https://www.google.com/s2/favicons?domain=thefilmdetective.com&sz=128', badge:'US', badgeType:'good',
+      name:'The Film Detective', short:'Film Detective', number:'Classics',
+      tag:'Movies', tagClass:'tag-tv', quality:'FHD', signal:84,
+      desc:'Classic films and restored movie programming.',
+      type:'hls',
+      src:'https://cinedigm-entertainment-corp-thefilmdetective-1-us.ono.wurl.tv/playlist.m3u8',
+      fallback:'https://www.thefilmdetective.com/'
+    },
+    {
+      id:'classic-cinema', group:'Free Movies English', icon:'CC', logo:'https://www.google.com/s2/favicons?domain=watchyour.tv&sz=128', badge:'SD', badgeType:'good',
+      name:'Classic Cinema', short:'Classic Cinema', number:'Classics',
+      tag:'Movies', tagClass:'tag-tv', quality:'SD', signal:76,
+      desc:'Lightweight classic cinema stream, useful for slower TVs.',
+      type:'hls',
+      src:'https://rpn.bozztv.com/gusa/gusa-classiccinema/index.m3u8',
+      fallback:'https://www.watchyour.tv/'
+    },
+    {
+      id:'whiplash-cinema', group:'Free Movies English', icon:'WC', logo:'https://www.google.com/s2/favicons?domain=whiplash.cc&sz=128', badge:'US', badgeType:'good',
+      name:'Whiplash Cinema', short:'Whiplash Cinema', number:'USA',
+      tag:'Movies', tagClass:'tag-tv', quality:'SD', signal:78,
+      desc:'Free movie channel with direct HLS playback.',
+      type:'hls',
+      src:'https://cdn.whiplash.cc/whiplash-cinema/index.m3u8',
+      fallback:'https://whiplash.cc/'
+    },
+    {
       id:'france24-es', group:'News and Europe', icon:'F24', logo:'https://xstreamcp-assets-msp.streamready.in/assets/LIVETV/LIVECHANNEL/LIVETV_LIVETVCHANNEL_FRANCE_24/images/LOGO_HD/image.png', badge:'ES', badgeType:'good',
       name:'France 24 Español', short:'France 24 ES', number:'Europe',
       tag:'News', tagClass:'tag-tv', quality:'FHD', signal:88,
@@ -4218,10 +4447,10 @@
 	  var STRINGS = {
 	    es: {
       'brand-sub':'Canales dominicanos y deportes en vivo',
-      'live':'LIVE',
+      'live':'EN VIVO',
       'strip-title':'Sport & TV',
       'strip-sub':'canales para beisbol, futbol, basquetbol y TV local',
-      'rail-title':'Live TV',
+      'rail-title':'TV en vivo',
       'search':'Buscar canal o deporte...',
       'open-original':'Abrir fuente',
       'not-loading':'¿No carga la señal?',
@@ -4329,23 +4558,31 @@
 	  var pendingTuneOpts = null;
 	  var numberEntry = '';
 	  var numberEntryTimer = null;
+	  var swipeStartX = 0;
+	  var swipeStartY = 0;
+	  var swipeStartAt = 0;
 	  var lastRailActiveId = '';
 	  var lastZapAt = 0;
 	  var streamFailureTimes = [];
 	  var tvLightQuery = /(?:[?&])(tvlight|slowtv|lite)(?:=|&|$)/i.test(window.location.search || '');
 	  var tvFullQuery = /(?:[?&])(fulltv|fasttv)(?:=|&|$)/i.test(window.location.search || '');
 	  var tvUserAgent = /smart-?tv|tizen|web0s|webos|netcast|hbbtv|bravia|aquos|viera|hisense|vidaa|ce-html|dtv|aftt|aftm|crkey|chromecast/i.test(navigator.userAgent || '');
+	  var mobileTabletUa = /iPhone|iPad|Android|Mobile/i.test(navigator.userAgent || '');
 	  var hardwareThreads = Number(navigator.hardwareConcurrency) || 0;
 	  var screenMax = Math.max((window.screen && window.screen.width) || 0, (window.screen && window.screen.height) || 0);
 	  var lowPowerLargeScreen = !!(hardwareThreads && hardwareThreads <= 4 && screenMax >= 1200);
+	  var lowPowerMobile = !!(hardwareThreads && hardwareThreads <= 4 && mobileTabletUa);
 	  if (tvLightQuery) safeStorageSet('sportTvMode', 'light');
 	  if (tvFullQuery) safeStorageSet('sportTvMode', 'full');
-	  var TV_LIGHT_MODE = !tvFullQuery && (tvLightQuery || tvUserAgent || lowPowerLargeScreen || safeStorageGet('sportTvMode') === 'light');
+	  var TV_LIGHT_MODE = !tvFullQuery && (tvLightQuery || tvUserAgent || lowPowerLargeScreen || lowPowerMobile || safeStorageGet('sportTvMode') === 'light');
 	  var ZAP_LOAD_DELAY = TV_LIGHT_MODE ? 1150 : 620;
 	  var ZAP_MIN_INTERVAL = TV_LIGHT_MODE ? 280 : 155;
 	  if (TV_LIGHT_MODE) document.documentElement.classList.add('tv-lite-mode');
-	  var CATEGORY_IDS = ['sports','news','cooking','music','other'];
-	  var CATEGORY_LABELS = {sports:'SPORTS',news:'NEWS',cooking:'COOKING',music:'MUSIC',other:'OTHER'};
+	  var CATEGORY_IDS = ['sports','news','cooking','music','movies','other'];
+	  var CATEGORY_LABELS = {
+	    es:{sports:'DEPORTES',news:'NOTICIAS',cooking:'COCINA',music:'MUSICA',movies:'CINE',other:'OTROS'},
+	    en:{sports:'SPORTS',news:'NEWS',cooking:'COOKING',music:'MUSIC',movies:'MOVIES',other:'OTHER'}
+	  };
 	  var savedCategory = safeStorageGet('sportTvCategory');
 	  var activeCategory = CATEGORY_IDS.indexOf(savedCategory) > -1 ? savedCategory : 'other';
 	  var railFilterText = '';
@@ -4400,10 +4637,15 @@
     return CHANNELS.find(function(ch) { return ch.id === id; }) || CHANNELS[0];
   }
 
-  function channelIndex(id) {
-    var idx = CHANNELS.findIndex(function(ch) { return ch.id === id; });
-    return idx < 0 ? 0 : idx;
-  }
+	  function channelIndex(id) {
+	    var idx = CHANNELS.findIndex(function(ch) { return ch.id === id; });
+	    return idx < 0 ? 0 : idx;
+	  }
+
+	  function categoryLabel(id) {
+	    var dict = CATEGORY_LABELS[currentLang] || CATEGORY_LABELS.es;
+	    return dict[id] || id.toUpperCase();
+	  }
 
 	  function channelCategory(ch) {
 	    if (!ch) return 'other';
@@ -4411,6 +4653,7 @@
 	    if (ch.tag === 'News') return 'news';
 	    if (ch.tag === 'Cooking') return 'cooking';
 	    if (ch.tag === 'Music') return 'music';
+	    if (ch.tag === 'Movies' || ch.tag === 'Series') return 'movies';
 	    return 'other';
 	  }
 
@@ -4586,6 +4829,12 @@
 	      return {
 	        title: currentLang === 'es' ? 'Cocina y recetas' : 'Cooking and recipes',
 	        meta: currentLang === 'es' ? 'Chefs, comida y competencia' : 'Chefs, food and competition'
+	      };
+	    }
+	    if (ch.tag === 'Movies' || ch.tag === 'Series') {
+	      return {
+	        title: currentLang === 'es' ? 'Peliculas y series gratis' : 'Free movies and series',
+	        meta: currentLang === 'es' ? 'Canal FAST/publico en vivo' : 'Free FAST/public live channel'
 	      };
 	    }
 	    if (ch.tag === 'News') {
@@ -5091,10 +5340,14 @@
 	  function renderCategoryStrip() {
 	    CATEGORY_IDS.forEach(function(id) {
 	      var btn = document.querySelector('.category-btn[data-category="' + id + '"]');
+	      var label = categoryLabel(id);
 	      if (btn) {
 	        btn.classList.toggle('active', id === activeCategory);
 	        btn.setAttribute('aria-pressed', id === activeCategory ? 'true' : 'false');
-	        btn.setAttribute('title', CATEGORY_LABELS[id] || id);
+	        btn.setAttribute('title', label);
+	        btn.setAttribute('aria-label', label);
+	        var labelEl = btn.querySelector('.category-label');
+	        if (labelEl) labelEl.textContent = label;
 	      }
 	      var count = document.getElementById('cat-count-' + id);
 	      if (count) count.textContent = categoryChannels(id).length;
@@ -5528,6 +5781,30 @@
     setTimeout(function() { po.classList.remove('touched'); }, 3000);
   };
 
+  function bindSwipeZap() {
+    var mount = document.getElementById('playerMount');
+    if (!mount || mount.swipeZapBound) return;
+    mount.swipeZapBound = true;
+    mount.addEventListener('touchstart', function(event) {
+      if (!event.touches || event.touches.length !== 1) return;
+      var point = event.touches[0];
+      swipeStartX = point.clientX;
+      swipeStartY = point.clientY;
+      swipeStartAt = Date.now();
+    }, { passive:true });
+    mount.addEventListener('touchend', function(event) {
+      if (!swipeStartAt || !event.changedTouches || !event.changedTouches.length) return;
+      var point = event.changedTouches[0];
+      var dx = point.clientX - swipeStartX;
+      var dy = point.clientY - swipeStartY;
+      var dt = Date.now() - swipeStartAt;
+      swipeStartAt = 0;
+      if (dt > 900 || Math.abs(dx) < 58 || Math.abs(dx) < Math.abs(dy) * 1.35) return;
+      event.preventDefault();
+      window.zapChannel(dx < 0 ? 1 : -1);
+    }, { passive:false });
+  }
+
   window.doCast = function() {
     document.getElementById('cast-modal').classList.add('show');
   };
@@ -5608,6 +5885,7 @@
     setTimeout(syncRailHeight, 250);
   });
 
+  bindSwipeZap();
   applyLanguage();
 })();
 </script>

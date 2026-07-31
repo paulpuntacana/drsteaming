@@ -2841,9 +2841,92 @@
 	    .status-strip {
 	      background:linear-gradient(90deg,#03080f,#081a2d 45%,#15080a);
 	    }
+	    :root {
+	      --category-h:88px;
+	    }
+	    .category-strip {
+	      display:grid;
+	      grid-template-columns:repeat(5,minmax(0,1fr));
+	      gap:12px;
+	      min-height:var(--category-h);
+	      padding:13px 26px 0;
+	      background:linear-gradient(180deg,#03080f 0%,#06101d 100%);
+	    }
+	    .category-btn {
+	      display:grid;
+	      grid-template-columns:42px minmax(0,1fr) auto;
+	      align-items:center;
+	      gap:11px;
+	      min-width:0;
+	      min-height:64px;
+	      padding:10px 12px;
+	      border-radius:8px;
+	      border:1px solid rgba(255,255,255,0.12);
+	      background:linear-gradient(180deg,#10233a,#071320);
+	      color:#fff;
+	      box-shadow:0 14px 28px rgba(0,0,0,0.24),inset 0 1px 0 rgba(255,255,255,0.08);
+	      cursor:pointer;
+	    }
+	    .category-btn:hover {
+	      border-color:rgba(255,122,0,0.46);
+	      background:linear-gradient(180deg,#142c48,#091725);
+	    }
+	    .category-btn.active {
+	      border-color:rgba(255,122,0,0.92);
+	      background:linear-gradient(90deg,rgba(255,122,0,0.34),#10233a);
+	      box-shadow:inset 5px 0 0 #ff7a00,0 18px 36px rgba(0,0,0,0.32);
+	    }
+	    .category-btn:focus {
+	      outline:2px solid rgba(255,122,0,0.72);
+	      outline-offset:2px;
+	    }
+	    .category-icon {
+	      display:grid;
+	      place-items:center;
+	      width:42px;
+	      height:42px;
+	      border-radius:8px;
+	      border:1px solid rgba(255,122,0,0.28);
+	      background:rgba(255,122,0,0.10);
+	      color:#ffb56b;
+	    }
+	    .category-icon .ic {
+	      width:21px;
+	      height:21px;
+	    }
+	    .category-label {
+	      min-width:0;
+	      overflow:hidden;
+	      text-overflow:ellipsis;
+	      color:#fff;
+	      font-size:14px;
+	      font-weight:950;
+	      letter-spacing:0;
+	    }
+	    .category-count {
+	      display:grid;
+	      place-items:center;
+	      min-width:34px;
+	      height:28px;
+	      padding:0 8px;
+	      border-radius:8px;
+	      border:1px solid rgba(255,122,0,0.34);
+	      background:rgba(255,122,0,0.12);
+	      color:#ffd2a3;
+	      font-family:'Geist Mono',monospace;
+	      font-size:11px;
+	      font-weight:950;
+	    }
+	    .layout {
+	      min-height:calc(100vh - var(--topbar-h) - 42px - var(--category-h));
+	    }
+	    .side-col {
+	      top:calc(var(--rail-top) + var(--category-h));
+	      height:calc(100vh - var(--rail-top) - var(--category-h) - 20px);
+	    }
 
 	    @media (max-height:760px) and (min-width:861px) {
-	      :root { --topbar-h:100px; --rail-top:118px; --player-h:calc(100vh - 136px); }
+	      :root { --topbar-h:100px; --rail-top:118px; --player-h:calc(100vh - 136px); --category-h:72px; }
 	      .topbar {
 	        min-height:var(--topbar-h);
 	        padding:12px 24px;
@@ -2852,10 +2935,14 @@
 	      .brand-logo { width:166px!important; height:64px!important; }
 	      .brand-title { font-size:25px; }
 	      .brand-text::after { display:none; }
+	      .category-strip { min-height:var(--category-h); padding-top:10px; }
+	      .category-btn { min-height:52px; grid-template-columns:34px minmax(0,1fr) auto; padding:8px 10px; }
+	      .category-icon { width:34px; height:34px; }
+	      .category-label { font-size:12px; }
 	    }
 
 	    @media (max-width:860px) {
-	      :root { --topbar-h:92px; --rail-top:0px; --player-h:auto; }
+	      :root { --topbar-h:92px; --rail-top:0px; --player-h:auto; --category-h:auto; }
 	      .topbar {
 	        min-height:var(--topbar-h);
 	        padding:10px 12px;
@@ -2881,6 +2968,29 @@
 		        margin-top:0;
 	        padding:5px;
 	      }
+	      .category-strip {
+	        display:flex;
+	        gap:8px;
+	        min-height:0;
+	        padding:10px;
+	        overflow-x:auto;
+	        scroll-snap-type:x mandatory;
+	        scrollbar-width:none;
+	      }
+	      .category-strip::-webkit-scrollbar { display:none; }
+	      .category-btn {
+	        flex:0 0 min(172px,42vw);
+	        min-height:58px;
+	        grid-template-columns:36px minmax(0,1fr) auto;
+	        scroll-snap-align:start;
+	      }
+	      .category-icon { width:36px; height:36px; }
+	      .category-label { font-size:12px; }
+	      .layout { min-height:auto; }
+	      .side-col {
+	        top:auto;
+	        height:min(60vh,620px);
+	      }
 	    }
 	  </style>
 </head>
@@ -2897,6 +3007,11 @@
     <symbol id="i-alert" viewBox="0 0 24 24"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></symbol>
     <symbol id="i-ball" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 7.5 8.5 10l1.3 4h4.4l1.3-4Z"/><path d="m12 2 0 5.5M5.5 8.5 8.5 10M18.5 8.5 15.5 10M9.8 14l-2 4.2M14.2 14l2 4.2"/></symbol>
     <symbol id="i-baseball" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M6.2 4.6c2.2 2.4 3.1 4.9 3 7.4-.1 2.6-1.2 5.1-3 7.4"/><path d="M17.8 4.6c-2.2 2.4-3.1 4.9-3 7.4.1 2.6 1.2 5.1 3 7.4"/><path d="M8.2 7.1 6.9 8.4M9.2 10.2l-1.5 1.1M8.8 13.8l-1.5 1M15.8 7.1l1.3 1.3M14.8 10.2l1.5 1.1M15.2 13.8l1.5 1"/></symbol>
+    <symbol id="i-trophy" viewBox="0 0 24 24"><path d="M8 21h8"/><path d="M12 17v4"/><path d="M7 4h10v5a5 5 0 0 1-10 0Z"/><path d="M5 5H3v2a4 4 0 0 0 4 4"/><path d="M19 5h2v2a4 4 0 0 1-4 4"/></symbol>
+    <symbol id="i-news" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 0 6.5 22H19a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2v14.5"/><path d="M4 7H2v12.5A2.5 2.5 0 0 0 4.5 22"/><path d="M9 7h6"/><path d="M9 11h8"/><path d="M9 15h5"/></symbol>
+    <symbol id="i-utensils" viewBox="0 0 24 24"><path d="M4 3v7"/><path d="M8 3v7"/><path d="M6 3v18"/><path d="M12 3c2.8 1.8 4 4.1 4 7v11"/><path d="M19 3v18"/></symbol>
+    <symbol id="i-music" viewBox="0 0 24 24"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></symbol>
+    <symbol id="i-grid" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></symbol>
     <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></symbol>
     <symbol id="i-monitor" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></symbol>
     <symbol id="i-phone" viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2.5"/><path d="M12 18h.01"/></symbol>
@@ -2930,6 +3045,34 @@
     <span data-i18n="strip-title">Sport & TV</span>
     <em data-i18n="strip-sub">canales para beisbol, futbol, basquetbol y TV local</em>
   </div>
+
+  <nav class="category-strip" id="categoryStrip" aria-label="Channel categories">
+    <button class="category-btn" data-category="sports" onclick="setCategory('sports')">
+      <span class="category-icon"><svg class="ic"><use href="#i-trophy"/></svg></span>
+      <span class="category-label">SPORTS</span>
+      <b class="category-count" id="cat-count-sports">0</b>
+    </button>
+    <button class="category-btn" data-category="news" onclick="setCategory('news')">
+      <span class="category-icon"><svg class="ic"><use href="#i-news"/></svg></span>
+      <span class="category-label">NEWS</span>
+      <b class="category-count" id="cat-count-news">0</b>
+    </button>
+    <button class="category-btn" data-category="cooking" onclick="setCategory('cooking')">
+      <span class="category-icon"><svg class="ic"><use href="#i-utensils"/></svg></span>
+      <span class="category-label">COOKING</span>
+      <b class="category-count" id="cat-count-cooking">0</b>
+    </button>
+    <button class="category-btn" data-category="music" onclick="setCategory('music')">
+      <span class="category-icon"><svg class="ic"><use href="#i-music"/></svg></span>
+      <span class="category-label">MUSIC</span>
+      <b class="category-count" id="cat-count-music">0</b>
+    </button>
+    <button class="category-btn" data-category="other" onclick="setCategory('other')">
+      <span class="category-icon"><svg class="ic"><use href="#i-grid"/></svg></span>
+      <span class="category-label">OTHER</span>
+      <b class="category-count" id="cat-count-other">0</b>
+    </button>
+  </nav>
 
   <div class="layout">
     <main class="main-col" id="playerMount" aria-live="polite" tabindex="-1"></main>
@@ -4201,6 +4344,11 @@
 	  var ZAP_LOAD_DELAY = TV_LIGHT_MODE ? 1150 : 620;
 	  var ZAP_MIN_INTERVAL = TV_LIGHT_MODE ? 280 : 155;
 	  if (TV_LIGHT_MODE) document.documentElement.classList.add('tv-lite-mode');
+	  var CATEGORY_IDS = ['sports','news','cooking','music','other'];
+	  var CATEGORY_LABELS = {sports:'SPORTS',news:'NEWS',cooking:'COOKING',music:'MUSIC',other:'OTHER'};
+	  var savedCategory = safeStorageGet('sportTvCategory');
+	  var activeCategory = CATEGORY_IDS.indexOf(savedCategory) > -1 ? savedCategory : 'other';
+	  var railFilterText = '';
   var savedLang = safeStorageGet('sportTvLang');
   var currentLang = STRINGS[savedLang] ? savedLang : 'es';
 
@@ -4257,21 +4405,60 @@
     return idx < 0 ? 0 : idx;
   }
 
-	  function formatChannelNumber(ch) {
-	    var no = Number(ch && ch.channelNo) || (channelIndex(ch && ch.id) + 1);
-	    var width = CHANNELS.length >= 100 ? 3 : 2;
+	  function channelCategory(ch) {
+	    if (!ch) return 'other';
+	    if (ch.tag === 'Sports' || ch.tag === 'Football' || ch.tag === 'Baseball') return 'sports';
+	    if (ch.tag === 'News') return 'news';
+	    if (ch.tag === 'Cooking') return 'cooking';
+	    if (ch.tag === 'Music') return 'music';
+	    return 'other';
+	  }
+
+	  function channelMatchesCategory(ch, category) {
+	    return channelCategory(ch) === category;
+	  }
+
+	  function categoryChannels(category) {
+	    return CHANNELS.filter(function(ch) { return channelMatchesCategory(ch, category || activeCategory); });
+	  }
+
+	  function channelMatchesSearch(ch, filter) {
+	    var q = (filter || '').trim().toLowerCase();
+	    if (!q) return true;
+	    var text = [ch.name, ch.short, ch.number, ch.group, ch.tag, ch.desc].join(' ').toLowerCase();
+	    return text.indexOf(q) > -1;
+	  }
+
+	  function visibleChannels() {
+	    return categoryChannels(activeCategory).filter(function(ch) {
+	      return channelMatchesSearch(ch, railFilterText);
+	    });
+	  }
+
+	  function numberScopeChannels() {
+	    var list = visibleChannels();
+	    if (!list.length && railFilterText) list = categoryChannels(activeCategory);
+	    return list;
+	  }
+
+	  function padNumber(no, width) {
 	    var value = String(no);
 	    while (value.length < width) value = '0' + value;
 	    return value;
 	  }
 
+	  function formatChannelNumber(ch, list) {
+	    list = list || numberScopeChannels();
+	    var idx = list.findIndex(function(item) { return item.id === (ch && ch.id); });
+	    if (idx > -1) return padNumber(idx + 1, Math.max(2, String(list.length || 1).length));
+	    return padNumber(Number(ch && ch.channelNo) || (channelIndex(ch && ch.id) + 1), CHANNELS.length >= 100 ? 3 : 2);
+	  }
+
 	  function channelByNumber(value) {
 	    var no = parseInt(value, 10);
 	    if (!isFinite(no)) return null;
-	    for (var i = 0; i < CHANNELS.length; i++) {
-	      if (CHANNELS[i].channelNo === no) return CHANNELS[i];
-	    }
-	    return null;
+	    var list = numberScopeChannels();
+	    return list[no - 1] || null;
 	  }
 
 	  function copySwitchOpts(opts) {
@@ -4609,7 +4796,9 @@
   }
 
 	  function zappableChannels() {
-	    return CHANNELS.filter(function(ch) { return ch.type !== 'external' && !ch.skipZap; });
+	    var list = numberScopeChannels().filter(function(ch) { return ch.type !== 'external' && !ch.skipZap; });
+	    if (list.length) return list;
+	    return categoryChannels(activeCategory).filter(function(ch) { return ch.type !== 'external' && !ch.skipZap; });
 	  }
 
   function safeFocus(el) {
@@ -4622,6 +4811,7 @@
 
   function zappableAtOffset(id, offset) {
     var list = zappableChannels();
+    if (!list.length) return channelById(id);
     var idx = list.findIndex(function(ch) { return ch.id === id; });
     if (idx < 0) idx = 0;
     return list[(idx + offset + list.length) % list.length];
@@ -4834,7 +5024,8 @@
 	  }
 
 	  function handleNumberDigit(digit) {
-	    var maxDigits = String(CHANNELS.length).length;
+	    var scope = numberScopeChannels();
+	    var maxDigits = Math.max(1, String(scope.length || CHANNELS.length).length);
 	    if (numberEntry.length >= maxDigits) numberEntry = '';
 	    numberEntry = (numberEntry + digit).slice(-maxDigits);
 	    showNumberEntryOverlay(numberEntry, false);
@@ -4842,7 +5033,7 @@
 	    var parsed = parseInt(numberEntry, 10);
 	    var delay = 1150;
 	    if (numberEntry.length >= maxDigits) delay = 260;
-	    else if (isFinite(parsed) && parsed > Math.floor(CHANNELS.length / 10)) delay = 540;
+	    else if (isFinite(parsed) && parsed > Math.floor((scope.length || CHANNELS.length) / 10)) delay = 540;
 	    numberEntryTimer = setTimeout(commitNumberEntry, delay);
 	  }
 
@@ -4897,15 +5088,52 @@
 	    mount.innerHTML = playerSectionHtml(channelById(activeId));
 	  }
 
-  function renderRail(filter) {
-    var rail = document.getElementById('channelRail');
-    var q = (filter || '').trim().toLowerCase();
-    var visible = CHANNELS.filter(function(ch) {
-      var text = [ch.name, ch.short, ch.number, ch.group, ch.tag, ch.desc].join(' ').toLowerCase();
-      return !q || text.indexOf(q) > -1;
-    });
+	  function renderCategoryStrip() {
+	    CATEGORY_IDS.forEach(function(id) {
+	      var btn = document.querySelector('.category-btn[data-category="' + id + '"]');
+	      if (btn) {
+	        btn.classList.toggle('active', id === activeCategory);
+	        btn.setAttribute('aria-pressed', id === activeCategory ? 'true' : 'false');
+	        btn.setAttribute('title', CATEGORY_LABELS[id] || id);
+	      }
+	      var count = document.getElementById('cat-count-' + id);
+	      if (count) count.textContent = categoryChannels(id).length;
+	    });
+	  }
 
-    document.getElementById('channelCount').textContent = visible.length + '/' + CHANNELS.length;
+	  function ensureActiveInCurrentScope() {
+	    var list = zappableChannels();
+	    if (!list.length) return;
+	    var found = list.some(function(ch) { return ch.id === activeId; });
+	    if (!found) activeId = list[0].id;
+	  }
+
+	  window.setCategory = function(category) {
+	    if (CATEGORY_IDS.indexOf(category) < 0) return;
+	    clearPendingTune();
+	    activeCategory = category;
+	    safeStorageSet('sportTvCategory', category);
+	    var search = document.getElementById('channelSearch');
+	    if (search) search.value = '';
+	    railFilterText = '';
+	    renderCategoryStrip();
+	    ensureActiveInCurrentScope();
+	    renderRail('');
+	    window.sw(activeId, {
+	      zap:true,
+	      direction:0,
+	      noDefer:true,
+	      keepIosFs:document.body.classList.contains('has-ios-fs')
+	    });
+	  };
+
+  function renderRail(filter) {
+    railFilterText = filter || '';
+    var rail = document.getElementById('channelRail');
+    var visible = visibleChannels();
+    var categoryTotal = categoryChannels(activeCategory).length;
+
+    document.getElementById('channelCount').textContent = visible.length + '/' + categoryTotal;
     if (!visible.length) {
       rail.innerHTML = '<div class="channel-group">' + esc(t('search-empty')) + '</div>';
       return;
@@ -4917,7 +5145,7 @@
       lastGroup = ch.group;
 	      return groupHtml +
 	        '<button class="channel-item" id="tab-' + esc(ch.id) + '" data-channel="' + esc(ch.id) + '" onclick="sw(\'' + esc(ch.id) + '\')">' +
-	          '<span class="channel-number">' + esc(formatChannelNumber(ch)) + '</span>' +
+	          '<span class="channel-number">' + esc(formatChannelNumber(ch, visible)) + '</span>' +
 	          logoHtml(ch, 'channel-logo') +
 	          '<span class="channel-meta"><span class="channel-name">' + esc(ch.short) + '</span><span class="channel-sub">' + esc(ch.number + ' · ' + ch.tag) + '</span></span>' +
 	          '<span class="channel-badge ' + esc(ch.badgeType) + '">' + esc(ch.badge) + '</span>' +
@@ -5358,8 +5586,11 @@
 	      hardRefreshBtn.title = t('hard-refresh');
 	      hardRefreshBtn.setAttribute('aria-label', t('hard-refresh'));
 	    }
-    renderRail(document.getElementById('channelSearch').value);
-    sw(activeId);
+	    renderCategoryStrip();
+	    railFilterText = document.getElementById('channelSearch').value || '';
+	    ensureActiveInCurrentScope();
+    renderRail(railFilterText);
+    window.sw(activeId, { noDefer:true });
   }
 
   window.setLang = function(lang) {

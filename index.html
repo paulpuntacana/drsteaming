@@ -2545,6 +2545,21 @@
 	    .zap-shell.number-entry {
 	      border-color:rgba(255,184,92,0.74);
 	    }
+	    .zap-shell.tuning {
+	      border-color:rgba(255,184,92,0.82);
+	      box-shadow:0 24px 60px rgba(0,0,0,0.62),0 0 0 1px rgba(255,122,0,0.22) inset;
+	    }
+	    .zap-shell.tuning .zap-kicker {
+	      background:linear-gradient(90deg,rgba(255,122,0,0.22),rgba(7,20,36,0.52));
+	    }
+	    .tv-lite-mode .zap-shell,
+	    .tv-lite-mode .player-loading {
+	      backdrop-filter:none!important;
+	      -webkit-backdrop-filter:none!important;
+	    }
+	    .tv-lite-mode .zap-overlay {
+	      transition:opacity 0.08s linear!important;
+	    }
 	    .zap-digits {
 	      display:flex;
 	      align-items:center;
@@ -4138,6 +4153,22 @@
     }
   };
 
+	  function safeStorageGet(key) {
+	    try { return localStorage.getItem(key) || ''; } catch(e) { return ''; }
+	  }
+
+	  function safeStorageSet(key, value) {
+	    try { localStorage.setItem(key, value); } catch(e) {}
+	  }
+
+	  function safeSessionGet(key) {
+	    try { return sessionStorage.getItem(key) || ''; } catch(e) { return ''; }
+	  }
+
+	  function safeSessionSet(key, value) {
+	    try { sessionStorage.setItem(key, value); } catch(e) {}
+	  }
+
 	  var activeId = 'colorvision';
 	  var hlsInstances = {};
 	  var loadingTimers = {};
@@ -4148,12 +4179,29 @@
 	  var HlsRuntime = null;
   var hlsRuntimeReady = false;
   var hlsRuntimeFailed = false;
-  var hlsWaitTimers = {};
+	  var hlsWaitTimers = {};
 	  var zapTimer = null;
+	  var pendingTuneTimer = null;
+	  var pendingTuneId = '';
+	  var pendingTuneOpts = null;
 	  var numberEntry = '';
 	  var numberEntryTimer = null;
-  var lastZapAt = 0;
-  var savedLang = localStorage.getItem('sportTvLang');
+	  var lastRailActiveId = '';
+	  var lastZapAt = 0;
+	  var streamFailureTimes = [];
+	  var tvLightQuery = /(?:[?&])(tvlight|slowtv|lite)(?:=|&|$)/i.test(window.location.search || '');
+	  var tvFullQuery = /(?:[?&])(fulltv|fasttv)(?:=|&|$)/i.test(window.location.search || '');
+	  var tvUserAgent = /smart-?tv|tizen|web0s|webos|netcast|hbbtv|bravia|aquos|viera|hisense|vidaa|ce-html|dtv|aftt|aftm|crkey|chromecast/i.test(navigator.userAgent || '');
+	  var hardwareThreads = Number(navigator.hardwareConcurrency) || 0;
+	  var screenMax = Math.max((window.screen && window.screen.width) || 0, (window.screen && window.screen.height) || 0);
+	  var lowPowerLargeScreen = !!(hardwareThreads && hardwareThreads <= 4 && screenMax >= 1200);
+	  if (tvLightQuery) safeStorageSet('sportTvMode', 'light');
+	  if (tvFullQuery) safeStorageSet('sportTvMode', 'full');
+	  var TV_LIGHT_MODE = !tvFullQuery && (tvLightQuery || tvUserAgent || lowPowerLargeScreen || safeStorageGet('sportTvMode') === 'light');
+	  var ZAP_LOAD_DELAY = TV_LIGHT_MODE ? 1150 : 620;
+	  var ZAP_MIN_INTERVAL = TV_LIGHT_MODE ? 280 : 155;
+	  if (TV_LIGHT_MODE) document.documentElement.classList.add('tv-lite-mode');
+  var savedLang = safeStorageGet('sportTvLang');
   var currentLang = STRINGS[savedLang] ? savedLang : 'es';
 
 	  function markHlsRuntime(state) {
@@ -4224,6 +4272,78 @@
 	      if (CHANNELS[i].channelNo === no) return CHANNELS[i];
 	    }
 	    return null;
+	  }
+
+	  function copySwitchOpts(opts) {
+	    var out = {};
+	    opts = opts || {};
+	    for (var key in opts) {
+	      if (Object.prototype.hasOwnProperty.call(opts, key)) out[key] = opts[key];
+	    }
+	    return out;
+	  }
+
+	  function clearPendingTune() {
+	    if (pendingTuneTimer) clearTimeout(pendingTuneTimer);
+	    pendingTuneTimer = null;
+	    pendingTuneId = '';
+	    pendingTuneOpts = null;
+	  }
+
+	  function currentZapOverlay(id) {
+	    var overlay = document.getElementById('zap-' + id);
+	    if (overlay) return overlay;
+	    return document.querySelector('#playerMount .zap-overlay');
+	  }
+
+	  function shouldDeferZap(opts) {
+	    return !!(opts && opts.zap && !opts.loadNow && !opts.noDefer);
+	  }
+
+	  function scrollActiveButton(ch, zap) {
+	    if (TV_LIGHT_MODE && isFullscreenMode()) return;
+	    var btn = document.getElementById('tab-' + ch.id);
+	    if (btn) btn.scrollIntoView({ behavior:zap ? 'auto' : 'smooth', block:'nearest' });
+	  }
+
+	  function schedulePendingTune(ch, opts) {
+	    pendingTuneId = ch.id;
+	    pendingTuneOpts = copySwitchOpts(opts);
+	    if (pendingTuneTimer) clearTimeout(pendingTuneTimer);
+	    pendingTuneTimer = setTimeout(function() {
+	      var id = pendingTuneId || ch.id;
+	      var runOpts = copySwitchOpts(pendingTuneOpts || opts);
+	      pendingTuneTimer = null;
+	      pendingTuneId = '';
+	      pendingTuneOpts = null;
+	      runOpts.loadNow = true;
+	      window.sw(id, runOpts);
+	    }, Number(opts && opts.loadDelay) || ZAP_LOAD_DELAY);
+	  }
+
+	  function previewTune(ch, opts) {
+	    activeId = ch.id;
+	    setActiveRail();
+	    scrollActiveButton(ch, true);
+	    showZapOverlay(ch.id, opts.direction || 0, true);
+	    schedulePendingTune(ch, opts);
+	  }
+
+	  function noteStreamFailure(ch) {
+	    if (!TV_LIGHT_MODE) return;
+	    var now = Date.now();
+	    streamFailureTimes = streamFailureTimes.filter(function(time) { return now - time < 52000; });
+	    streamFailureTimes.push(now);
+	    if (streamFailureTimes.length < 3) return;
+	    var lastRecover = Number(safeSessionGet('sportTvLastRecover')) || 0;
+	    if (now - lastRecover < 120000) return;
+	    safeSessionSet('sportTvLastRecover', String(now));
+	    setTimeout(function() {
+	      if (!TV_LIGHT_MODE) return;
+	      stopAllMedia();
+	      var base = window.location.href.split('#')[0].split('?')[0];
+	      window.location.replace(base + '?tvlight=1&recover=' + now);
+	    }, 900);
 	  }
 
   function channelAtOffset(id, offset) {
@@ -4331,6 +4451,7 @@
 	  }
 
 	  function setLoadingState(ch, percent, label) {
+	    if (pendingTuneId && ch.id !== activeId) return;
 	    if (playbackReady[ch.id] && label === t('buffering')) return;
 	    var loading = document.getElementById('load-' + ch.id);
 	    if (!loading) return;
@@ -4398,22 +4519,29 @@
 	  }
 
 	  function scheduleBuffering(ch, video) {
+	    if (activeId !== ch.id) return;
 	    if (!video || video.paused || video.ended) return;
+	    var startTime = video.currentTime || 0;
 	    if (bufferTimers[ch.id]) clearTimeout(bufferTimers[ch.id]);
 	    bufferTimers[ch.id] = setTimeout(function() {
+	      if (activeId !== ch.id) return;
 	      if (!video || video.paused || video.ended) return;
-	      if (video.readyState >= 3) {
+	      if (video.readyState >= 3 || (video.currentTime || 0) > startTime + 0.25) {
+	        playbackReady[ch.id] = true;
 	        hideLoadingState(ch);
 	        return;
 	      }
 	      playbackReady[ch.id] = false;
 	      loadingProgress[ch.id] = bufferedPercent(video);
 	      startLoadingState(ch, t('buffering'));
-	    }, 1100);
+	    }, TV_LIGHT_MODE ? 2600 : 1500);
 	  }
 
 	  function markVideoActive(ch, video) {
+	    if (activeId !== ch.id) return;
+	    streamFailureTimes = [];
 	    if (video) {
+	      forceNormalSpeed(ch.id);
 	      if (!audioBlocked[ch.id]) {
 	        video.defaultMuted = false;
 	        video.muted = false;
@@ -4429,6 +4557,7 @@
 
 	  function requestVideoPlay(ch, video) {
 	    if (!video || activeId !== ch.id) return;
+	    forceNormalSpeed(ch.id);
 	    video.defaultMuted = false;
 	    video.muted = false;
 	    video.volume = 1;
@@ -4515,18 +4644,33 @@
     return src + glue + 'origin=' + encodeURIComponent(window.location.origin);
   }
 
-  function kickIframePlayback(id) {
-    var frame = document.getElementById('pl-' + id);
-    if (!frame || !frame.contentWindow) return;
-    try {
-      frame.contentWindow.postMessage(JSON.stringify({ event:'command', func:'playVideo', args:[] }), '*');
-      frame.contentWindow.postMessage(JSON.stringify({ event:'command', func:'unMute', args:[] }), '*');
-      frame.contentWindow.postMessage(JSON.stringify({ event:'command', func:'setVolume', args:[100] }), '*');
-      frame.contentWindow.postMessage(JSON.stringify({ command:'play' }), '*');
-      frame.contentWindow.postMessage(JSON.stringify({ command:'setVolume', parameters:[1] }), '*');
-      frame.contentWindow.postMessage(JSON.stringify({ command:'muted', parameters:[false] }), '*');
-    } catch(e) {}
-  }
+	  function kickIframePlayback(id) {
+	    var frame = document.getElementById('pl-' + id);
+	    if (!frame || !frame.contentWindow) return;
+	    try {
+	      frame.contentWindow.postMessage(JSON.stringify({ event:'command', func:'playVideo', args:[] }), '*');
+	      frame.contentWindow.postMessage(JSON.stringify({ event:'command', func:'unMute', args:[] }), '*');
+	      frame.contentWindow.postMessage(JSON.stringify({ event:'command', func:'setVolume', args:[100] }), '*');
+	      frame.contentWindow.postMessage(JSON.stringify({ event:'command', func:'setPlaybackRate', args:[1] }), '*');
+	      frame.contentWindow.postMessage(JSON.stringify({ command:'play' }), '*');
+	      frame.contentWindow.postMessage(JSON.stringify({ command:'setVolume', parameters:[1] }), '*');
+	      frame.contentWindow.postMessage(JSON.stringify({ command:'muted', parameters:[false] }), '*');
+	      frame.contentWindow.postMessage(JSON.stringify({ command:'setPlaybackRate', parameters:[1] }), '*');
+	    } catch(e) {}
+	  }
+
+	  function forceNormalSpeed(id) {
+	    var ch = channelById(id || activeId);
+	    var video = document.getElementById('pl-' + ch.id);
+	    if (video && video.tagName === 'VIDEO') {
+	      try { video.defaultPlaybackRate = 1; } catch(e) {}
+	      try {
+	        if (Math.abs((video.playbackRate || 1) - 1) > 0.01) video.playbackRate = 1;
+	      } catch(e) {}
+	    } else {
+	      kickIframePlayback(ch.id);
+	    }
+	  }
 
   window.unmuteStream = function(id, event) {
     if (event) {
@@ -4539,10 +4683,11 @@
     audioBlocked[ch.id] = false;
     var video = sec.querySelector('video');
     if (video) {
-      video.defaultMuted = false;
-      video.muted = false;
-      video.volume = 1;
-      video.removeAttribute('muted');
+	      video.defaultMuted = false;
+	      video.muted = false;
+	      video.volume = 1;
+	      forceNormalSpeed(ch.id);
+	      video.removeAttribute('muted');
       if (video.seekable && video.seekable.length) {
         try { video.currentTime = video.seekable.end(video.seekable.length - 1); } catch(e) {}
       }
@@ -4590,19 +4735,22 @@
     '</div>';
   }
 
-  function showZapOverlay(id, direction) {
+  function showZapOverlay(id, direction, tuning) {
     var ch = channelById(id);
     var prev = zappableAtOffset(ch.id, -1);
     var next = zappableAtOffset(ch.id, 1);
     var signal = Math.max(0, Math.min(100, Number(ch.signal) || 0));
-    var overlay = document.getElementById('zap-' + ch.id);
+    var overlay = currentZapOverlay(ch.id);
     if (!overlay) return;
+    var rightLabel = tuning
+      ? (currentLang === 'es' ? 'SINTONIZANDO' : 'TUNING')
+      : (direction < 0 ? 'CH-' : direction > 0 ? 'CH+' : ch.group);
     document.querySelectorAll('.zap-overlay.show').forEach(function(el) {
       if (el !== overlay) el.classList.remove('show');
     });
 	    overlay.innerHTML =
-	      '<div class="zap-shell">' +
-	        '<div class="zap-kicker"><span class="zap-channel-no">' + esc(formatChannelNumber(ch)) + '</span><strong>' + esc(ch.name) + '</strong><span>' + esc(direction < 0 ? 'CH-' : direction > 0 ? 'CH+' : ch.group) + '</span></div>' +
+	      '<div class="zap-shell' + (tuning ? ' tuning' : '') + '">' +
+	        '<div class="zap-kicker"><span class="zap-channel-no">' + esc(formatChannelNumber(ch)) + '</span><strong>' + esc(ch.name) + '</strong><span>' + esc(rightLabel) + '</span></div>' +
 	        programHtml(ch, 'zap-program') +
 	        '<div class="zap-track">' +
 	          zapRowHtml(prev, 'ghost prev', 'PREV') +
@@ -4611,6 +4759,7 @@
 	        '</div>' +
 	        '<div class="zap-metrics">' +
 	          '<span class="zap-quality">RES <b>' + esc(qualityLabel(ch)) + '</b></span>' +
+	          (tuning ? '<span class="zap-quality">TV <b>LITE</b></span>' : '') +
 	          '<span class="zap-signal">' + signalBars(signal) + esc(signal + '%') + '</span>' +
         '</div>' +
       '</div>';
@@ -4643,7 +4792,7 @@
 	  function showNumberEntryOverlay(value, invalid) {
 	    var current = channelById(activeId);
 	    var target = channelByNumber(value);
-	    var overlay = document.getElementById('zap-' + current.id);
+	    var overlay = currentZapOverlay(current.id);
 	    if (!overlay) return;
 	    var label = invalid
 	      ? (currentLang === 'es' ? 'Canal no encontrado' : 'Channel not found')
@@ -4676,10 +4825,11 @@
 	      showNumberEntryOverlay(value, true);
 	      return;
 	    }
-	    sw(target.id, {
+	    window.sw(target.id, {
 	      zap:true,
 	      direction:0,
-	      keepIosFs:document.body.classList.contains('has-ios-fs')
+	      keepIosFs:document.body.classList.contains('has-ios-fs'),
+	      noDefer:true
 	    });
 	  }
 
@@ -4702,7 +4852,7 @@
 
   window.zapChannel = function(delta) {
     var now = Date.now();
-    if (now - lastZapAt < 140) return;
+    if (now - lastZapAt < ZAP_MIN_INTERVAL) return;
 	    clearNumberEntry();
     lastZapAt = now;
     var keepIosFs = document.body.classList.contains('has-ios-fs');
@@ -4715,7 +4865,7 @@
 	      if (ch.type === 'iframe') {
 	        player = '<iframe id="pl-' + esc(ch.id) + '" data-src="' + esc(ch.src) + '" tabindex="-1" onload="iframeReady(\'' + esc(ch.id) + '\')" allowfullscreen allow="autoplay;fullscreen;picture-in-picture;encrypted-media;web-share;cast" referrerpolicy="no-referrer-when-downgrade"></iframe><button class="remote-guard" id="guard-' + esc(ch.id) + '" tabindex="0" onclick="event.stopPropagation(); remotePlayerTap(\'' + esc(ch.id) + '\', this);" aria-label="TV remote focus"></button><div class="player-loading iframe-loading" id="load-' + esc(ch.id) + '">' + loadingHtml(ch, 12, t('loading')) + '</div>';
 	      } else if (ch.type === 'hls') {
-	        player = '<video id="pl-' + esc(ch.id) + '" controls autoplay playsinline webkit-playsinline preload="metadata"></video><div class="player-loading" id="load-' + esc(ch.id) + '">' + loadingHtml(ch, 8, t('loading')) + '</div>';
+	        player = '<video id="pl-' + esc(ch.id) + '" controls autoplay playsinline webkit-playsinline preload="metadata" controlslist="noplaybackrate nodownload" disablepictureinpicture></video><div class="player-loading" id="load-' + esc(ch.id) + '">' + loadingHtml(ch, 8, t('loading')) + '</div>';
 	      } else {
         player = '<div class="ext-panel"><div class="ext-icon"><svg class="ic"><use href="#i-tv"/></svg></div><h2>' + t('external-title') + '</h2><p>' + t('external-body') + '</p><a class="act-btn act-ext" href="' + esc(ch.fallback) + '" target="_blank" rel="noopener"><svg class="ic"><use href="#i-play"/></svg><span class="act-lbl">' + t('open-original') + '</span></a></div>';
       }
@@ -4779,6 +4929,7 @@
 	  function stopAllMedia(keepId) {
 	    Object.keys(hlsInstances).forEach(function(id) {
 	      if (id === keepId) return;
+	      try { hlsInstances[id].stopLoad(); } catch(e) {}
 	      try { hlsInstances[id].destroy(); } catch(e) {}
 	      delete hlsInstances[id];
 	      clearLoadingTimer(id);
@@ -4795,6 +4946,7 @@
 	      try { video.pause(); } catch(e) {}
 	      video.removeAttribute('src');
 	      video.dataset.loaded = '';
+	      try { video.load(); } catch(e) {}
 	      if (hlsWaitTimers[id]) {
 	        clearTimeout(hlsWaitTimers[id]);
 	        delete hlsWaitTimers[id];
@@ -4817,9 +4969,13 @@
 	  }
 
   function setActiveRail() {
-    document.querySelectorAll('.channel-item').forEach(function(btn) {
-      btn.classList.toggle('active', btn.dataset.channel === activeId);
-    });
+    if (lastRailActiveId && lastRailActiveId !== activeId) {
+      var prev = document.getElementById('tab-' + lastRailActiveId);
+      if (prev) prev.classList.remove('active');
+    }
+    var current = document.getElementById('tab-' + activeId);
+    if (current) current.classList.add('active');
+    lastRailActiveId = activeId;
   }
 
 	  function initHls(ch) {
@@ -4827,6 +4983,7 @@
 	    var loading = document.getElementById('load-' + ch.id);
 	    if (!video) return;
 	    playbackReady[ch.id] = false;
+	    forceNormalSpeed(ch.id);
 		    video.defaultMuted = false;
 		    video.muted = false;
 		    video.volume = 1;
@@ -4840,6 +4997,7 @@
 	    }
 
 		    function fail() {
+		      if (activeId !== ch.id) return;
 		      if (activeId === ch.id && !playbackReady[ch.id] && Date.now() - loadStartedAt < 22000) {
 		        if (!failPending) {
 		          failPending = true;
@@ -4853,6 +5011,7 @@
 		      }
 		      clearLoadingTimer(ch.id);
 		      playbackReady[ch.id] = false;
+		      noteStreamFailure(ch);
 		      if (loading) {
 	        loading.classList.remove('hidden');
 	        loading.innerHTML = flagLoaderHtml() + '<div class="load-copy"><strong>' + esc(t('stream-unavailable')) + '</strong><span>' + esc(ch.short) + '</span></div><a class="load-source" href="' + esc(ch.fallback) + '" target="_blank" rel="noopener">' + esc(t('open-original')) + '</a>';
@@ -4866,6 +5025,7 @@
 	      video.addEventListener('canplaythrough', ready);
 	      video.addEventListener('loadeddata', ready, { once:true });
 	      video.addEventListener('playing', ready);
+	      video.addEventListener('ratechange', function() { forceNormalSpeed(ch.id); });
 	      video.addEventListener('volumechange', function() { updateAudioButton(ch); });
 	      video.addEventListener('timeupdate', function() {
 	        if (!video.paused && video.currentTime > 0) hideLoadingState(ch);
@@ -4878,6 +5038,7 @@
 	    }
 
 	    if (hlsInstances[ch.id]) {
+	      try { hlsInstances[ch.id].stopLoad(); } catch(e) {}
 	      try { hlsInstances[ch.id].destroy(); } catch(e) {}
 	      delete hlsInstances[ch.id];
 	    }
@@ -4902,10 +5063,12 @@
 	      var hls = new HlsPlayer({
 	        enableWorker:false,
 	        lowLatencyMode:false,
-	        backBufferLength:18,
-	        maxBufferLength:18,
-	        maxMaxBufferLength:30,
-	        maxBufferSize:18000000,
+	        startLevel:TV_LIGHT_MODE ? 0 : -1,
+	        backBufferLength:TV_LIGHT_MODE ? 0 : 18,
+	        maxBufferLength:TV_LIGHT_MODE ? 8 : 18,
+	        maxMaxBufferLength:TV_LIGHT_MODE ? 12 : 30,
+	        maxBufferSize:TV_LIGHT_MODE ? 8000000 : 18000000,
+	        abrEwmaDefaultEstimate:TV_LIGHT_MODE ? 600000 : 5000000,
 	        capLevelToPlayerSize:true
 	      });
 	      hlsInstances[ch.id] = hls;
@@ -4930,6 +5093,7 @@
 	        keepTryingVideoPlay(ch, video);
 	      });
 	      hls.on(HlsPlayer.Events.ERROR, function(evt, data) {
+	        if (activeId !== ch.id) return;
 	        if (!data || !data.fatal) return;
 	        if (recoveries < 2) {
 	          recoveries += 1;
@@ -4959,6 +5123,11 @@
 	  window.sw = function(id, opts) {
 	    opts = opts || {};
 	    var ch = channelById(id);
+	    if (shouldDeferZap(opts)) {
+	      previewTune(ch, opts);
+	      return;
+	    }
+	    clearPendingTune();
 	    activeId = ch.id;
 	    if (opts.keepIosFs) {
 	      document.querySelectorAll('.player-outer.ios-fs').forEach(function(el) { el.classList.remove('ios-fs'); });
@@ -4975,8 +5144,7 @@
 	    }
     if (ch.type === 'hls') initHls(ch);
 
-    var btn = document.getElementById('tab-' + ch.id);
-    if (btn) btn.scrollIntoView({ behavior:opts.zap ? 'auto' : 'smooth', block:'nearest' });
+    scrollActiveButton(ch, opts.zap);
     setTimeout(function() { focusRemoteGuard(ch.id); }, 30);
     if (opts.keepIosFs) {
       var po = document.getElementById('po-' + ch.id);
@@ -4993,6 +5161,7 @@
     var ch = channelById(id);
     var sec = document.getElementById('sec-' + ch.id);
     if (!sec) return;
+    forceNormalSpeed(ch.id);
     var video = sec.querySelector('video');
     if (video && video.seekable && video.seekable.length) {
       video.currentTime = video.seekable.end(video.seekable.length - 1);
@@ -5006,6 +5175,7 @@
 	    var ch = channelById(id);
 	    var sec = document.getElementById('sec-' + ch.id);
 	    if (!sec) return;
+	    forceNormalSpeed(ch.id);
 	    var iframe = sec.querySelector('iframe[data-src]');
 	    if (iframe) {
 	      startLoadingState(ch, t('loading'));
@@ -5020,6 +5190,7 @@
     var video = sec.querySelector('video');
     if (video) {
       if (hlsInstances[ch.id]) {
+        try { hlsInstances[ch.id].stopLoad(); } catch(e) {}
         try { hlsInstances[ch.id].destroy(); } catch(e) {}
         delete hlsInstances[ch.id];
       }
@@ -5058,9 +5229,11 @@
     if (event) event.stopPropagation();
     var po = document.getElementById('po-' + id);
     if (!po) return;
+    forceNormalSpeed(id);
     if (isIOS) {
       po.classList.add('ios-fs');
       document.body.classList.add('has-ios-fs');
+      setTimeout(function() { forceNormalSpeed(id); }, 180);
       showZapOverlay(id, 0);
       return;
     }
@@ -5069,8 +5242,8 @@
     var req = stage.requestFullscreen || stage.webkitRequestFullscreen || stage.mozRequestFullScreen || stage.msRequestFullscreen;
     if (req) {
       var result = req.call(stage);
-      if (result && result.then) result.then(function() { showZapOverlay(id, 0); }).catch(function() {});
-      else setTimeout(function() { showZapOverlay(id, 0); }, 120);
+      if (result && result.then) result.then(function() { forceNormalSpeed(id); showZapOverlay(id, 0); }).catch(function() {});
+      else setTimeout(function() { forceNormalSpeed(id); showZapOverlay(id, 0); }, 120);
     }
   };
 
@@ -5110,10 +5283,12 @@
   }, true);
 
   document.addEventListener('fullscreenchange', function() {
+    forceNormalSpeed(activeId);
     setTimeout(function() { focusRemoteGuard(activeId); }, 80);
     if (isFullscreenMode()) showZapOverlay(activeId, 0);
   });
   document.addEventListener('webkitfullscreenchange', function() {
+    forceNormalSpeed(activeId);
     setTimeout(function() { focusRemoteGuard(activeId); }, 80);
     if (isFullscreenMode()) showZapOverlay(activeId, 0);
   });
@@ -5167,7 +5342,7 @@
 
   function applyLanguage() {
     document.documentElement.lang = currentLang;
-    localStorage.setItem('sportTvLang', currentLang);
+    safeStorageSet('sportTvLang', currentLang);
     document.querySelectorAll('[data-i18n]').forEach(function(el) {
       var key = el.getAttribute('data-i18n');
       el.textContent = t(key);

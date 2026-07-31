@@ -207,7 +207,7 @@
       background:var(--s1);
     }
     .ch-info-main { min-width:0; flex:1; }
-    .ch-name { font-size:17px; font-weight:900; letter-spacing:-0.25px; }
+    .ch-name { font-size:17px; font-weight:900; letter-spacing:0; }
     .ch-desc { margin-top:4px; color:var(--muted2); font-size:12px; line-height:1.45; }
     .ch-tag {
       display:inline-flex; align-items:center; gap:5px;
@@ -1251,9 +1251,9 @@
       .tv-guide { margin:0 14px 18px; }
     }
 
-    @media (max-width:620px) {
-      .topbar {
-        min-height:76px;
+	    @media (max-width:620px) {
+	      .topbar {
+	        min-height:76px;
         padding-left:12px;
         padding-right:12px;
       }
@@ -1269,9 +1269,658 @@
       .ch-name { font-size:17px; }
       .action-row { padding:12px; }
       .act-btn { min-height:44px; }
-      .channel-panel-title { font-size:20px; }
-    }
-  </style>
+	      .channel-panel-title { font-size:20px; }
+	    }
+
+	    /* Final TV app pass: lighter for older TVs, larger controls, Zattoo-style navigation. */
+	    * { letter-spacing:0!important; }
+	    :root {
+	      --bg:#050505;
+	      --panel:#0c0c0e;
+	      --panel2:#141416;
+	      --line:#ffffff18;
+	      --line-strong:#ffffff2e;
+	      --orange:#ff7a00;
+	      --orange2:#ffad33;
+	      --white:#ffffff;
+	      --soft:#cfd2d8;
+	      --dim:#868b95;
+	      --topbar-h:82px;
+	      --rail-top:98px;
+	      --player-h:calc(100vh - 128px);
+	    }
+	    html,
+	    body { background:#050505; }
+	    body {
+	      background-image:linear-gradient(180deg,#050505 0%,#080604 44%,#050505 100%);
+	      color:#fff;
+	    }
+	    body::before { display:none!important; }
+	    .app {
+	      width:100%;
+	      max-width:none;
+	      min-height:100vh;
+	      padding-bottom:0;
+	    }
+	    .topbar {
+	      min-height:var(--topbar-h);
+	      padding:10px 22px;
+	      background:#060607;
+	      border-bottom:1px solid rgba(255,122,0,0.34);
+	      box-shadow:none;
+	    }
+	    .brand { gap:16px; }
+	    .brand-logo-frame {
+	      width:166px;
+	      height:62px;
+	      border-radius:8px;
+	      border:1px solid rgba(255,122,0,0.28);
+	      background:#111113;
+	      box-shadow:inset 0 1px 0 rgba(255,255,255,0.10);
+	      display:flex;
+	      align-items:center;
+	      justify-content:center;
+	      overflow:hidden;
+	    }
+	    .brand-logo {
+	      width:156px;
+	      height:56px;
+	      object-fit:contain;
+	    }
+	    .brand-title {
+	      font-family:'Geist',sans-serif;
+	      font-size:24px;
+	      font-weight:950;
+	      line-height:1;
+	      color:#fff;
+	    }
+	    .brand-sub {
+	      margin-top:6px;
+	      color:#b9bdc6;
+	      font-size:12px;
+	      font-weight:800;
+	    }
+	    .top-actions { gap:8px; }
+	    .hard-refresh-btn,
+	    .lang-btn {
+	      width:44px;
+	      min-width:44px;
+	      height:42px;
+	      min-height:42px;
+	      border:1px solid rgba(255,255,255,0.14);
+	      border-radius:8px;
+	      background:#151517;
+	      color:#fff;
+	      display:inline-flex;
+	      align-items:center;
+	      justify-content:center;
+	      font-size:12px;
+	      font-weight:950;
+	      cursor:pointer;
+	      transition:background 0.12s, border-color 0.12s, transform 0.08s;
+	    }
+	    .hard-refresh-btn .ic { width:19px; height:19px; }
+	    .hard-refresh-btn:hover,
+	    .lang-btn:hover { background:#1d1d20; border-color:rgba(255,122,0,0.42); }
+	    .hard-refresh-btn:active,
+	    .lang-btn:active { transform:scale(0.96); }
+	    .lang-btn.active {
+	      background:#ff7a00;
+	      border-color:#ff9b2f;
+	      color:#080808;
+	    }
+	    .badge-live {
+	      height:42px;
+	      min-height:42px;
+	      border-radius:8px;
+	      border-color:rgba(255,122,0,0.32);
+	      background:#111113;
+	      color:#ffbf75;
+	      padding:0 13px;
+	      font-family:'Geist',sans-serif;
+	      font-size:12px;
+	      font-weight:950;
+	    }
+	    .dot-live {
+	      width:7px;
+	      height:7px;
+	      background:#ff7a00;
+	      box-shadow:0 0 12px rgba(255,122,0,0.9);
+	    }
+	    .status-strip { display:none; }
+	    .layout {
+	      grid-template-columns:minmax(0,1fr) minmax(360px,410px);
+	      gap:16px;
+	      align-items:start;
+	      min-height:calc(100vh - var(--topbar-h));
+	      padding:16px 22px 18px;
+	    }
+	    .main-col,
+	    .channel-panel,
+	    .tv-card,
+	    #cast-modal-sheet {
+	      border-radius:8px;
+	      border:1px solid var(--line);
+	      background:#0b0b0c;
+	      box-shadow:none;
+	      backdrop-filter:none;
+	      -webkit-backdrop-filter:none;
+	    }
+	    .main-col {
+	      overflow:hidden;
+	      border-color:rgba(255,122,0,0.22);
+	    }
+	    .player-outer {
+	      background:#000;
+	      border-bottom:1px solid rgba(255,122,0,0.18);
+	    }
+	    .side-col {
+	      position:sticky;
+	      top:var(--rail-top);
+	      height:calc(100vh - var(--rail-top) - 18px);
+	      min-height:460px;
+	    }
+	    .channel-panel {
+	      height:100%;
+	      min-height:0;
+	      max-height:none;
+	      display:flex;
+	      flex-direction:column;
+	      overflow:hidden;
+	    }
+	    .channel-panel-head {
+	      padding:12px;
+	      background:#0f0f11;
+	      border-bottom:1px solid rgba(255,122,0,0.22);
+	      flex-shrink:0;
+	    }
+	    .channel-panel-title {
+	      font-family:'Geist',sans-serif;
+	      font-size:17px;
+	      line-height:1.1;
+	      font-weight:950;
+	      text-transform:none;
+	      color:#fff;
+	    }
+	    .channel-count {
+	      border-radius:8px;
+	      border-color:rgba(255,122,0,0.34);
+	      background:#1b130b;
+	      color:#ffbd72;
+	      font-size:11px;
+	      padding:4px 8px;
+	    }
+	    .channel-search {
+	      margin-top:10px;
+	      min-height:38px;
+	      border-radius:8px;
+	      background:#050505;
+	      border-color:rgba(255,255,255,0.14);
+	      color:#fff;
+	      font-size:12px;
+	    }
+	    .channel-search:focus {
+	      border-color:#ff7a00;
+	      box-shadow:0 0 0 2px rgba(255,122,0,0.18);
+	    }
+	    .channel-scroll {
+	      flex:1;
+	      min-height:0;
+	      overflow-y:auto;
+	      padding:8px;
+	      scrollbar-width:thin;
+	      scrollbar-color:#ff7a00 transparent;
+	      -webkit-overflow-scrolling:touch;
+	    }
+	    .channel-scroll::-webkit-scrollbar { width:10px; }
+	    .channel-scroll::-webkit-scrollbar-thumb {
+	      background:#ff7a00;
+	      border-radius:8px;
+	      border:2px solid #0b0b0c;
+	    }
+	    .channel-group {
+	      position:sticky;
+	      top:0;
+	      z-index:2;
+	      margin:10px 0 6px;
+	      padding:7px 8px;
+	      border-radius:8px;
+	      background:#0b0b0c;
+	      color:#ffad5c;
+	      font-family:'Geist',sans-serif;
+	      font-size:10px;
+	      font-weight:950;
+	      text-transform:uppercase;
+	    }
+	    .channel-item {
+	      grid-template-columns:38px minmax(0,1fr) auto;
+	      min-height:52px;
+	      gap:9px;
+	      padding:7px 8px;
+	      margin:0 0 6px;
+	      border-radius:8px;
+	      border-color:rgba(255,255,255,0.10);
+	      background:#121214;
+	      box-shadow:none;
+	      transform:none;
+	    }
+	    .channel-item:hover {
+	      background:#19191c;
+	      border-color:rgba(255,122,0,0.34);
+	      transform:none;
+	    }
+	    .channel-item.active {
+	      background:#231303;
+	      border-color:#ff7a00;
+	      box-shadow:inset 4px 0 0 #ff7a00;
+	    }
+	    .channel-logo {
+	      width:38px;
+	      height:38px;
+	      border-radius:8px;
+	      background:#050505;
+	      border-color:rgba(255,255,255,0.16);
+	    }
+	    .channel-logo img { padding:5px; }
+	    .channel-name {
+	      font-size:13px;
+	      line-height:1.12;
+	      font-weight:950;
+	      color:#fff;
+	    }
+	    .channel-sub {
+	      margin-top:3px;
+	      font-size:10px;
+	      color:#aeb3bc;
+	    }
+	    .channel-badge {
+	      border-radius:8px;
+	      padding:4px 6px;
+	      font-size:9px;
+	      background:#1a1a1d;
+	      color:#d8dbe0;
+	      border-color:rgba(255,255,255,0.12);
+	    }
+	    .channel-badge.good {
+	      background:#251505;
+	      color:#ffbd72;
+	      border-color:rgba(255,122,0,0.40);
+	    }
+	    .channel-badge.try {
+	      background:#211a0d;
+	      color:#ffd08a;
+	      border-color:rgba(255,176,0,0.32);
+	    }
+	    .ch-info {
+	      grid-template-columns:54px minmax(0,1fr) auto;
+	      padding:13px 14px;
+	      background:#0f0f11;
+	      border-bottom:1px solid rgba(255,255,255,0.10);
+	    }
+	    .now-logo {
+	      width:54px;
+	      height:54px;
+	      border-radius:8px;
+	      background:#050505;
+	      border-color:rgba(255,122,0,0.22);
+	    }
+	    .ch-name {
+	      font-size:18px;
+	      line-height:1.15;
+	      font-weight:950;
+	    }
+	    .ch-desc {
+	      margin-top:4px;
+	      color:#b8bdc6;
+	      font-size:12px;
+	    }
+	    .metric-pill {
+	      border-radius:8px;
+	      background:#151517;
+	      border-color:rgba(255,255,255,0.14);
+	      color:#fff;
+	    }
+	    .signal-bars i.on {
+	      background:#ff7a00;
+	      box-shadow:none;
+	    }
+	    .action-row {
+	      padding:12px 14px;
+	      gap:8px;
+	      background:#0f0f11;
+	    }
+	    .act-btn {
+	      min-height:44px;
+	      border-radius:8px;
+	      padding:11px 14px;
+	      font-size:12px;
+	      font-weight:950;
+	    }
+	    .act-live,
+	    .act-ext {
+	      background:#ff7a00;
+	      color:#090909;
+	    }
+	    .act-cast {
+	      background:#fff;
+	      color:#090909;
+	    }
+	    .act-fs {
+	      background:#171719;
+	      color:#fff;
+	      border-color:rgba(255,255,255,0.16);
+	    }
+	    .player-loading {
+	      position:absolute;
+	      inset:0;
+	      z-index:120;
+	      display:flex;
+	      flex-direction:column;
+	      align-items:center;
+	      justify-content:center;
+	      gap:12px;
+	      background:rgba(0,0,0,0.88);
+	      color:#fff;
+	      text-align:center;
+	      pointer-events:none;
+	    }
+	    .player-loading.hidden { display:none; }
+	    .dr-flag-loader {
+	      width:84px;
+	      height:54px;
+	      display:grid;
+	      grid-template-columns:1fr 1fr;
+	      grid-template-rows:1fr 1fr;
+	      gap:8px;
+	      padding:0;
+	      border:2px solid #fff;
+	      border-radius:5px;
+	      background:#fff;
+	      box-shadow:0 18px 42px rgba(0,0,0,0.42);
+	      transform-origin:left center;
+	      animation:flagWave 1.05s ease-in-out infinite;
+	      position:relative;
+	      overflow:hidden;
+	    }
+	    .dr-flag-loader span:nth-child(1),
+	    .dr-flag-loader span:nth-child(4) { background:#002d62; }
+	    .dr-flag-loader span:nth-child(2),
+	    .dr-flag-loader span:nth-child(3) { background:#ce1126; }
+	    .dr-flag-loader b {
+	      position:absolute;
+	      left:50%;
+	      top:50%;
+	      width:14px;
+	      height:14px;
+	      border-radius:50%;
+	      background:#fff;
+	      border:3px solid #0f8a43;
+	      transform:translate(-50%,-50%);
+	    }
+	    @keyframes flagWave {
+	      0%,100% { transform:skewY(0deg) translateX(0); }
+	      50% { transform:skewY(-4deg) translateX(2px); }
+	    }
+	    .load-copy strong {
+	      display:block;
+	      font-size:17px;
+	      line-height:1.1;
+	      font-weight:950;
+	      color:#fff;
+	    }
+	    .load-copy span {
+	      display:block;
+	      margin-top:4px;
+	      color:#bfc4cc;
+	      font-size:12px;
+	      font-weight:800;
+	    }
+	    .load-progress {
+	      width:min(230px,54vw);
+	      height:6px;
+	      border-radius:8px;
+	      background:#27272a;
+	      overflow:hidden;
+	    }
+	    .load-progress i {
+	      display:block;
+	      height:100%;
+	      border-radius:8px;
+	      background:#ff7a00;
+	      transition:width 0.28s ease;
+	    }
+	    .load-pct {
+	      min-width:52px;
+	      padding:5px 8px;
+	      border-radius:8px;
+	      background:#151517;
+	      color:#ffbd72;
+	      font-family:'Geist Mono',monospace;
+	      font-size:11px;
+	      font-weight:900;
+	    }
+	    .load-source {
+	      pointer-events:auto;
+	      display:inline-flex;
+	      align-items:center;
+	      justify-content:center;
+	      min-height:38px;
+	      padding:9px 13px;
+	      border-radius:8px;
+	      background:#ff7a00;
+	      color:#090909;
+	      text-decoration:none;
+	      font-size:12px;
+	      font-weight:950;
+	    }
+	    .zap-overlay {
+	      left:50%;
+	      right:auto;
+	      top:auto;
+	      bottom:18px;
+	      width:min(920px,calc(100vw - 36px));
+	      transform:translate(-50%,20px);
+	      transition:opacity 0.16s ease, transform 0.18s ease;
+	    }
+	    .zap-overlay.show {
+	      opacity:1;
+	      transform:translate(-50%,0);
+	    }
+	    .zap-shell {
+	      border-radius:8px;
+	      border:1px solid rgba(255,255,255,0.24);
+	      background:rgba(6,6,7,0.94);
+	      box-shadow:0 18px 46px rgba(0,0,0,0.58);
+	      overflow:hidden;
+	      backdrop-filter:none;
+	      -webkit-backdrop-filter:none;
+	    }
+	    .zap-kicker {
+	      display:grid;
+	      grid-template-columns:72px minmax(0,1fr) auto;
+	      gap:12px;
+	      align-items:center;
+	      padding:11px 14px 9px;
+	      border-bottom:1px solid rgba(255,255,255,0.12);
+	      color:#bfc4cc;
+	      font-family:'Geist',sans-serif;
+	      font-size:11px;
+	      font-weight:950;
+	      text-transform:none;
+	    }
+	    .zap-kicker strong {
+	      min-width:0;
+	      color:#fff;
+	      font-size:18px;
+	      overflow:hidden;
+	      text-overflow:ellipsis;
+	      white-space:nowrap;
+	    }
+	    .zap-track {
+	      display:grid;
+	      grid-template-columns:1fr 1.35fr 1fr;
+	      gap:1px;
+	      background:rgba(255,255,255,0.12);
+	    }
+	    .zap-row {
+	      min-width:0;
+	      display:grid;
+	      grid-template-columns:50px minmax(0,1fr);
+	      gap:10px;
+	      align-items:center;
+	      padding:12px;
+	      background:#111113;
+	      color:#cfd2d8;
+	    }
+	    .zap-row.current {
+	      padding:12px 14px;
+	      background:#241303;
+	      color:#fff;
+	      box-shadow:inset 0 -4px 0 #ff7a00;
+	    }
+	    .zap-row.ghost { opacity:1; }
+	    .zap-logo {
+	      width:50px;
+	      height:50px;
+	      border-radius:8px;
+	      border:1px solid rgba(255,255,255,0.14);
+	      background:#050505;
+	    }
+	    .zap-row.current .zap-logo {
+	      width:60px;
+	      height:60px;
+	      border-color:rgba(255,122,0,0.62);
+	    }
+	    .zap-logo img { padding:6px; }
+	    .zap-name strong {
+	      font-size:15px;
+	      line-height:1.12;
+	      font-weight:950;
+	    }
+	    .zap-row.current .zap-name strong { font-size:21px; }
+	    .zap-row.ghost .zap-name strong { font-size:14px; }
+	    .zap-name span {
+	      margin-top:4px;
+	      color:#aeb3bc;
+	      font-size:10px;
+	      font-weight:850;
+	    }
+	    .zap-number {
+	      display:none;
+	    }
+	    .zap-metrics {
+	      padding:9px 14px 11px;
+	      border-top:1px solid rgba(255,255,255,0.10);
+	      color:#d7dbe0;
+	    }
+	    .zap-quality,
+	    .zap-signal {
+	      font-family:'Geist',sans-serif;
+	      font-size:11px;
+	      color:#ffbd72;
+	    }
+	    .zap-quality b {
+	      border-radius:8px;
+	      background:#1a1a1d;
+	      color:#fff;
+	    }
+	    .fs-reload-btn {
+	      width:44px;
+	      height:44px;
+	      left:18px;
+	      bottom:18px;
+	      border-radius:50%;
+	      background:rgba(0,0,0,0.54);
+	      border-color:rgba(255,122,0,0.36);
+	      opacity:0.62;
+	    }
+	    .fs-reload-btn:hover {
+	      background:#ff7a00;
+	      color:#080808;
+	      opacity:1;
+	    }
+	    .main-col:fullscreen .zap-overlay,
+	    .main-col:-webkit-full-screen .zap-overlay,
+	    .player-outer.ios-fs .zap-overlay {
+	      bottom:max(18px,env(safe-area-inset-bottom));
+	    }
+	    .tv-guide,
+	    .footer { display:none; }
+	    #cast-modal-sheet { background:#0d0d0f; }
+	    .cast-opt {
+	      border-radius:8px;
+	      background:#151517;
+	    }
+
+	    @media (max-height:720px) and (min-width:861px) {
+	      :root { --topbar-h:70px; --rail-top:84px; }
+	      .topbar { min-height:70px; padding-top:7px; padding-bottom:7px; }
+	      .brand-logo-frame { width:140px; height:52px; }
+	      .brand-logo { width:132px; height:48px; }
+	      .brand-title { font-size:20px; }
+	      .brand-sub { display:none; }
+	      .channel-item { min-height:46px; grid-template-columns:34px minmax(0,1fr) auto; padding:6px 7px; }
+	      .channel-logo { width:34px; height:34px; }
+	      .channel-panel-head { padding:10px; }
+	      .channel-search { min-height:34px; }
+	    }
+
+	    @media (max-width:860px) {
+	      :root { --topbar-h:76px; --rail-top:0px; }
+	      .topbar {
+	        min-height:76px;
+	        padding:9px 12px;
+	      }
+	      .brand { gap:10px; }
+	      .brand-logo-frame { width:112px; height:52px; }
+	      .brand-logo { width:106px; height:48px; }
+	      .brand-title { font-size:18px; }
+	      .brand-sub { display:none; }
+	      .badge-live span { display:none; }
+	      .layout {
+	        display:flex;
+	        flex-direction:column;
+	        min-height:auto;
+	        padding:10px;
+	      }
+	      .side-col {
+	        position:static;
+	        width:100%;
+	        height:min(62vh,560px);
+	        min-height:330px;
+	      }
+	      .channel-panel { height:100%; }
+	      .zap-overlay {
+	        width:calc(100vw - 20px);
+	        bottom:10px;
+	      }
+	      .zap-kicker {
+	        grid-template-columns:54px minmax(0,1fr);
+	      }
+	      .zap-kicker span:last-child { display:none; }
+	      .zap-track {
+	        grid-template-columns:0.82fr 1.3fr 0.82fr;
+	      }
+	      .zap-row {
+	        grid-template-columns:42px minmax(0,1fr);
+	        padding:9px;
+	      }
+	      .zap-logo,
+	      .zap-row.current .zap-logo {
+	        width:42px;
+	        height:42px;
+	      }
+	      .zap-row.current .zap-name strong { font-size:16px; }
+	      .zap-row.ghost .zap-name strong,
+	      .zap-name strong { font-size:12px; }
+	      .zap-name span { display:none; }
+	      .ch-info { grid-template-columns:46px minmax(0,1fr); }
+	      .now-logo { width:46px; height:46px; }
+	      .ch-stats { grid-column:1 / -1; justify-content:flex-start; }
+	      .action-row { padding:10px; }
+	      .act-btn .act-lbl { display:none; }
+	    }
+	  </style>
 </head>
 <body>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
@@ -1301,9 +1950,12 @@
         <div class="brand-sub" data-i18n="brand-sub">Canales dominicanos y deportes en vivo</div>
       </div>
     </div>
-    <div class="top-actions">
-      <div class="lang-btns">
-        <button class="lang-btn active" id="lbEs" data-lang="es" onclick="setLang('es')" title="Español">ES</button>
+	    <div class="top-actions">
+	      <button class="hard-refresh-btn" id="hardRefreshBtn" onclick="hardRefresh()" title="Recargar sitio" aria-label="Recargar sitio">
+	        <svg class="ic"><use href="#i-refresh"/></svg>
+	      </button>
+	      <div class="lang-btns">
+	        <button class="lang-btn active" id="lbEs" data-lang="es" onclick="setLang('es')" title="Español">ES</button>
         <button class="lang-btn" id="lbEn" data-lang="en" onclick="setLang('en')" title="English">EN</button>
       </div>
       <div class="badge-live"><div class="dot-live"></div><span data-i18n="live">En vivo</span></div>
@@ -1374,7 +2026,7 @@
 (function() {
   'use strict';
 
-  var CHANNELS = [
+	  var CHANNELS = [
     {
       id:'colorvision', group:'Dominican Live TV', icon:'9', logo:'https://www.google.com/s2/favicons?domain=colorvision.com.do&sz=128', badge:'LIVE', badgeType:'good',
       name:'Color Vision', short:'Color Vision', number:'Canal 9',
@@ -1720,18 +2372,20 @@
       id:'toros', group:'Pelota Dominicana', icon:'TE', logo:'https://www.google.com/s2/favicons?domain=toros.com.do&sz=128', badge:'15', badgeType:'try',
       name:'Toros del Este', short:'Toros', number:'Digital 15',
       tag:'Baseball', tagClass:'tag-baseball', quality:'HD', signal:78,
-      desc:'Toros quick channel using Digital 15 when games are active.',
-      type:'iframe',
-      src:'https://telemicro.com.do/players/15tv/',
+	      desc:'Toros quick channel using Digital 15 when games are active.',
+	      type:'iframe',
+	      skipZap:true,
+	      src:'https://telemicro.com.do/players/15tv/',
       fallback:'https://canalesdominicanos.live/toros-del-este'
     },
     {
       id:'estrellas', group:'Pelota Dominicana', icon:'EO', logo:'https://www.google.com/s2/favicons?domain=estrellasorientales.com.do&sz=128', badge:'15', badgeType:'try',
       name:'Estrellas Orientales', short:'Estrellas', number:'Digital 15 / Coral',
       tag:'Baseball', tagClass:'tag-baseball', quality:'HD', signal:76,
-      desc:'Estrellas quick channel using Digital 15 when games are active.',
-      type:'iframe',
-      src:'https://telemicro.com.do/players/15tv/',
+	      desc:'Estrellas quick channel using Digital 15 when games are active.',
+	      type:'iframe',
+	      skipZap:true,
+	      src:'https://telemicro.com.do/players/15tv/',
       fallback:'https://canalesdominicanos.live/estrellas-orientales'
     },
     {
@@ -1756,9 +2410,10 @@
       id:'licey', group:'Pelota Dominicana', icon:'TL', logo:'https://www.google.com/s2/favicons?domain=licey.com&sz=128', badge:'DM', badgeType:'try',
       name:'Tigres del Licey', short:'Licey', number:'Dailymotion',
       tag:'Baseball', tagClass:'tag-baseball', quality:'HD', signal:70,
-      desc:'Published Licey signal; use fallback only if Dailymotion blocks by region.',
-      type:'iframe',
-      src:'https://geo.dailymotion.com/player.html?video=x9hvyy0&autoplay=1',
+	      desc:'Published Licey signal; use fallback only if Dailymotion blocks by region.',
+	      type:'iframe',
+	      skipZap:true,
+	      src:'https://geo.dailymotion.com/player.html?video=x9hvyy0&autoplay=1',
       fallback:'https://canalesdominicanos.live/tigres-del-licey-en-vivo'
     },
     {
@@ -1893,10 +2548,15 @@
       type:'external',
       fallback:'https://www.livesoccertv.com/'
     }
-  ];
+	  ];
+	  var FIFA_LAST = {'fifa-es':true,'fifa-pt':true,'fifa-spain':true,'fifa-us':true,'fifa-women':true};
+	  CHANNELS.forEach(function(ch) {
+	    if (FIFA_LAST[ch.id]) ch.group = 'Football Archive';
+	  });
+	  CHANNELS = CHANNELS.filter(function(ch) { return !FIFA_LAST[ch.id]; }).concat(CHANNELS.filter(function(ch) { return FIFA_LAST[ch.id]; }));
 
-  var STRINGS = {
-    es: {
+	  var STRINGS = {
+	    es: {
       'brand-sub':'Canales dominicanos y deportes en vivo',
       'live':'En vivo',
       'strip-title':'Sport & TV',
@@ -1908,8 +2568,13 @@
       'go-live':'En vivo',
       'cast':'Enviar al TV',
       'fullscreen':'Pantalla completa',
-      'reload':'Recargar',
-      'external-title':'Abrir canal',
+	      'reload':'Recargar',
+	      'hard-refresh':'Recargar sitio',
+	      'loading':'Cargando',
+	      'buffering':'Buffering',
+	      'reconnecting':'Reconectando',
+	      'stream-unavailable':'Señal no disponible',
+	      'external-title':'Abrir canal',
       'external-body':'Esta señal funciona mejor desde su página original o no permite insertarse aquí.',
       'tip-tv-title':'Android TV',
       'tip-tv-body':'Abre esta página directamente en Chrome o usa el botón de pantalla completa.',
@@ -1941,8 +2606,13 @@
       'go-live':'Go live',
       'cast':'Cast to TV',
       'fullscreen':'Fullscreen',
-      'reload':'Reload',
-      'external-title':'Open channel',
+	      'reload':'Reload',
+	      'hard-refresh':'Refresh site',
+	      'loading':'Loading',
+	      'buffering':'Buffering',
+	      'reconnecting':'Reconnecting',
+	      'stream-unavailable':'Signal unavailable',
+	      'external-title':'Open channel',
       'external-body':'This signal works best on its original page or does not allow embedding here.',
       'tip-tv-title':'Android TV',
       'tip-tv-body':'Open this page directly in Chrome or use fullscreen.',
@@ -1964,9 +2634,11 @@
     }
   };
 
-  var activeId = 'colorvision';
-  var hlsInstances = {};
-  var zapTimer = null;
+	  var activeId = 'colorvision';
+	  var hlsInstances = {};
+	  var loadingTimers = {};
+	  var loadingProgress = {};
+	  var zapTimer = null;
   var lastZapAt = 0;
   var savedLang = localStorage.getItem('sportTvLang');
   var currentLang = STRINGS[savedLang] ? savedLang : 'es';
@@ -2014,15 +2686,70 @@
     else ch.detectedQuality = 'SD';
   }
 
-  function signalBars(signal) {
-    var safe = Math.max(0, Math.min(100, Number(signal) || 0));
-    var level = Math.max(1, Math.ceil(safe / 20));
-    var html = '<span class="signal-bars" aria-hidden="true">';
-    for (var i = 1; i <= 5; i++) html += '<i class="' + (i <= level ? 'on' : '') + '"></i>';
-    return html + '</span>';
-  }
+	  function signalBars(signal) {
+	    var safe = Math.max(0, Math.min(100, Number(signal) || 0));
+	    var level = Math.max(1, Math.ceil(safe / 20));
+	    var html = '<span class="signal-bars" aria-hidden="true">';
+	    for (var i = 1; i <= 5; i++) html += '<i class="' + (i <= level ? 'on' : '') + '"></i>';
+	    return html + '</span>';
+	  }
 
-  function statsHtml(ch) {
+	  function flagLoaderHtml() {
+	    return '<div class="dr-flag-loader" aria-hidden="true"><span></span><span></span><span></span><span></span><b></b></div>';
+	  }
+
+	  function loadingHtml(ch, percent, label) {
+	    var pct = Math.max(0, Math.min(100, Math.round(Number(percent) || 0)));
+	    return flagLoaderHtml() +
+	      '<div class="load-copy"><strong>' + esc(label || t('loading')) + '</strong><span>' + esc(ch.short) + '</span></div>' +
+	      '<div class="load-progress" aria-hidden="true"><i style="width:' + pct + '%"></i></div>' +
+	      '<div class="load-pct">' + esc(pct + '%') + '</div>';
+	  }
+
+	  function setLoadingState(ch, percent, label) {
+	    var loading = document.getElementById('load-' + ch.id);
+	    if (!loading) return;
+	    loading.classList.remove('hidden');
+	    loading.innerHTML = loadingHtml(ch, percent, label);
+	  }
+
+	  function clearLoadingTimer(id) {
+	    if (loadingTimers[id]) clearInterval(loadingTimers[id]);
+	    delete loadingTimers[id];
+	  }
+
+	  function startLoadingState(ch, label) {
+	    clearLoadingTimer(ch.id);
+	    loadingProgress[ch.id] = Math.max(6, loadingProgress[ch.id] || 6);
+	    setLoadingState(ch, loadingProgress[ch.id], label || t('loading'));
+	    loadingTimers[ch.id] = setInterval(function() {
+	      var current = loadingProgress[ch.id] || 6;
+	      var next = current < 72 ? current + 7 : current < 90 ? current + 2 : current;
+	      loadingProgress[ch.id] = Math.min(92, next);
+	      setLoadingState(ch, loadingProgress[ch.id], label || t('loading'));
+	    }, 650);
+	  }
+
+	  function finishLoadingState(ch) {
+	    clearLoadingTimer(ch.id);
+	    loadingProgress[ch.id] = 100;
+	    setLoadingState(ch, 100, t('loading'));
+	    var loading = document.getElementById('load-' + ch.id);
+	    if (loading) setTimeout(function() { loading.classList.add('hidden'); }, 220);
+	  }
+
+	  function bufferedPercent(video) {
+	    if (!video || !video.buffered || !video.buffered.length) return 18;
+	    var now = video.currentTime || 0;
+	    for (var i = 0; i < video.buffered.length; i++) {
+	      if (now >= video.buffered.start(i) && now <= video.buffered.end(i)) {
+	        return Math.max(18, Math.min(99, Math.round(((video.buffered.end(i) - now) / 10) * 100)));
+	      }
+	    }
+	    return 24;
+	  }
+
+	  function statsHtml(ch) {
     var signal = Math.max(0, Math.min(100, Number(ch.signal) || 0));
     return '<div class="ch-stats">' +
       '<span class="metric-pill">' + esc(qualityLabel(ch)) + '</span>' +
@@ -2035,9 +2762,9 @@
     if (el) el.outerHTML = statsHtml(ch);
   }
 
-  function zappableChannels() {
-    return CHANNELS.filter(function(ch) { return ch.type !== 'external'; });
-  }
+	  function zappableChannels() {
+	    return CHANNELS.filter(function(ch) { return ch.type !== 'external' && !ch.skipZap; });
+	  }
 
   function zappableAtOffset(id, offset) {
     var list = zappableChannels();
@@ -2051,10 +2778,10 @@
     return '<img src="' + esc(ch.logo) + '" alt="" onerror="this.remove()"><span>' + esc(ch.icon) + '</span>';
   }
 
-  function zapRowHtml(ch, cls, side) {
-    return '<div class="zap-row ' + cls + '">' +
-      '<div class="zap-logo">' + zapLogoHtml(ch) + '</div>' +
-      '<div class="zap-name"><strong>' + esc(ch.short) + '</strong><span>' + esc(ch.number + ' · ' + ch.tag) + '</span></div>' +
+	  function zapRowHtml(ch, cls, side) {
+	    return '<div class="zap-row ' + cls + '">' +
+	      '<div class="zap-logo">' + zapLogoHtml(ch) + '</div>' +
+	      '<div class="zap-name"><strong>' + esc(ch.short) + '</strong><span>' + esc(ch.number + ' · ' + ch.tag) + '</span></div>' +
       '<div class="zap-number">' + esc(side) + '</div>' +
     '</div>';
   }
@@ -2069,25 +2796,27 @@
     document.querySelectorAll('.zap-overlay.show').forEach(function(el) {
       if (el !== overlay) el.classList.remove('show');
     });
-    overlay.innerHTML =
-      '<div class="zap-shell">' +
-        '<div class="zap-kicker"><span>' + esc(direction < 0 ? 'CH-' : direction > 0 ? 'CH+' : 'ON AIR') + '</span><span>' + esc(ch.group) + '</span></div>' +
-        zapRowHtml(prev, 'ghost', 'PREV') +
-        zapRowHtml(ch, 'current', 'ON') +
-        zapRowHtml(next, 'ghost', 'NEXT') +
-        '<div class="zap-metrics">' +
-          '<span class="zap-quality">RES <b>' + esc(qualityLabel(ch)) + '</b></span>' +
-          '<span class="zap-signal">' + signalBars(signal) + esc(signal + '%') + '</span>' +
+	    overlay.innerHTML =
+	      '<div class="zap-shell">' +
+	        '<div class="zap-kicker"><span>' + esc(direction < 0 ? 'CH-' : direction > 0 ? 'CH+' : 'ON AIR') + '</span><strong>' + esc(ch.name) + '</strong><span>' + esc(ch.group) + '</span></div>' +
+	        '<div class="zap-track">' +
+	          zapRowHtml(prev, 'ghost prev', 'PREV') +
+	          zapRowHtml(ch, 'current', 'ON') +
+	          zapRowHtml(next, 'ghost next', 'NEXT') +
+	        '</div>' +
+	        '<div class="zap-metrics">' +
+	          '<span class="zap-quality">RES <b>' + esc(qualityLabel(ch)) + '</b></span>' +
+	          '<span class="zap-signal">' + signalBars(signal) + esc(signal + '%') + '</span>' +
         '</div>' +
       '</div>';
     overlay.classList.remove('show');
     overlay.offsetHeight;
-    overlay.classList.add('show');
-    if (zapTimer) clearTimeout(zapTimer);
-    zapTimer = setTimeout(function() {
-      overlay.classList.remove('show');
-    }, 1900);
-  }
+	    overlay.classList.add('show');
+	    if (zapTimer) clearTimeout(zapTimer);
+	    zapTimer = setTimeout(function() {
+	      overlay.classList.remove('show');
+	    }, 5200);
+	  }
 
   function isFullscreenMode() {
     return !!(document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement || document.body.classList.contains('has-ios-fs'));
@@ -2109,12 +2838,12 @@
     hlsInstances = {};
     var mount = document.getElementById('playerMount');
     mount.innerHTML = CHANNELS.map(function(ch) {
-      var player = '';
-      if (ch.type === 'iframe') {
-        player = '<iframe id="pl-' + esc(ch.id) + '" data-src="' + esc(ch.src) + '" allowfullscreen allow="autoplay;fullscreen;picture-in-picture;encrypted-media;web-share;cast" referrerpolicy="no-referrer-when-downgrade"></iframe>';
-      } else if (ch.type === 'hls') {
-        player = '<video id="pl-' + esc(ch.id) + '" controls playsinline webkit-playsinline preload="metadata"></video><div class="player-loading" id="load-' + esc(ch.id) + '"><div class="spin"></div><span>Loading ' + esc(ch.short) + '...</span></div>';
-      } else {
+	      var player = '';
+	      if (ch.type === 'iframe') {
+	        player = '<iframe id="pl-' + esc(ch.id) + '" data-src="' + esc(ch.src) + '" onload="iframeReady(\'' + esc(ch.id) + '\')" allowfullscreen allow="autoplay;fullscreen;picture-in-picture;encrypted-media;web-share;cast" referrerpolicy="no-referrer-when-downgrade"></iframe><div class="player-loading iframe-loading" id="load-' + esc(ch.id) + '">' + loadingHtml(ch, 12, t('loading')) + '</div>';
+	      } else if (ch.type === 'hls') {
+	        player = '<video id="pl-' + esc(ch.id) + '" controls playsinline webkit-playsinline preload="metadata"></video><div class="player-loading" id="load-' + esc(ch.id) + '">' + loadingHtml(ch, 8, t('loading')) + '</div>';
+	      } else {
         player = '<div class="ext-panel"><div class="ext-icon"><svg class="ic"><use href="#i-tv"/></svg></div><h2>' + t('external-title') + '</h2><p>' + t('external-body') + '</p><a class="act-btn act-ext" href="' + esc(ch.fallback) + '" target="_blank" rel="noopener"><svg class="ic"><use href="#i-play"/></svg><span class="act-lbl">' + t('open-original') + '</span></a></div>';
       }
 
@@ -2167,14 +2896,26 @@
     setActiveRail();
   }
 
-  function stopAllMedia() {
-    document.querySelectorAll('.section video').forEach(function(video) {
-      try { video.pause(); } catch(e) {}
-    });
-    document.querySelectorAll('.section iframe[data-src]').forEach(function(frame) {
-      if (frame.src && frame.src !== 'about:blank') frame.src = 'about:blank';
-    });
-  }
+	  function stopAllMedia(keepId) {
+	    Object.keys(hlsInstances).forEach(function(id) {
+	      if (id === keepId) return;
+	      try { hlsInstances[id].destroy(); } catch(e) {}
+	      delete hlsInstances[id];
+	      clearLoadingTimer(id);
+	    });
+	    document.querySelectorAll('.section video').forEach(function(video) {
+	      var id = video.id ? video.id.replace(/^pl-/, '') : '';
+	      if (id === keepId) return;
+	      try { video.pause(); } catch(e) {}
+	      video.removeAttribute('src');
+	      video.dataset.loaded = '';
+	    });
+	    document.querySelectorAll('.section iframe[data-src]').forEach(function(frame) {
+	      var id = frame.id ? frame.id.replace(/^pl-/, '') : '';
+	      if (id === keepId) return;
+	      if (frame.src && frame.src !== 'about:blank') frame.src = 'about:blank';
+	    });
+	  }
 
   function setActiveRail() {
     document.querySelectorAll('.channel-item').forEach(function(btn) {
@@ -2182,55 +2923,99 @@
     });
   }
 
-  function initHls(ch) {
-    var video = document.getElementById('pl-' + ch.id);
-    var loading = document.getElementById('load-' + ch.id);
-    if (!video) return;
+	  function initHls(ch) {
+	    var video = document.getElementById('pl-' + ch.id);
+	    var loading = document.getElementById('load-' + ch.id);
+	    if (!video) return;
+	    startLoadingState(ch, t('loading'));
 
-    function ready() {
-      updateVideoQuality(ch, video);
-      refreshStatsUi(ch);
-      if (loading) loading.classList.add('hidden');
-      syncRailHeight();
-      video.play().catch(function() {});
-    }
+	    function ready() {
+	      updateVideoQuality(ch, video);
+	      refreshStatsUi(ch);
+	      finishLoadingState(ch);
+	      syncRailHeight();
+	      video.play().catch(function() {});
+	    }
 
-    function fail() {
-      if (loading) {
-        loading.innerHTML = '<div style="text-align:center;padding:20px"><div style="font-size:13px;color:#ff9900;margin-bottom:10px">Stream unavailable</div><a href="' + esc(ch.fallback) + '" target="_blank" style="font-size:12px;color:#09090a;text-decoration:none;background:#ff9900;border:1px solid #ffb84d;padding:8px 14px;border-radius:8px;font-weight:800">' + esc(t('open-original')) + '</a></div>';
-      }
-    }
+	    function fail() {
+	      clearLoadingTimer(ch.id);
+	      if (loading) {
+	        loading.classList.remove('hidden');
+	        loading.innerHTML = flagLoaderHtml() + '<div class="load-copy"><strong>' + esc(t('stream-unavailable')) + '</strong><span>' + esc(ch.short) + '</span></div><a class="load-source" href="' + esc(ch.fallback) + '" target="_blank" rel="noopener">' + esc(t('open-original')) + '</a>';
+	      }
+	    }
 
-    if (video.dataset.loaded === ch.src) {
-      ready();
-      return;
-    }
+	    function bindBufferEvents() {
+	      video.addEventListener('waiting', function() {
+	        loadingProgress[ch.id] = bufferedPercent(video);
+	        startLoadingState(ch, t('buffering'));
+	      });
+	      video.addEventListener('stalled', function() {
+	        loadingProgress[ch.id] = bufferedPercent(video);
+	        startLoadingState(ch, t('buffering'));
+	      });
+	      video.addEventListener('canplay', ready, { once:true });
+	      video.addEventListener('playing', ready);
+	    }
+
+	    if (video.dataset.loaded === ch.src) {
+	      ready();
+	      return;
+	    }
 
     if (hlsInstances[ch.id]) {
       try { hlsInstances[ch.id].destroy(); } catch(e) {}
       delete hlsInstances[ch.id];
     }
 
-    video.dataset.loaded = ch.src;
-    if (video.canPlayType('application/vnd.apple.mpegurl')) {
-      video.src = ch.src;
-      video.addEventListener('loadedmetadata', function() { updateVideoQuality(ch, video); refreshStatsUi(ch); }, { once:true });
-      video.addEventListener('loadeddata', ready, { once:true });
-      video.addEventListener('error', fail, { once:true });
-      video.play().catch(function() {});
-      return;
-    }
+	    video.dataset.loaded = ch.src;
+	    if (video.canPlayType('application/vnd.apple.mpegurl')) {
+	      video.src = ch.src;
+	      bindBufferEvents();
+	      video.addEventListener('loadedmetadata', function() { updateVideoQuality(ch, video); refreshStatsUi(ch); }, { once:true });
+	      video.addEventListener('loadeddata', function() { setLoadingState(ch, 82, t('buffering')); }, { once:true });
+	      video.addEventListener('error', fail, { once:true });
+	      video.play().catch(function() {});
+	      return;
+	    }
 
-    if (window.Hls && Hls.isSupported()) {
-      var hls = new Hls({ enableWorker:false, lowLatencyMode:false });
-      hlsInstances[ch.id] = hls;
-      hls.loadSource(ch.src);
-      hls.attachMedia(video);
-      video.addEventListener('loadedmetadata', function() { updateVideoQuality(ch, video); refreshStatsUi(ch); }, { once:true });
-      hls.on(Hls.Events.MANIFEST_PARSED, ready);
-      hls.on(Hls.Events.ERROR, function(evt, data) { if (data && data.fatal) fail(); });
-      return;
-    }
+	    if (window.Hls && Hls.isSupported()) {
+	      var recoveries = 0;
+	      var hls = new Hls({
+	        enableWorker:false,
+	        lowLatencyMode:false,
+	        backBufferLength:18,
+	        maxBufferLength:18,
+	        maxMaxBufferLength:30,
+	        maxBufferSize:18000000,
+	        capLevelToPlayerSize:true
+	      });
+	      hlsInstances[ch.id] = hls;
+	      hls.on(Hls.Events.MANIFEST_LOADING, function() { setLoadingState(ch, 18, t('loading')); });
+	      hls.on(Hls.Events.MANIFEST_LOADED, function() { setLoadingState(ch, 42, t('loading')); });
+	      hls.on(Hls.Events.LEVEL_LOADED, function() { setLoadingState(ch, 62, t('buffering')); });
+	      hls.on(Hls.Events.FRAG_LOADED, function() { setLoadingState(ch, 86, t('buffering')); });
+	      hls.loadSource(ch.src);
+	      hls.attachMedia(video);
+	      bindBufferEvents();
+	      video.addEventListener('loadedmetadata', function() { updateVideoQuality(ch, video); refreshStatsUi(ch); }, { once:true });
+	      hls.on(Hls.Events.MANIFEST_PARSED, function() {
+	        setLoadingState(ch, 70, t('buffering'));
+	        video.play().catch(function() {});
+	      });
+	      hls.on(Hls.Events.ERROR, function(evt, data) {
+	        if (!data || !data.fatal) return;
+	        if (recoveries < 2) {
+	          recoveries += 1;
+	          setLoadingState(ch, 35 + recoveries * 15, t('reconnecting'));
+	          if (data.type === Hls.ErrorTypes.MEDIA_ERROR) hls.recoverMediaError();
+	          else hls.startLoad();
+	          return;
+	        }
+	        fail();
+	      });
+	      return;
+	    }
 
     fail();
   }
@@ -2242,15 +3027,18 @@
     if (opts.keepIosFs) {
       document.querySelectorAll('.player-outer.ios-fs').forEach(function(el) { el.classList.remove('ios-fs'); });
     }
-    stopAllMedia();
+	    stopAllMedia(ch.id);
 
     document.querySelectorAll('.section').forEach(function(sec) { sec.style.display = 'none'; });
     var sec = document.getElementById('sec-' + ch.id);
     if (sec) sec.style.display = 'block';
     setActiveRail();
 
-    var iframe = sec && sec.querySelector('iframe[data-src]');
-    if (iframe) iframe.src = iframe.dataset.src;
+	    var iframe = sec && sec.querySelector('iframe[data-src]');
+	    if (iframe) {
+	      startLoadingState(ch, t('loading'));
+	      iframe.src = iframe.dataset.src;
+	    }
     if (ch.type === 'hls') initHls(ch);
 
     var btn = document.getElementById('tab-' + ch.id);
@@ -2283,16 +3071,17 @@
     reloadStream(id);
   };
 
-  window.reloadStream = function(id) {
-    var ch = channelById(id);
-    var sec = document.getElementById('sec-' + ch.id);
-    if (!sec) return;
-    var iframe = sec.querySelector('iframe[data-src]');
-    if (iframe) {
-      iframe.src = 'about:blank';
-      setTimeout(function() { iframe.src = iframe.dataset.src; }, 80);
-      return;
-    }
+	  window.reloadStream = function(id) {
+	    var ch = channelById(id);
+	    var sec = document.getElementById('sec-' + ch.id);
+	    if (!sec) return;
+	    var iframe = sec.querySelector('iframe[data-src]');
+	    if (iframe) {
+	      startLoadingState(ch, t('loading'));
+	      iframe.src = 'about:blank';
+	      setTimeout(function() { iframe.src = iframe.dataset.src; }, 80);
+	      return;
+	    }
     var video = sec.querySelector('video');
     if (video) {
       if (hlsInstances[ch.id]) {
@@ -2301,14 +3090,29 @@
       }
       video.removeAttribute('src');
       video.dataset.loaded = '';
-      var loading = document.getElementById('load-' + ch.id);
-      if (loading) {
-        loading.classList.remove('hidden');
-        loading.innerHTML = '<div class="spin"></div><span>Loading ' + esc(ch.short) + '...</span>';
-      }
-      initHls(ch);
-    }
-  };
+	      var loading = document.getElementById('load-' + ch.id);
+	      if (loading) {
+	        loading.classList.remove('hidden');
+	        loading.innerHTML = loadingHtml(ch, 8, t('loading'));
+	      }
+	      initHls(ch);
+	    }
+	  };
+
+	  window.iframeReady = function(id) {
+	    var ch = channelById(id);
+	    var frame = document.getElementById('pl-' + ch.id);
+	    if (frame && frame.src === 'about:blank') return;
+	    loadingProgress[ch.id] = 100;
+	    setLoadingState(ch, 100, t('loading'));
+	    setTimeout(function() { finishLoadingState(ch); }, 550);
+	  };
+
+	  window.hardRefresh = function() {
+	    stopAllMedia();
+	    var base = window.location.href.split('#')[0].split('?')[0];
+	    window.location.replace(base + '?refresh=' + Date.now());
+	  };
 
   var isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent);
 
@@ -2416,10 +3220,15 @@
     document.querySelectorAll('[data-i18n-placeholder]').forEach(function(el) {
       el.placeholder = t(el.getAttribute('data-i18n-placeholder'));
     });
-    document.querySelectorAll('.lang-btn').forEach(function(btn) {
-      btn.classList.toggle('active', btn.dataset.lang === currentLang);
-    });
-    renderPlayers();
+	    document.querySelectorAll('.lang-btn').forEach(function(btn) {
+	      btn.classList.toggle('active', btn.dataset.lang === currentLang);
+	    });
+	    var hardRefreshBtn = document.getElementById('hardRefreshBtn');
+	    if (hardRefreshBtn) {
+	      hardRefreshBtn.title = t('hard-refresh');
+	      hardRefreshBtn.setAttribute('aria-label', t('hard-refresh'));
+	    }
+	    renderPlayers();
     renderRail(document.getElementById('channelSearch').value);
     sw(activeId);
   }

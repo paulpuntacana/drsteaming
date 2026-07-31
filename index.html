@@ -2549,6 +2549,69 @@
 	    .zap-shell.number-entry {
 	      border-color:rgba(255,184,92,0.74);
 	    }
+	    .zap-shell.browse {
+	      display:grid;
+	      grid-template-columns:minmax(0,1fr) minmax(270px,360px);
+	    }
+	    .zap-browse-main {
+	      min-width:0;
+	    }
+	    .zap-browse-list {
+	      display:grid;
+	      gap:6px;
+	      padding:9px;
+	      border-left:1px solid rgba(255,255,255,0.10);
+	      background:linear-gradient(180deg,rgba(9,21,36,0.98),rgba(4,10,18,0.98));
+	    }
+	    .zap-pick {
+	      display:grid;
+	      grid-template-columns:40px minmax(0,1fr) auto;
+	      align-items:center;
+	      gap:8px;
+	      min-width:0;
+	      padding:7px;
+	      border-radius:8px;
+	      border:1px solid rgba(255,255,255,0.10);
+	      background:rgba(255,255,255,0.035);
+	      color:#cbd7e6;
+	    }
+	    .zap-pick.current {
+	      border-color:rgba(255,122,0,0.82);
+	      background:linear-gradient(90deg,rgba(255,122,0,0.30),rgba(12,30,50,0.84));
+	      color:#fff;
+	    }
+	    .zap-pick.watching:not(.current) {
+	      border-color:rgba(51,104,218,0.56);
+	      box-shadow:inset 3px 0 0 #3368da;
+	    }
+	    .zap-pick .zap-logo {
+	      width:40px;
+	      height:40px;
+	      border-radius:8px;
+	    }
+	    .zap-pick strong {
+	      display:block;
+	      overflow:hidden;
+	      text-overflow:ellipsis;
+	      white-space:nowrap;
+	      font-size:12px;
+	      font-weight:950;
+	    }
+	    .zap-pick span {
+	      display:block;
+	      overflow:hidden;
+	      text-overflow:ellipsis;
+	      white-space:nowrap;
+	      color:#9fb0c2;
+	      font-size:9px;
+	      font-weight:800;
+	    }
+	    .zap-pick-no {
+	      color:#ffd1a3;
+	      font-family:'Geist Mono',monospace;
+	      font-size:11px;
+	      font-weight:950;
+	    }
 	    .zap-shell.tuning {
 	      border-color:rgba(255,184,92,0.82);
 	      box-shadow:0 24px 60px rgba(0,0,0,0.62),0 0 0 1px rgba(255,122,0,0.22) inset;
@@ -2854,7 +2917,7 @@
 	    }
 	    .category-strip {
 	      display:grid;
-	      grid-template-columns:repeat(6,minmax(0,1fr));
+	      grid-template-columns:repeat(7,minmax(0,1fr));
 	      gap:12px;
 	      min-height:var(--category-h);
 	      padding:13px 26px;
@@ -3161,6 +3224,23 @@
 	        max-height:42vh;
 	        overflow:hidden;
 	      }
+	      .zap-shell.browse {
+	        grid-template-columns:1fr;
+	      }
+	      .zap-browse-list {
+	        grid-template-columns:1fr;
+	        border-left:0;
+	        border-top:1px solid rgba(255,255,255,0.10);
+	        padding:6px;
+	      }
+	      .zap-pick {
+	        grid-template-columns:32px minmax(0,1fr) auto;
+	        padding:5px 6px;
+	      }
+	      .zap-pick .zap-logo {
+	        width:32px;
+	        height:32px;
+	      }
 	      .zap-kicker {
 	        grid-template-columns:46px minmax(0,1fr);
 	        gap:8px;
@@ -3337,7 +3417,7 @@
 	      }
 	      .category-strip {
 	        display:grid;
-	        grid-template-columns:repeat(6,minmax(0,1fr));
+	        grid-template-columns:repeat(7,minmax(0,1fr));
 	        gap:6px;
 	        padding:7px 8px;
 	        overflow:visible;
@@ -3559,6 +3639,11 @@
   </div>
 
   <nav class="category-strip" id="categoryStrip" aria-label="Channel categories">
+    <button class="category-btn" data-category="all" onclick="setCategory('all')">
+      <span class="category-icon"><svg class="ic"><use href="#i-grid"/></svg></span>
+      <span class="category-label">TODOS</span>
+      <b class="category-count" id="cat-count-all">0</b>
+    </button>
     <button class="category-btn" data-category="sports" onclick="setCategory('sports')">
       <span class="category-icon"><svg class="ic"><use href="#i-trophy"/></svg></span>
       <span class="category-label">DEPORTES</span>
@@ -3585,7 +3670,7 @@
       <b class="category-count" id="cat-count-movies">0</b>
     </button>
     <button class="category-btn" data-category="other" onclick="setCategory('other')">
-      <span class="category-icon"><svg class="ic"><use href="#i-grid"/></svg></span>
+      <span class="category-icon"><svg class="ic"><use href="#i-tv"/></svg></span>
       <span class="category-label">OTROS</span>
       <b class="category-count" id="cat-count-other">0</b>
     </button>
@@ -4902,7 +4987,7 @@
 	      'reload':'Recargar',
 	      'hard-refresh':'Recargar sitio',
 	      'loading':'Cargando',
-	      'buffering':'Buffering',
+	      'buffering':'Cargando señal',
 	      'reconnecting':'Reconectando',
 	      'stream-unavailable':'Señal no disponible',
 	      'external-title':'Abrir canal',
@@ -4997,6 +5082,8 @@
 	  var pendingTuneTimer = null;
 	  var pendingTuneId = '';
 	  var pendingTuneOpts = null;
+	  var browseId = '';
+	  var browseOpen = false;
 	  var numberEntry = '';
 	  var numberEntryTimer = null;
 	  var swipeStartX = 0;
@@ -5019,13 +5106,13 @@
 	  var ZAP_LOAD_DELAY = TV_LIGHT_MODE ? 1150 : 620;
 	  var ZAP_MIN_INTERVAL = TV_LIGHT_MODE ? 280 : 155;
 	  if (TV_LIGHT_MODE) document.documentElement.classList.add('tv-lite-mode');
-	  var CATEGORY_IDS = ['sports','news','cooking','music','movies','other'];
+	  var CATEGORY_IDS = ['all','sports','news','cooking','music','movies','other'];
 	  var CATEGORY_LABELS = {
-	    es:{sports:'DEPORTES',news:'NOTICIAS',cooking:'COCINA',music:'MUSICA',movies:'CINE',other:'OTROS'},
-	    en:{sports:'SPORTS',news:'NEWS',cooking:'COOKING',music:'MUSIC',movies:'MOVIES',other:'OTHER'}
+	    es:{all:'TODOS',sports:'DEPORTES',news:'NOTICIAS',cooking:'COCINA',music:'MUSICA',movies:'CINE',other:'OTROS'},
+	    en:{all:'ALL',sports:'SPORTS',news:'NEWS',cooking:'COOKING',music:'MUSIC',movies:'MOVIES',other:'OTHER'}
 	  };
 	  var savedCategory = safeStorageGet('sportTvCategory');
-	  var activeCategory = CATEGORY_IDS.indexOf(savedCategory) > -1 ? savedCategory : 'other';
+	  var activeCategory = CATEGORY_IDS.indexOf(savedCategory) > -1 ? savedCategory : 'all';
 	  var railFilterText = '';
   var savedLang = safeStorageGet('sportTvLang');
   var currentLang = STRINGS[savedLang] ? savedLang : 'es';
@@ -5099,6 +5186,7 @@
 	  }
 
 	  function channelMatchesCategory(ch, category) {
+	    if (category === 'all') return true;
 	    return channelCategory(ch) === category;
 	  }
 
@@ -5173,6 +5261,8 @@
 	    });
 	    if (zapTimer) clearTimeout(zapTimer);
 	    zapTimer = null;
+	    browseOpen = false;
+	    browseId = '';
 	  }
 
 	  function shouldDeferZap(opts) {
@@ -5344,6 +5434,10 @@
 	    loading.innerHTML = loadingHtml(ch, percent, label);
 	  }
 
+	  function playbackLooksActive(video) {
+	    return !!(video && !video.paused && !video.ended && (video.readyState >= 2 || (video.currentTime || 0) > 0));
+	  }
+
 	  function clearLoadingTimer(id) {
 	    if (loadingTimers[id]) clearInterval(loadingTimers[id]);
 	    delete loadingTimers[id];
@@ -5353,6 +5447,12 @@
 
 	  function startLoadingState(ch, label) {
 	    clearLoadingTimer(ch.id);
+	    var video = document.getElementById('pl-' + ch.id);
+	    if (video && video.tagName === 'VIDEO' && playbackLooksActive(video)) {
+	      playbackReady[ch.id] = true;
+	      hideLoadingState(ch);
+	      return;
+	    }
 	    if (playbackReady[ch.id] && label === t('buffering')) return;
 	    loadingProgress[ch.id] = Math.max(6, loadingProgress[ch.id] || 6);
 	    setLoadingState(ch, loadingProgress[ch.id], label || t('loading'));
@@ -5411,7 +5511,7 @@
 	    bufferTimers[ch.id] = setTimeout(function() {
 	      if (activeId !== ch.id) return;
 	      if (!video || video.paused || video.ended) return;
-	      if (video.readyState >= 3 || (video.currentTime || 0) > startTime + 0.25) {
+	      if ((playbackReady[ch.id] && video.readyState >= 2) || video.readyState >= 3 || (video.currentTime || 0) > startTime + 0.12) {
 	        playbackReady[ch.id] = true;
 	        hideLoadingState(ch);
 	        return;
@@ -5610,10 +5710,17 @@
     }, 3600);
   }
 
-  function zapLogoHtml(ch) {
-    if (!ch.logo) return '<span>' + esc(ch.icon) + '</span>';
-    return '<img src="' + esc(ch.logo) + '" alt="" onerror="this.remove()"><span>' + esc(ch.icon) + '</span>';
-  }
+	  function zapLogoHtml(ch) {
+	    if (!ch.logo) return '<span>' + esc(ch.icon) + '</span>';
+	    return '<img src="' + esc(ch.logo) + '" alt="" onerror="this.remove()"><span>' + esc(ch.icon) + '</span>';
+	  }
+
+	  function zapSideLabel(key) {
+	    var labels = currentLang === 'es'
+	      ? { prev:'ANT', on:'EN VIVO', next:'SIG' }
+	      : { prev:'PREV', on:'ON', next:'NEXT' };
+	    return labels[key] || key;
+	  }
 
 	  function zapRowHtml(ch, cls, side) {
 	    return '<div class="zap-row ' + cls + '">' +
@@ -5645,9 +5752,9 @@
 	        '<div class="zap-kicker"><span class="zap-channel-no">' + esc(formatChannelNumber(ch)) + '</span><strong>' + esc(ch.name) + '</strong><span>' + esc(rightLabel) + '</span></div>' +
 	        programHtml(ch, 'zap-program') +
 	        '<div class="zap-track">' +
-	          zapRowHtml(prev, 'ghost prev', 'PREV') +
-	          zapRowHtml(ch, 'current', 'ON') +
-	          zapRowHtml(next, 'ghost next', 'NEXT') +
+	          zapRowHtml(prev, 'ghost prev', zapSideLabel('prev')) +
+	          zapRowHtml(ch, 'current', zapSideLabel('on')) +
+	          zapRowHtml(next, 'ghost next', zapSideLabel('next')) +
 	        '</div>' +
 	        '<div class="zap-metrics">' +
 	          '<span class="zap-quality">RES <b>' + esc(qualityLabel(ch)) + '</b></span>' +
@@ -5657,11 +5764,121 @@
       '</div>';
     overlay.classList.remove('show');
     overlay.offsetHeight;
-	    overlay.classList.add('show');
+    overlay.classList.add('show');
 	    if (zapTimer) clearTimeout(zapTimer);
 	    zapTimer = setTimeout(function() {
 	      overlay.classList.remove('show');
 	    }, 9000);
+	  }
+
+	  function zapPickHtml(ch, selected) {
+	    var cls = 'zap-pick' + (selected ? ' current' : '') + (ch.id === activeId ? ' watching' : '');
+	    return '<div class="' + cls + '">' +
+	      '<div class="zap-logo">' + zapLogoHtml(ch) + '</div>' +
+	      '<div><strong>' + esc(ch.short) + '</strong><span>' + esc(ch.number + ' · ' + ch.tag) + '</span></div>' +
+	      '<b class="zap-pick-no">' + esc(formatChannelNumber(ch)) + '</b>' +
+	    '</div>';
+	  }
+
+	  function showBrowseOverlay(id, direction) {
+	    if (!isFullscreenMode()) {
+	      hideZapOverlays();
+	      return;
+	    }
+	    var list = zappableChannels();
+	    if (!list.length) return;
+	    var ch = channelById(id || activeId);
+	    if (!list.some(function(item) { return item.id === ch.id; })) ch = list[0];
+	    browseId = ch.id;
+	    browseOpen = true;
+	    var prev = zappableAtOffset(ch.id, -1);
+	    var next = zappableAtOffset(ch.id, 1);
+	    var overlay = currentZapOverlay(activeId);
+	    if (!overlay) return;
+	    var signal = Math.max(0, Math.min(100, Number(ch.signal) || 0));
+	    var offsets = [-2, -1, 0, 1, 2];
+	    var nearby = offsets.map(function(offset) {
+	      var item = zappableAtOffset(ch.id, offset);
+	      return zapPickHtml(item, item.id === ch.id);
+	    }).join('');
+	    var label = currentLang === 'es' ? 'EXPLORAR' : 'BROWSE';
+	    var ok = currentLang === 'es' ? 'OK SELECCIONAR' : 'OK SELECT';
+	    overlay.innerHTML =
+	      '<div class="zap-shell browse">' +
+	        '<div class="zap-browse-main">' +
+	          '<div class="zap-kicker"><span class="zap-channel-no">' + esc(formatChannelNumber(ch)) + '</span><strong>' + esc(ch.name) + '</strong><span>' + esc(ok) + '</span></div>' +
+	          programHtml(ch, 'zap-program') +
+	          '<div class="zap-track">' +
+	            zapRowHtml(prev, 'ghost prev', zapSideLabel('prev')) +
+	            zapRowHtml(ch, 'current', label) +
+	            zapRowHtml(next, 'ghost next', zapSideLabel('next')) +
+	          '</div>' +
+	          '<div class="zap-metrics">' +
+	            '<span class="zap-quality">RES <b>' + esc(qualityLabel(ch)) + '</b></span>' +
+	            '<span class="zap-quality">TV <b>' + esc(label) + '</b></span>' +
+	            '<span class="zap-signal">' + signalBars(signal) + esc(signal + '%') + '</span>' +
+	          '</div>' +
+	        '</div>' +
+	        '<div class="zap-browse-list">' + nearby + '</div>' +
+	      '</div>';
+	    document.querySelectorAll('.zap-overlay.show').forEach(function(el) {
+	      if (el !== overlay) el.classList.remove('show');
+	    });
+	    overlay.classList.remove('show');
+	    overlay.offsetHeight;
+	    overlay.classList.add('show');
+	    if (zapTimer) clearTimeout(zapTimer);
+	    zapTimer = setTimeout(function() {
+	      hideZapOverlays();
+	    }, 45000);
+	  }
+
+	  function openBrowseOverlay() {
+	    clearNumberEntry();
+	    clearPendingTune();
+	    browseId = browseId || activeId;
+	    showBrowseOverlay(browseId, 0);
+	  }
+
+	  function browseChannel(delta) {
+	    if (!isFullscreenMode()) {
+	      window.zapChannel(delta);
+	      return;
+	    }
+	    clearNumberEntry();
+	    clearPendingTune();
+	    var list = zappableChannels();
+	    if (!list.length) return;
+	    var current = browseOpen && browseId ? browseId : activeId;
+	    var idx = list.findIndex(function(ch) { return ch.id === current; });
+	    if (idx < 0) idx = 0;
+	    var next = list[(idx + delta + list.length) % list.length];
+	    showBrowseOverlay(next.id, delta);
+	  }
+
+	  function commitBrowseSelection() {
+	    if (!isFullscreenMode()) return false;
+	    if (!browseOpen) {
+	      openBrowseOverlay();
+	      return true;
+	    }
+	    var selected = channelById(browseId || activeId);
+	    var keepIosFs = document.body.classList.contains('has-ios-fs');
+	    browseOpen = false;
+	    browseId = '';
+	    if (selected.id === activeId) {
+	      hideZapOverlays();
+	      forceNormalSpeed(activeId);
+	      showZapOverlay(activeId, 0);
+	      return true;
+	    }
+	    window.sw(selected.id, {
+	      zap:true,
+	      direction:0,
+	      keepIosFs:keepIosFs,
+	      noDefer:true
+	    });
+	    return true;
 	  }
 
 	  function digitFromEvent(event) {
@@ -5751,6 +5968,8 @@
     var now = Date.now();
     if (now - lastZapAt < ZAP_MIN_INTERVAL) return;
 	    clearNumberEntry();
+	    browseOpen = false;
+	    browseId = '';
     lastZapAt = now;
     var keepIosFs = document.body.classList.contains('has-ios-fs');
     var next = zappableAtOffset(activeId, delta);
@@ -5821,6 +6040,7 @@
 	  window.setCategory = function(category) {
 	    if (CATEGORY_IDS.indexOf(category) < 0) return;
 	    clearPendingTune();
+	    hideZapOverlays();
 	    activeCategory = category;
 	    safeStorageSet('sportTvCategory', category);
 	    var search = document.getElementById('channelSearch');
@@ -6144,6 +6364,30 @@
 	    }
 	  };
 
+	  function reviveActivePlayer() {
+	    var ch = channelById(activeId);
+	    var sec = document.getElementById('sec-' + ch.id);
+	    if (!sec) return;
+	    forceNormalSpeed(ch.id);
+	    var frame = sec.querySelector('iframe[data-src]');
+	    if (frame) {
+	      if (!frame.src || frame.src === 'about:blank') frame.src = embedSrc(frame.dataset.src);
+	      kickIframePlayback(ch.id);
+	      setTimeout(function() {
+	        if (activeId === ch.id) finishLoadingState(ch);
+	      }, 4200);
+	      return;
+	    }
+	    var video = sec.querySelector('video');
+	    if (!video) return;
+	    if (playbackLooksActive(video)) {
+	      playbackReady[ch.id] = true;
+	      hideLoadingState(ch);
+	      return;
+	    }
+	    requestVideoPlay(ch, video);
+	  }
+
 	  window.iframeReady = function(id) {
 	    var ch = channelById(id);
 	    var frame = document.getElementById('pl-' + ch.id);
@@ -6194,24 +6438,61 @@
 	    var target = event.target;
 	    if (target && /INPUT|TEXTAREA|SELECT/.test(target.tagName)) return;
 	    if (event.metaKey || event.ctrlKey || event.altKey) return;
+	    var key = event.key || event.code || '';
+	    var code = event.code || '';
+	    var fs = isFullscreenMode();
+	    var isOk = key === 'Enter' || key === 'OK' || key === 'Accept' || code === 'Enter' || code === 'NumpadEnter' || event.keyCode === 13;
+	    if (fs && isOk) {
+	      event.preventDefault();
+	      event.stopPropagation();
+	      commitBrowseSelection();
+	      return;
+	    }
+	    if (fs && browseOpen && (key === 'Escape' || key === 'Back' || key === 'BrowserBack' || event.keyCode === 461 || event.keyCode === 10009)) {
+	      event.preventDefault();
+	      event.stopPropagation();
+	      hideZapOverlays();
+	      return;
+	    }
 	    var digit = digitFromEvent(event);
 	    if (digit !== '') {
 	      event.preventDefault();
 	      event.stopPropagation();
+	      browseOpen = false;
+	      browseId = '';
 	      handleNumberDigit(digit);
 	      return;
 	    }
-	    var key = event.key || event.code || '';
-	    var code = event.code || '';
 	    var delta = 0;
-    var fs = isFullscreenMode();
-    if (key === 'ArrowUp') {
+    if (fs && (key === 'ArrowUp' || key === 'ArrowRight')) {
+      event.preventDefault();
+      event.stopPropagation();
+      browseChannel(1);
+      return;
+    } else if (fs && (key === 'ArrowDown' || key === 'ArrowLeft')) {
+      event.preventDefault();
+      event.stopPropagation();
+      browseChannel(-1);
+      return;
+    } else if (key === 'ArrowUp') {
       delta = 1;
     } else if (key === 'ArrowDown') {
       delta = -1;
-    } else if (fs && (key === 'ChannelUp' || key === 'PageUp' || key === 'MediaTrackNext' || key === 'ArrowRight' || code === 'NumpadAdd' || code === 'Equal' || event.keyCode === 33)) {
+    } else if (fs && (key === 'ChannelUp' || key === 'PageUp' || key === 'MediaTrackNext' || code === 'NumpadAdd' || code === 'Equal' || event.keyCode === 33)) {
+      if (browseOpen) {
+        event.preventDefault();
+        event.stopPropagation();
+        browseChannel(1);
+        return;
+      }
       delta = 1;
-    } else if (fs && (key === 'ChannelDown' || key === 'PageDown' || key === 'MediaTrackPrevious' || key === 'ArrowLeft' || code === 'NumpadSubtract' || code === 'Minus' || event.keyCode === 34)) {
+    } else if (fs && (key === 'ChannelDown' || key === 'PageDown' || key === 'MediaTrackPrevious' || code === 'NumpadSubtract' || code === 'Minus' || event.keyCode === 34)) {
+      if (browseOpen) {
+        event.preventDefault();
+        event.stopPropagation();
+        browseChannel(-1);
+        return;
+      }
       delta = -1;
     }
     if (!delta) return;
@@ -6346,6 +6627,13 @@
   window.addEventListener('resize', syncRailHeight);
   window.addEventListener('orientationchange', function() {
     setTimeout(syncRailHeight, 250);
+  });
+  window.addEventListener('pageshow', function() {
+    setTimeout(reviveActivePlayer, 450);
+    setTimeout(reviveActivePlayer, 1800);
+  });
+  document.addEventListener('visibilitychange', function() {
+    if (!document.hidden) setTimeout(reviveActivePlayer, 450);
   });
 
   bindSwipeZap();

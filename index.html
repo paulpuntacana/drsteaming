@@ -3149,12 +3149,144 @@
 	      .category-btn {
 	        flex-basis:min(156px,40vw);
 	      }
+	      .zap-overlay {
+	        width:min(480px,calc(100vw - 28px));
+	        bottom:12px;
+	      }
+	      .zap-shell {
+	        max-height:42vh;
+	        overflow:hidden;
+	      }
+	      .zap-kicker {
+	        grid-template-columns:46px minmax(0,1fr);
+	        gap:8px;
+	        padding:7px 9px 6px;
+	        font-size:9px;
+	      }
+	      .zap-kicker strong {
+	        font-size:14px;
+	      }
+	      .zap-kicker span:last-child {
+	        display:none;
+	      }
+	      .zap-program {
+	        gap:3px 7px;
+	        padding:6px 9px;
+	      }
+	      .zap-program strong {
+	        font-size:11px;
+	      }
+	      .zap-program em {
+	        font-size:10px;
+	      }
+	      .zap-track {
+	        grid-template-columns:0.8fr 1.18fr 0.8fr;
+	      }
+	      .zap-row,
+	      .zap-row.current {
+	        grid-template-columns:34px minmax(0,1fr);
+	        gap:7px;
+	        padding:7px;
+	      }
+	      .zap-logo,
+	      .zap-row.current .zap-logo {
+	        width:34px;
+	        height:34px;
+	      }
+	      .zap-row.current .zap-name strong {
+	        font-size:14px;
+	      }
+	      .zap-row.ghost .zap-name strong,
+	      .zap-name strong {
+	        font-size:11px;
+	      }
+	      .zap-name span {
+	        display:none;
+	      }
+	      .zap-metrics {
+	        padding:6px 9px 7px;
+	      }
+	      .zap-quality,
+	      .zap-signal {
+	        font-size:9px;
+	      }
+	      .zap-quality b {
+	        padding:3px 5px;
+	      }
+	      .zap-digits {
+	        padding:12px 14px;
+	      }
+	      .zap-digits strong {
+	        font-size:30px;
+	      }
+	      .zap-target {
+	        padding:0 14px 12px;
+	        font-size:12px;
+	      }
 	    }
 
 	    @media (max-width:620px) {
 	      .side-col {
 	        height:min(44vh,380px);
 	        min-height:230px;
+	      }
+	      .zap-overlay {
+	        width:min(340px,calc(100vw - 20px));
+	        bottom:8px;
+	      }
+	      .zap-program {
+	        display:none;
+	      }
+	      .zap-kicker {
+	        grid-template-columns:40px minmax(0,1fr);
+	        padding:6px 8px;
+	      }
+	      .zap-kicker strong {
+	        font-size:13px;
+	      }
+	      .zap-track {
+	        grid-template-columns:0.72fr 1.2fr 0.72fr;
+	      }
+	      .zap-row,
+	      .zap-row.current {
+	        grid-template-columns:28px minmax(0,1fr);
+	        gap:6px;
+	        padding:6px;
+	      }
+	      .zap-logo,
+	      .zap-row.current .zap-logo {
+	        width:28px;
+	        height:28px;
+	      }
+	      .zap-row.current .zap-name strong {
+	        font-size:13px;
+	      }
+	      .zap-row.ghost .zap-name strong,
+	      .zap-name strong {
+	        font-size:10px;
+	      }
+	      .zap-row.ghost .zap-logo {
+	        display:none;
+	      }
+	      .zap-row.ghost {
+	        grid-template-columns:minmax(0,1fr);
+	      }
+	      .zap-metrics {
+	        padding:5px 8px;
+	      }
+	      .zap-quality:nth-child(2) {
+	        display:none;
+	      }
+	      .zap-digits {
+	        padding:10px 12px;
+	        gap:10px;
+	      }
+	      .zap-digits strong {
+	        font-size:26px;
+	      }
+	      .zap-target {
+	        padding:0 12px 10px;
+	        font-size:11px;
 	      }
 	    }
 	  </style>

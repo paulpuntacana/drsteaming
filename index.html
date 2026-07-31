@@ -2035,12 +2035,15 @@
 	      color:#05070a;
 	    }
 	    .badge-live {
-	      padding:0 18px;
-	      border-color:rgba(255,122,0,0.42);
-	      color:#ffd8b0;
-	      font-size:12px;
+	      gap:8px;
+	      padding:0 15px;
+	      border-color:rgba(255,255,255,0.86);
+	      background:linear-gradient(180deg,#ffffff,#dfe9f7);
+	      color:#071424;
+	      font-size:11px;
 	      font-weight:950;
 	      text-transform:uppercase;
+	      box-shadow:0 12px 24px rgba(0,0,0,0.26),inset 0 1px 0 rgba(255,255,255,0.95);
 	    }
 	    .dot-live {
 	      background:#ff7a00;
@@ -2098,6 +2101,21 @@
 	    .player-outer > video {
 	      background:#000;
 	    }
+	    .remote-guard {
+	      position:absolute;
+	      inset:0;
+	      z-index:94;
+	      display:block;
+	      width:100%;
+	      height:100%;
+	      border:0;
+	      padding:0;
+	      background:transparent;
+	      color:transparent;
+	      cursor:default;
+	    }
+	    .remote-guard:focus { outline:none; }
+	    .player-controls { z-index:150; }
 	    .fallback-bar {
 	      min-height:36px;
 	      padding:8px 18px;
@@ -2628,7 +2646,7 @@
   <div class="status-strip">
     <svg class="ic"><use href="#i-ball"/></svg>
     <span data-i18n="strip-title">Sport & TV</span>
-    <em data-i18n="strip-sub">zenders voor béisbol, fútbol, básquetbol y TV local</em>
+    <em data-i18n="strip-sub">canales para beisbol, futbol, basquetbol y TV local</em>
   </div>
 
   <div class="layout">
@@ -2694,7 +2712,7 @@
       id:'colorvision', group:'Dominican Live TV', icon:'9', logo:'https://www.google.com/s2/favicons?domain=colorvision.com.do&sz=128', badge:'LIVE', badgeType:'good',
       name:'Color Vision', short:'Color Vision', number:'Canal 9',
       tag:'TV', tagClass:'tag-tv', quality:'HD', signal:92,
-      desc:'Canal 9 bovenaan als snelle, vertrouwde Dominican TV-zender.',
+      desc:'Canal 9 as a fast, trusted Dominican live TV channel.',
       type:'iframe',
       src:'https://www.dailymotion.com/embed/video/x7gy059?autoplay=1&mute=0',
       fallback:'https://canalesdominicanos.live/color-vision-canal-9'
@@ -2801,20 +2819,20 @@
     {
       id:'cazetv', group:'Football Live', icon:'CZ', logo:'https://upload.wikimedia.org/wikipedia/en/thumb/6/64/Caz%C3%A9TV_logo.svg/1280px-Caz%C3%A9TV_logo.svg.png', badge:'BR', badgeType:'good',
       name:'CazéTV', short:'CazéTV', number:'Brazil',
-      tag:'Football', tagClass:'tag-sport', quality:'FHD', signal:93,
-      desc:'Brazilian free sports and football FAST channel.',
-      type:'hls',
-      src:'https://dfr80qz435crc.cloudfront.net/MNOP/Amagi/Caze/Caze_TV_BR/Caze_TV.m3u8',
-      fallback:'https://www.youtube.com/@CazeTV'
+      tag:'Football', tagClass:'tag-sport', quality:'HD', signal:89,
+      desc:'Official CazéTV YouTube live player, used here because the direct FAST feed is HEVC-only on many older TVs.',
+      type:'iframe',
+      src:'https://www.youtube.com/embed/live_stream?channel=UCZiYbVptd3PVPf4f6eR6UaQ&autoplay=1&mute=0&playsinline=1&rel=0&enablejsapi=1',
+      fallback:'https://www.youtube.com/@CazeTV/streams'
     },
     {
       id:'gefast', group:'Football Live', icon:'GE', logo:'https://i.ibb.co/WGXHDnF/logo-ge-fast.png', badge:'BR', badgeType:'good',
-      name:'ge Fast', short:'ge Fast', number:'Brazil',
-      tag:'Football', tagClass:'tag-sport', quality:'FHD', signal:92,
-      desc:'Globo Esporte FAST channel with Brazilian sports and football coverage.',
-      type:'hls',
-      src:'https://dfr80qz435crc.cloudfront.net/EFGH/Amagi/Globo/GE_Fast_BR/GE_Fast.m3u8',
-      fallback:'https://ge.globo.com/'
+      name:'ge TV', short:'ge TV', number:'Brazil',
+      tag:'Football', tagClass:'tag-sport', quality:'HD', signal:88,
+      desc:'Official ge TV / Globo Esporte YouTube live player, replacing the HEVC-only ge Fast feed for better TV compatibility.',
+      type:'iframe',
+      src:'https://www.youtube.com/embed/live_stream?channel=UCgCKagVhzGnZcuP9bSMgMCg&autoplay=1&mute=0&playsinline=1&rel=0&enablejsapi=1',
+      fallback:'https://www.youtube.com/@getv/streams'
     },
     {
       id:'realmadridtv', group:'Football Live', icon:'RM', logo:'https://i.imgur.com/5pMo7dL.png', badge:'ESP', badgeType:'good',
@@ -3594,13 +3612,13 @@
       fallback:'https://www.canalsur.es/'
     },
     {
-      id:'rtve-24h-canarias', group:'News and Europe', icon:'24', logo:'https://i.ibb.co/21sXZ3GT/24h.png', badge:'ES', badgeType:'good',
-      name:'RTVE 24 Horas Canarias', short:'24 Horas Canarias', number:'Spain',
-      tag:'News', tagClass:'tag-tv', quality:'HD', signal:82,
-      desc:'Spanish public news stream for the Canary Islands feed.',
+      id:'dw-espanol', group:'News and Europe', icon:'DW', logo:'https://i.imgur.com/8MRNFb9.png', badge:'ES', badgeType:'good',
+      name:'DW Español', short:'DW Español', number:'Europe',
+      tag:'News', tagClass:'tag-tv', quality:'HD', signal:86,
+      desc:'Spanish-language European and international news stream.',
       type:'hls',
-      src:'https://ztnr.rtve.es/ztnr/5473142.m3u8',
-      fallback:'https://www.rtve.es/play/videos/directo/canal-24-horas/'
+      src:'https://dwamdstream104.akamaized.net/hls/live/2015530/dwstream104/stream04/streamPlaylist.m3u8',
+      fallback:'https://www.dw.com/es/media-center/en-vivo/s-100837'
     },
     {
       id:'latina-noticias', group:'Latin News', icon:'LN', logo:'https://assets.rudo.video/assets/latina/live/logoApi_4b43aad719f5bbf7aa2813c2199e6e3e1755620584.png', badge:'PE', badgeType:'good',
@@ -3671,7 +3689,7 @@
 	    'redplus-co':{title:'Red+ en vivo', meta:'Noticias y programacion colombiana'},
 	    'france24-es':{title:'France 24 Espanol', meta:'Noticias internacionales en directo'},
 	    'vevo-latino':{title:'Vevo Latino live', meta:'Videoclips latinos non-stop'},
-	    'qmusic-nl':{title:'Qmusic Nederland visual radio', meta:'Muziek en radio live uit Nederland'},
+	    'qmusic-nl':{title:'Qmusic Nederland visual radio', meta:'Music and live radio from the Netherlands'},
 	    'm2o-tv':{title:'m2o TV live', meta:'Dance en electronic music uit Italie'}
 	  };
 	  CHANNELS.forEach(function(ch) {
@@ -3681,9 +3699,9 @@
 	  var STRINGS = {
 	    es: {
       'brand-sub':'Canales dominicanos y deportes en vivo',
-      'live':'En vivo',
+      'live':'LIVE',
       'strip-title':'Sport & TV',
-      'strip-sub':'zenders para béisbol, fútbol, básquetbol y TV local',
+      'strip-sub':'canales para beisbol, futbol, basquetbol y TV local',
       'rail-title':'Live TV',
       'search':'Buscar canal o deporte...',
       'open-original':'Abrir fuente',
@@ -3956,6 +3974,20 @@
 	    syncRailHeight();
 	  }
 
+	  function requestVideoPlay(ch, video) {
+	    if (!video || activeId !== ch.id) return;
+	    video.defaultMuted = false;
+	    video.muted = false;
+	    video.volume = 1;
+	    video.play().catch(function() {});
+	  }
+
+	  function keepTryingVideoPlay(ch, video) {
+	    [0, 450, 1200, 2600].forEach(function(delay) {
+	      setTimeout(function() { requestVideoPlay(ch, video); }, delay);
+	    });
+	  }
+
 	  function bufferedPercent(video) {
 	    if (!video || !video.buffered || !video.buffered.length) return 18;
 	    var now = video.currentTime || 0;
@@ -3984,11 +4016,61 @@
 	    return CHANNELS.filter(function(ch) { return ch.type !== 'external' && !ch.skipZap; });
 	  }
 
+  function safeFocus(el) {
+    if (!el || !el.focus) return;
+    try { el.focus({ preventScroll:true }); }
+    catch(e) {
+      try { el.focus(); } catch(ignore) {}
+    }
+  }
+
   function zappableAtOffset(id, offset) {
     var list = zappableChannels();
     var idx = list.findIndex(function(ch) { return ch.id === id; });
     if (idx < 0) idx = 0;
     return list[(idx + offset + list.length) % list.length];
+  }
+
+  function focusRemoteGuard(id) {
+    var guard = document.getElementById('guard-' + (id || activeId));
+    var stage = document.getElementById('playerMount');
+    if (guard && guard.focus) {
+      safeFocus(guard);
+      return;
+    }
+    safeFocus(stage);
+  }
+
+  function embedSrc(src) {
+    if (!src || src.indexOf('youtube.com/embed/') === -1 || src.indexOf('enablejsapi=1') === -1) return src;
+    if (src.indexOf('origin=') > -1) return src;
+    var glue = src.indexOf('?') > -1 ? '&' : '?';
+    return src + glue + 'origin=' + encodeURIComponent(window.location.origin);
+  }
+
+  function kickIframePlayback(id) {
+    var frame = document.getElementById('pl-' + id);
+    if (!frame || !frame.contentWindow) return;
+    try {
+      frame.contentWindow.postMessage(JSON.stringify({ event:'command', func:'playVideo', args:[] }), '*');
+      frame.contentWindow.postMessage(JSON.stringify({ event:'command', func:'unMute', args:[] }), '*');
+      frame.contentWindow.postMessage(JSON.stringify({ event:'command', func:'setVolume', args:[100] }), '*');
+    } catch(e) {}
+  }
+
+  window.remotePlayerTap = function(id, el) {
+    touchToggle(id);
+    safeFocus(el);
+    kickIframePlayback(id);
+  };
+
+  function finishIframeSoon(ch) {
+    setTimeout(function() {
+      if (activeId !== ch.id) return;
+      finishLoadingState(ch);
+      focusRemoteGuard(ch.id);
+      kickIframePlayback(ch.id);
+    }, 3600);
   }
 
   function zapLogoHtml(ch) {
@@ -4059,7 +4141,7 @@
     mount.innerHTML = CHANNELS.map(function(ch) {
 	      var player = '';
 	      if (ch.type === 'iframe') {
-	        player = '<iframe id="pl-' + esc(ch.id) + '" data-src="' + esc(ch.src) + '" tabindex="-1" onload="iframeReady(\'' + esc(ch.id) + '\')" allowfullscreen allow="autoplay;fullscreen;picture-in-picture;encrypted-media;web-share;cast" referrerpolicy="no-referrer-when-downgrade"></iframe><div class="player-loading iframe-loading" id="load-' + esc(ch.id) + '">' + loadingHtml(ch, 12, t('loading')) + '</div>';
+	        player = '<iframe id="pl-' + esc(ch.id) + '" data-src="' + esc(ch.src) + '" tabindex="-1" onload="iframeReady(\'' + esc(ch.id) + '\')" allowfullscreen allow="autoplay;fullscreen;picture-in-picture;encrypted-media;web-share;cast" referrerpolicy="no-referrer-when-downgrade"></iframe><button class="remote-guard" id="guard-' + esc(ch.id) + '" tabindex="0" onclick="event.stopPropagation(); remotePlayerTap(\'' + esc(ch.id) + '\', this);" aria-label="TV remote focus"></button><div class="player-loading iframe-loading" id="load-' + esc(ch.id) + '">' + loadingHtml(ch, 12, t('loading')) + '</div>';
 	      } else if (ch.type === 'hls') {
 	        player = '<video id="pl-' + esc(ch.id) + '" controls autoplay playsinline webkit-playsinline preload="metadata"></video><div class="player-loading" id="load-' + esc(ch.id) + '">' + loadingHtml(ch, 8, t('loading')) + '</div>';
 	      } else {
@@ -4156,7 +4238,7 @@
 
 	    function ready() {
 	      markVideoActive(ch, video);
-	      video.play().catch(function() {});
+	      requestVideoPlay(ch, video);
 	    }
 
 	    function fail() {
@@ -4196,7 +4278,7 @@
 	      bindBufferEvents();
 	      video.addEventListener('loadedmetadata', function() { updateVideoQuality(ch, video); refreshStatsUi(ch); }, { once:true });
 	      video.addEventListener('error', fail, { once:true });
-	      video.play().catch(function() {});
+	      keepTryingVideoPlay(ch, video);
 	      return;
 	    }
 
@@ -4230,7 +4312,7 @@
 	      video.addEventListener('loadedmetadata', function() { updateVideoQuality(ch, video); refreshStatsUi(ch); }, { once:true });
 	      hls.on(Hls.Events.MANIFEST_PARSED, function() {
 	        if (!playbackReady[ch.id]) setLoadingState(ch, 70, t('loading'));
-	        video.play().catch(function() {});
+	        keepTryingVideoPlay(ch, video);
 	      });
 	      hls.on(Hls.Events.ERROR, function(evt, data) {
 	        if (!data || !data.fatal) return;
@@ -4266,16 +4348,14 @@
 	    var iframe = sec && sec.querySelector('iframe[data-src]');
 	    if (iframe) {
 	      startLoadingState(ch, t('loading'));
-	      iframe.src = iframe.dataset.src;
+	      iframe.src = embedSrc(iframe.dataset.src);
+	      finishIframeSoon(ch);
 	    }
     if (ch.type === 'hls') initHls(ch);
 
     var btn = document.getElementById('tab-' + ch.id);
     if (btn) btn.scrollIntoView({ behavior:opts.zap ? 'auto' : 'smooth', block:'nearest' });
-    var stage = document.getElementById('playerMount');
-    if (stage && stage.focus) {
-      setTimeout(function() { stage.focus({ preventScroll:true }); }, 30);
-    }
+    setTimeout(function() { focusRemoteGuard(ch.id); }, 30);
     if (opts.keepIosFs) {
       var po = document.getElementById('po-' + ch.id);
       if (po) {
@@ -4308,7 +4388,11 @@
 	    if (iframe) {
 	      startLoadingState(ch, t('loading'));
 	      iframe.src = 'about:blank';
-	      setTimeout(function() { iframe.src = iframe.dataset.src; }, 80);
+	      setTimeout(function() {
+	        iframe.src = embedSrc(iframe.dataset.src);
+	        finishIframeSoon(ch);
+	        focusRemoteGuard(ch.id);
+	      }, 80);
 	      return;
 	    }
     var video = sec.querySelector('video');
@@ -4336,8 +4420,8 @@
 	    loadingProgress[ch.id] = 100;
 	    setLoadingState(ch, 100, t('loading'));
 	    setTimeout(function() { finishLoadingState(ch); }, 550);
-	    var stage = document.getElementById('playerMount');
-	    if (stage && stage.focus) setTimeout(function() { stage.focus({ preventScroll:true }); }, 90);
+	    setTimeout(function() { focusRemoteGuard(ch.id); }, 90);
+	    setTimeout(function() { kickIframePlayback(ch.id); }, 180);
 	  };
 
 	  window.hardRefresh = function() {
@@ -4359,7 +4443,7 @@
       return;
     }
     var stage = document.getElementById('playerMount');
-    if (stage.focus) stage.focus({ preventScroll:true });
+    safeFocus(stage);
     var req = stage.requestFullscreen || stage.webkitRequestFullscreen || stage.mozRequestFullScreen || stage.msRequestFullscreen;
     if (req) {
       var result = req.call(stage);
@@ -4396,13 +4480,11 @@
   }, true);
 
   document.addEventListener('fullscreenchange', function() {
-    var stage = document.getElementById('playerMount');
-    if (stage && stage.focus) setTimeout(function() { stage.focus({ preventScroll:true }); }, 80);
+    setTimeout(function() { focusRemoteGuard(activeId); }, 80);
     if (isFullscreenMode()) showZapOverlay(activeId, 0);
   });
   document.addEventListener('webkitfullscreenchange', function() {
-    var stage = document.getElementById('playerMount');
-    if (stage && stage.focus) setTimeout(function() { stage.focus({ preventScroll:true }); }, 80);
+    setTimeout(function() { focusRemoteGuard(activeId); }, 80);
     if (isFullscreenMode()) showZapOverlay(activeId, 0);
   });
 

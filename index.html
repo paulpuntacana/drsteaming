@@ -2089,6 +2089,7 @@
 	    .player-outer:focus,
 	    .channel-item:focus,
 	    .act-btn:focus,
+	    .audio-btn:focus,
 	    .hard-refresh-btn:focus,
 	    .lang-btn:focus {
 	      outline:2px solid rgba(255,122,0,0.72);
@@ -2113,9 +2114,36 @@
 	      background:transparent;
 	      color:transparent;
 	      cursor:default;
+	      pointer-events:none;
 	    }
 	    .remote-guard:focus { outline:none; }
 	    .player-controls { z-index:150; }
+	    .audio-btn {
+	      border:1px solid rgba(255,255,255,0.20);
+	      background:linear-gradient(180deg,#14263b,#0b1625);
+	      color:#fff;
+	      opacity:0.64;
+	    }
+	    .audio-btn:hover,
+	    .audio-btn.needs-tap {
+	      opacity:1;
+	      background:rgba(255,122,0,0.82);
+	      color:#05070a;
+	      border-color:rgba(255,184,108,0.95);
+	    }
+	    .audio-btn:active { transform:scale(0.96); }
+	    .audio-btn .ic {
+	      width:17px;
+	      height:17px;
+	    }
+	    .audio-btn.sound-on {
+	      opacity:1;
+	      background:linear-gradient(180deg,#132134,#091421);
+	      border-color:rgba(255,255,255,0.18);
+	    }
+	    .audio-btn.sound-on:hover {
+	      opacity:1;
+	    }
 	    .fallback-bar {
 	      min-height:36px;
 	      padding:8px 18px;
@@ -2311,7 +2339,7 @@
 	      letter-spacing:0;
 	    }
 	    .channel-item {
-	      grid-template-columns:48px minmax(0,1fr) auto;
+	      grid-template-columns:42px 48px minmax(0,1fr) auto;
 	      min-height:62px;
 	      gap:11px;
 	      padding:8px 9px;
@@ -2330,6 +2358,26 @@
 	      background:linear-gradient(90deg,rgba(255,122,0,0.26),#10233a);
 	      border-color:rgba(255,122,0,0.76);
 	      box-shadow:inset 5px 0 0 #ff7a00;
+	    }
+	    .channel-number {
+	      display:flex;
+	      align-items:center;
+	      justify-content:center;
+	      min-width:40px;
+	      height:34px;
+	      border-radius:8px;
+	      border:1px solid rgba(255,122,0,0.30);
+	      background:linear-gradient(180deg,rgba(255,122,0,0.16),rgba(5,10,18,0.38));
+	      color:#ffd2a3;
+	      font-family:'Geist Mono',monospace;
+	      font-size:12px;
+	      font-weight:950;
+	      letter-spacing:0;
+	    }
+	    .channel-item.active .channel-number {
+	      background:#ff7a00;
+	      color:#05070a;
+	      border-color:#ffb45c;
 	    }
 	    .channel-logo {
 	      width:48px;
@@ -2489,6 +2537,45 @@
 	      background:#07111e;
 	      border-top:1px solid rgba(255,255,255,0.08);
 	    }
+	    .zap-channel-no,
+	    .zap-entry-label {
+	      font-family:'Geist Mono',monospace;
+	      color:#ffd2a3;
+	    }
+	    .zap-shell.number-entry {
+	      border-color:rgba(255,184,92,0.74);
+	    }
+	    .zap-digits {
+	      display:flex;
+	      align-items:center;
+	      gap:16px;
+	      padding:18px 20px;
+	      background:linear-gradient(90deg,rgba(255,122,0,0.28),rgba(7,20,36,0.88));
+	    }
+	    .zap-digits strong {
+	      font-family:'Geist Mono',monospace;
+	      font-size:42px;
+	      line-height:1;
+	      color:#fff;
+	      text-shadow:0 14px 34px rgba(0,0,0,0.52);
+	    }
+	    .zap-digits span {
+	      display:block;
+	      color:#ffd2a3;
+	      font-size:12px;
+	      font-weight:950;
+	      text-transform:uppercase;
+	    }
+	    .zap-target {
+	      min-width:0;
+	      padding:0 20px 18px;
+	      color:#d4dfec;
+	      font-size:14px;
+	      font-weight:850;
+	      white-space:nowrap;
+	      overflow:hidden;
+	      text-overflow:ellipsis;
+	    }
 	    .zap-quality,
 	    .zap-signal {
 	      color:#ffbd7b;
@@ -2536,6 +2623,13 @@
 	      .lang-btn { width:40px; min-width:40px; height:40px; min-height:40px; }
 	      .badge-live { min-width:40px; padding:0 10px; }
 	      .badge-live span { display:none; }
+	      .action-row .audio-btn {
+	        min-width:40px;
+	        width:40px;
+	        padding:0;
+	        justify-content:center;
+	      }
+	      .audio-label { display:none; }
 	      .status-strip { display:none; }
 	      .layout {
 	        display:flex;
@@ -2601,6 +2695,178 @@
 	      .zap-name strong { font-size:12px; }
 	      .zap-name span { display:none; }
 	    }
+
+	    /* Dominican identity layer */
+	    :root {
+	      --topbar-h:132px;
+	      --rail-top:152px;
+	      --player-h:calc(100vh - 176px);
+	    }
+	    .topbar {
+	      isolation:isolate;
+	      overflow:hidden;
+	      min-height:var(--topbar-h);
+	      padding:20px 30px;
+	      background-image:
+	        linear-gradient(90deg,rgba(3,8,15,0.97) 0%,rgba(5,13,24,0.90) 34%,rgba(7,20,36,0.64) 68%,rgba(3,8,15,0.76) 100%),
+	        url('assets/dr-tv-header.jpg');
+	      background-size:cover;
+	      background-position:center right;
+	      border-bottom-color:rgba(255,122,0,0.58);
+	    }
+	    .topbar::before {
+	      content:"";
+	      position:absolute;
+	      inset:0;
+	      z-index:0;
+	      pointer-events:none;
+	      background:
+	        linear-gradient(180deg,rgba(255,255,255,0.10),transparent 38%),
+	        linear-gradient(90deg,rgba(0,45,98,0.34),transparent 32%,rgba(206,17,38,0.18) 86%,rgba(255,122,0,0.20));
+	      mix-blend-mode:screen;
+	      opacity:0.72;
+	    }
+	    .topbar::after {
+	      content:"";
+	      position:absolute;
+	      left:0;
+	      right:0;
+	      bottom:0;
+	      height:4px;
+	      z-index:1;
+	      pointer-events:none;
+	      background:linear-gradient(90deg,#002d62 0 31%,#fff 31% 38%,#ce1126 38% 69%,#fff 69% 76%,#ff7a00 76%);
+	      box-shadow:0 -10px 28px rgba(255,122,0,0.22);
+	    }
+	    .topbar > * {
+	      position:relative;
+	      z-index:1;
+	    }
+	    .brand {
+	      gap:22px;
+	      min-width:0;
+	    }
+	    .brand-logo-frame {
+	      width:222px!important;
+	      height:86px!important;
+	      padding:0;
+	      border-radius:0!important;
+	      background:transparent!important;
+	      box-shadow:none!important;
+	    }
+	    .brand-logo {
+	      width:218px!important;
+	      height:84px!important;
+	      filter:drop-shadow(0 16px 22px rgba(0,0,0,0.68));
+	    }
+	    .brand-text {
+	      min-width:0;
+	      padding:13px 16px 13px 0;
+	      text-shadow:0 3px 16px rgba(0,0,0,0.78);
+	    }
+	    .brand-title {
+	      font-size:34px;
+	      color:#fff;
+	    }
+	    .brand-sub {
+	      margin-top:8px;
+	      max-width:520px;
+	      color:#f0f5fb;
+	      font-size:14px;
+	    }
+	    .brand-text::after {
+	      content:"Punta Cana Live Hub";
+	      display:inline-flex;
+	      align-items:center;
+	      margin-top:10px;
+	      min-height:26px;
+	      padding:0 10px;
+	      border-radius:8px;
+	      border:1px solid rgba(255,255,255,0.22);
+	      background:rgba(4,10,18,0.48);
+	      color:#ffd2a3;
+	      font-family:'Geist Mono',monospace;
+	      font-size:10px;
+	      font-weight:950;
+	      text-transform:uppercase;
+	      text-shadow:none;
+	    }
+	    .top-actions {
+	      align-self:flex-start;
+	      margin-top:6px;
+	      padding:7px;
+	      border-radius:8px;
+	      border:1px solid rgba(255,255,255,0.14);
+	      background:linear-gradient(180deg,rgba(7,19,35,0.74),rgba(1,5,12,0.62));
+	      box-shadow:0 18px 34px rgba(0,0,0,0.36),inset 0 1px 0 rgba(255,255,255,0.10);
+	      backdrop-filter:blur(18px);
+	      -webkit-backdrop-filter:blur(18px);
+	    }
+	    .hard-refresh-btn,
+	    .lang-btn,
+	    .badge-live {
+	      background:rgba(4,10,18,0.72);
+	      border-color:rgba(255,255,255,0.18);
+	    }
+	    .badge-live {
+	      position:relative;
+	      color:#06101d;
+	      background:linear-gradient(180deg,#ffffff,#dfe9f7);
+	      border-color:rgba(255,255,255,0.92);
+	      box-shadow:inset 0 1px 0 rgba(255,255,255,0.78),0 10px 22px rgba(0,0,0,0.24);
+	    }
+	    .badge-live::before {
+	      content:"";
+	      width:2px;
+	      height:22px;
+	      border-radius:2px;
+	      background:linear-gradient(180deg,#002d62 0 33%,#fff 33% 66%,#ce1126 66%);
+	      box-shadow:0 0 10px rgba(255,122,0,0.36);
+	    }
+	    .status-strip {
+	      background:linear-gradient(90deg,#03080f,#081a2d 45%,#15080a);
+	    }
+
+	    @media (max-height:760px) and (min-width:861px) {
+	      :root { --topbar-h:100px; --rail-top:118px; --player-h:calc(100vh - 136px); }
+	      .topbar {
+	        min-height:var(--topbar-h);
+	        padding:12px 24px;
+	      }
+	      .brand-logo-frame { width:168px!important; height:66px!important; }
+	      .brand-logo { width:166px!important; height:64px!important; }
+	      .brand-title { font-size:25px; }
+	      .brand-text::after { display:none; }
+	    }
+
+	    @media (max-width:860px) {
+	      :root { --topbar-h:92px; --rail-top:0px; --player-h:auto; }
+	      .topbar {
+	        min-height:var(--topbar-h);
+	        padding:10px 12px;
+	        background-position:center right;
+	      }
+	      .brand-logo-frame { width:132px!important; height:58px!important; }
+	      .brand-logo { width:130px!important; height:56px!important; }
+	      .brand-title { font-size:19px; }
+	      .brand-text { padding:0; }
+		      .brand-text::after,
+		      .brand-sub { display:none; }
+		      .channel-item {
+		        grid-template-columns:38px 44px minmax(0,1fr) auto;
+		        gap:8px;
+		      }
+		      .channel-number {
+		        min-width:36px;
+		        height:30px;
+		        font-size:11px;
+		      }
+		      .top-actions {
+		        align-self:center;
+		        margin-top:0;
+	        padding:5px;
+	      }
+	    }
 	  </style>
 </head>
 <body>
@@ -2612,6 +2878,7 @@
     <symbol id="i-maximize" viewBox="0 0 24 24"><path d="M8 3H5a2 2 0 0 0-2 2v3"/><path d="M21 8V5a2 2 0 0 0-2-2h-3"/><path d="M3 16v3a2 2 0 0 0 2 2h3"/><path d="M16 21h3a2 2 0 0 0 2-2v-3"/></symbol>
     <symbol id="i-play" viewBox="0 0 24 24"><polygon points="6 3 20 12 6 21 6 3" class="ic-fill"/></symbol>
     <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></symbol>
+    <symbol id="i-volume" viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M18.5 5.5a9 9 0 0 1 0 13"/></symbol>
     <symbol id="i-alert" viewBox="0 0 24 24"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></symbol>
     <symbol id="i-ball" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 7.5 8.5 10l1.3 4h4.4l1.3-4Z"/><path d="m12 2 0 5.5M5.5 8.5 8.5 10M18.5 8.5 15.5 10M9.8 14l-2 4.2M14.2 14l2 4.2"/></symbol>
     <symbol id="i-baseball" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M6.2 4.6c2.2 2.4 3.1 4.9 3 7.4-.1 2.6-1.2 5.1-3 7.4"/><path d="M17.8 4.6c-2.2 2.4-3.1 4.9-3 7.4.1 2.6 1.2 5.1 3 7.4"/><path d="M8.2 7.1 6.9 8.4M9.2 10.2l-1.5 1.1M8.8 13.8l-1.5 1M15.8 7.1l1.3 1.3M14.8 10.2l1.5 1.1M15.2 13.8l1.5 1"/></symbol>
@@ -2702,19 +2969,18 @@
   </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.18/dist/hls.min.js"></script>
 <script>
 (function() {
   'use strict';
 
 	  var CHANNELS = [
     {
-      id:'colorvision', group:'Dominican Live TV', icon:'9', logo:'https://www.google.com/s2/favicons?domain=colorvision.com.do&sz=128', badge:'LIVE', badgeType:'good',
+      id:'colorvision', group:'Dominican Live TV', icon:'9', logo:'https://i.imgur.com/rkgWToA.jpg', badge:'LIVE', badgeType:'good',
       name:'Color Vision', short:'Color Vision', number:'Canal 9',
-      tag:'TV', tagClass:'tag-tv', quality:'HD', signal:92,
-      desc:'Canal 9 as a fast, trusted Dominican live TV channel.',
+      tag:'TV', tagClass:'tag-tv', quality:'FHD', signal:96,
+      desc:'Canal 9 dominicano con transmision directa para TV.',
       type:'iframe',
-      src:'https://www.dailymotion.com/embed/video/x7gy059?autoplay=1&mute=0',
+      src:'https://www.dailymotion.com/embed/video/x7gy059?autoplay=1&mute=0&queue-enable=false&sharing-enable=false',
       fallback:'https://canalesdominicanos.live/color-vision-canal-9'
     },
     {
@@ -2745,6 +3011,33 @@
       fallback:'https://canalesdominicanos.live/coral-39'
     },
     {
+      id:'telesistema11', group:'Dominican Live TV', icon:'11', logo:'https://www.google.com/s2/favicons?domain=telesistema11.com.do&sz=128', badge:'LIVE', badgeType:'good',
+      name:'Telesistema 11', short:'Telesistema', number:'Canal 11',
+      tag:'TV', tagClass:'tag-tv', quality:'HD', signal:88,
+      desc:'Canal dominicano nacional con noticias, entretenimiento y eventos.',
+      type:'hls',
+      src:'https://cdn3.wind.do/streams/telesistema/telesistema_master.m3u8',
+      fallback:'https://telesistema11.com.do/en-vivo/'
+    },
+    {
+      id:'rtvd4', group:'Dominican Live TV', icon:'4', logo:'https://i.imgur.com/3AqCAji.png', badge:'LIVE', badgeType:'good',
+      name:'RTVD 4', short:'RTVD 4', number:'Canal 4',
+      tag:'TV', tagClass:'tag-tv', quality:'HD', signal:88,
+      desc:'Television publica dominicana con senal directa.',
+      type:'hls',
+      src:'https://cdn.protvradiostream.com/canal4rd-1/ngrp:canal4rd-1_all/playlist.m3u8',
+      fallback:'https://rtvd.gob.do/'
+    },
+    {
+      id:'rtvd17', group:'Dominican Live TV', icon:'17', logo:'https://i.ibb.co/2YvKhjW4/Quisqueya-17-AZUL.png', badge:'LIVE', badgeType:'good',
+      name:'Canal 17 RTVD', short:'RTVD 17', number:'Canal 17',
+      tag:'TV', tagClass:'tag-tv', quality:'HD', signal:86,
+      desc:'Canal cultural dominicano de RTVD con playback directo.',
+      type:'hls',
+      src:'https://cdn.protvradiostream.com/rtvd17/ngrp:rtvd17_all/playlist.m3u8',
+      fallback:'https://rtvd.gob.do/'
+    },
+    {
       id:'claro', group:'Dominican Sports', icon:'CS', logo:'https://www.google.com/s2/favicons?domain=clarosports.com&sz=128', badge:'FHD', badgeType:'good',
       name:'Claro Sports CENAM', short:'Claro Sports', number:'CENAM',
       tag:'Sports', tagClass:'tag-sport', quality:'FHD', signal:96,
@@ -2770,6 +3063,24 @@
       type:'iframe',
       src:'https://players.brightcove.net/6416149296001/wGz5kLfA8_default/index.html?videoId=6399037151112&autoplay=1&muted=false',
       fallback:'https://piodeportes.com/'
+    },
+    {
+      id:'colimdo', group:'Dominican Sports', icon:'CO', logo:'https://i.imgur.com/ZeUgLCa.png', badge:'DR', badgeType:'good',
+      name:'COLIMDO TV', short:'COLIMDO', number:'Olimpico',
+      tag:'Sports', tagClass:'tag-sport', quality:'HD', signal:84,
+      desc:'Canal olimpico dominicano con deportes y eventos nacionales.',
+      type:'hls',
+      src:'https://cnn.livestreaminggroup.info:3132/live/colimdotvlive.m3u8',
+      fallback:'https://colimdo.org/'
+    },
+    {
+      id:'tourspot-tv', group:'Dominican Sports', icon:'TS', logo:'https://imgur.com/khj869k.png', badge:'DR', badgeType:'good',
+      name:'Tour Spot TV', short:'Tour Spot', number:'Sports',
+      tag:'Sports', tagClass:'tag-sport', quality:'HD', signal:78,
+      desc:'Senal dominicana de deportes y entretenimiento deportivo.',
+      type:'hls',
+      src:'https://fox.hostlagarto.com:8081/toursporttv/playlist.m3u8',
+      fallback:'https://canalesdominicanos.live/'
     },
     {
       id:'fifa-es', group:'Football Live', icon:'F+', logo:'https://upload.wikimedia.org/wikipedia/commons/thumb/9/9c/FIFA%2B_%282025%29.svg/960px-FIFA%2B_%282025%29.svg.png', badge:'FREE', badgeType:'good',
@@ -2817,24 +3128,6 @@
       fallback:'https://www.fifa.com/fifaplus/'
     },
     {
-      id:'cazetv', group:'Football Live', icon:'CZ', logo:'https://upload.wikimedia.org/wikipedia/en/thumb/6/64/Caz%C3%A9TV_logo.svg/1280px-Caz%C3%A9TV_logo.svg.png', badge:'BR', badgeType:'good',
-      name:'CazéTV', short:'CazéTV', number:'Brazil',
-      tag:'Football', tagClass:'tag-sport', quality:'HD', signal:89,
-      desc:'Official CazéTV YouTube live player, used here because the direct FAST feed is HEVC-only on many older TVs.',
-      type:'iframe',
-      src:'https://www.youtube.com/embed/live_stream?channel=UCZiYbVptd3PVPf4f6eR6UaQ&autoplay=1&mute=0&playsinline=1&rel=0&enablejsapi=1',
-      fallback:'https://www.youtube.com/@CazeTV/streams'
-    },
-    {
-      id:'gefast', group:'Football Live', icon:'GE', logo:'https://i.ibb.co/WGXHDnF/logo-ge-fast.png', badge:'BR', badgeType:'good',
-      name:'ge TV', short:'ge TV', number:'Brazil',
-      tag:'Football', tagClass:'tag-sport', quality:'HD', signal:88,
-      desc:'Official ge TV / Globo Esporte YouTube live player, replacing the HEVC-only ge Fast feed for better TV compatibility.',
-      type:'iframe',
-      src:'https://www.youtube.com/embed/live_stream?channel=UCgCKagVhzGnZcuP9bSMgMCg&autoplay=1&mute=0&playsinline=1&rel=0&enablejsapi=1',
-      fallback:'https://www.youtube.com/@getv/streams'
-    },
-    {
       id:'realmadridtv', group:'Football Live', icon:'RM', logo:'https://i.imgur.com/5pMo7dL.png', badge:'ESP', badgeType:'good',
       name:'Real Madrid TV', short:'Real Madrid TV', number:'Spain',
       tag:'Football', tagClass:'tag-sport', quality:'HD', signal:90,
@@ -2862,23 +3155,6 @@
       fallback:'https://www.beinsports.com/us/'
     },
     {
-      id:'bein-xtra', group:'Football Live', icon:'BN', logo:'https://i.ibb.co/HT49GPmB/XTRA-2.png', badge:'FREE', badgeType:'good',
-      name:'beIN SPORTS XTRA', short:'beIN XTRA', number:'USA',
-      tag:'Football', tagClass:'tag-sport', quality:'FHD', signal:86,
-      desc:'Free beIN SPORTS XTRA channel with football, highlights and sports shows.',
-      type:'hls',
-      src:'https://bein-xtra-xumo.amagi.tv/playlist.m3u8',
-      fallback:'https://www.beinsports.com/us/'
-    },
-    {
-      id:'canalinter', group:'Brazil Sports', icon:'IN', logo:'https://i.imgur.com/TQFWEIS.png', badge:'Official', badgeType:'ext',
-      name:'Canal do Inter', short:'Canal do Inter', number:'Brazil',
-      tag:'Football', tagClass:'tag-sport', quality:'HD', signal:78,
-      desc:'Sport Club Internacional official page; direct signal was unstable, so this stays outside the zap loop.',
-      type:'external',
-      fallback:'https://internacional.com.br/'
-    },
-    {
       id:'nsports', group:'Brazil Sports', icon:'NS', logo:'https://i.imgur.com/7QnJojr.png', badge:'BR', badgeType:'good',
       name:'N Sports', short:'N Sports', number:'Brazil',
       tag:'Sports', tagClass:'tag-sport', quality:'FHD', signal:88,
@@ -2895,15 +3171,6 @@
       type:'hls',
       src:'https://canalgov-stream.ebc.com.br/index.m3u8',
       fallback:'https://www.gov.br/secom/pt-br/acesso-a-informacao/canal-gov'
-    },
-    {
-      id:'sbtnews', group:'Brazil TV', icon:'SN', logo:'https://upload.wikimedia.org/wikipedia/commons/4/42/SBT_News_2025.svg', badge:'BR', badgeType:'good',
-      name:'SBT News', short:'SBT News', number:'Brazil',
-      tag:'News', tagClass:'tag-tv', quality:'HD', signal:86,
-      desc:'Brazilian live news stream from SBT.',
-      type:'hls',
-      src:'https://dai.google.com/linear/hls/event/1XSOdtQ0SH2G8OEmEfGgjQ/master.m3u8',
-      fallback:'https://sbtnews.sbt.com.br/'
     },
     {
       id:'sbtinterior', group:'Brazil TV', icon:'SBT', logo:'https://i.imgur.com/IkZfa4j.png', badge:'BR', badgeType:'good',
@@ -2969,15 +3236,6 @@
       fallback:'https://tvcuatro.tv/'
     },
     {
-      id:'multimedios-mty', group:'Mexico TV', icon:'MM', logo:'https://i.imgur.com/4IGzNdq.png', badge:'MX', badgeType:'good',
-      name:'Multimedios Monterrey', short:'Multimedios MTY', number:'Monterrey',
-      tag:'TV', tagClass:'tag-tv', quality:'HD', signal:84,
-      desc:'Mexican regional TV with news, entertainment and live shows.',
-      type:'hls',
-      src:'https://mdstrm.com/live-stream-playlist/57b4dbf5dbbfc8f16bb63ce1.m3u8',
-      fallback:'https://www.multimedios.com/'
-    },
-    {
       id:'mexiquense', group:'Mexico TV', icon:'MQ', logo:'https://i.imgur.com/iVfzakA.png', badge:'MX', badgeType:'good',
       name:'Mexiquense TV', short:'Mexiquense TV', number:'Mexico',
       tag:'TV', tagClass:'tag-tv', quality:'HD', signal:82,
@@ -3041,15 +3299,6 @@
       fallback:'https://theacc.com/'
     },
     {
-      id:'stadium', group:'USA Sports', icon:'ST', logo:'https://upload.wikimedia.org/wikipedia/en/thumb/5/53/Stadium_%28sports_network%29_logo.svg/960px-Stadium_%28sports_network%29_logo.svg.png', badge:'USA', badgeType:'good',
-      name:'Stadium', short:'Stadium', number:'USA',
-      tag:'Sports', tagClass:'tag-sport', quality:'HD', signal:84,
-      desc:'Free US sports FAST channel with live shows, highlights and events.',
-      type:'hls',
-      src:'https://wurl120sports.global.transmit.live/hls/679a907dce42a042c23ace37/v1/stadium_gracenote/samsung_us/latest/main/hls/playlist.m3u8',
-      fallback:'https://watchstadium.com/'
-    },
-    {
       id:'pactwelve', group:'USA Sports', icon:'P12', logo:'https://www.google.com/s2/favicons?domain=pac-12.com&sz=128', badge:'USA', badgeType:'good',
       name:'Pac-12 Insider', short:'Pac-12 Insider', number:'College sports',
       tag:'Sports', tagClass:'tag-sport', quality:'FHD', signal:85,
@@ -3066,15 +3315,6 @@
       type:'hls',
       src:'https://d3d85c7qkywguj.cloudfront.net/scheduler/scheduleMaster/263.m3u8',
       fallback:'https://www.trillertv.com/watch/fite-247/'
-    },
-    {
-      id:'fightbox', group:'Fight Sports', icon:'FB', logo:'https://i.imgur.com/mRsnztA.png', badge:'EU', badgeType:'good',
-      name:'FightBox', short:'FightBox', number:'Europe',
-      tag:'Sports', tagClass:'tag-sport', quality:'HD', signal:82,
-      desc:'Combat sports channel with boxing, kickboxing, MMA and fight programming.',
-      type:'hls',
-      src:'https://webtvstream.bhtelecom.ba/fightbox.m3u8',
-      fallback:'https://www.fightbox.com/'
     },
     {
       id:'pflmma', group:'Fight Sports', icon:'PF', logo:'https://provider-static.plex.tv/epg/cms/production/96dd0531-b500-4bd4-93ca-763cbf46defe/1500x1000_PFL_SHIELD_DARK_BG_-_Allie_Dinsmore.png', badge:'USA', badgeType:'good',
@@ -3095,13 +3335,13 @@
       fallback:'https://www.floracing.com/'
     },
     {
-      id:'nhratv', group:'Racing and Extreme', icon:'NH', logo:'https://i.imgur.com/jZgcm4k.png', badge:'USA', badgeType:'good',
-      name:'NHRA TV', short:'NHRA TV', number:'Drag racing',
-      tag:'Sports', tagClass:'tag-sport', quality:'FHD', signal:83,
-      desc:'Drag racing FAST channel with NHRA programming.',
+      id:'racer-intl', group:'Racing and Extreme', icon:'RI', logo:'https://provider-static.plex.tv/epg/cms/production/dd4e5871-4347-49e3-9ea1-a8770ea9c518/RACER_Intl_logo_1500x1000.png', badge:'Motor', badgeType:'good',
+      name:'RACER International', short:'RACER Intl', number:'Motorsport',
+      tag:'Sports', tagClass:'tag-sport', quality:'FHD', signal:86,
+      desc:'Motorsport FAST channel with racing coverage and motorsport programming.',
       type:'hls',
-      src:'https://d265y4sk8257lt.cloudfront.net/nh.m3u8',
-      fallback:'https://www.nhra.com/'
+      src:'https://amg00378-mavtv-amg00378c2-rakuten-us-1048.playouts.now.amagi.tv/playlist/amg00378-mavtvfast-motorsportsnetwork-rakutenus/playlist.m3u8',
+      fallback:'https://racer.com/'
     },
     {
       id:'redbulltv', group:'Racing and Extreme', icon:'RB', logo:'https://images.pluto.tv/channels/5e7cb84a172a0f0007da69e4/colorLogoPNG.png', badge:'FREE', badgeType:'good',
@@ -3194,6 +3434,33 @@
       fallback:'https://gameplusnetwork.com/'
     },
     {
+      id:'trace-sport-stars', group:'More Free Sports', icon:'TR', logo:'https://i.imgur.com/FabFP5A.png', badge:'Sports', badgeType:'good',
+      name:'Trace Sport Stars', short:'Trace Sport', number:'Global',
+      tag:'Sports', tagClass:'tag-sport', quality:'HD', signal:82,
+      desc:'Sports lifestyle and athlete programming with direct playback.',
+      type:'hls',
+      src:'https://channels.trace.plus/Traceprod/TRACE_SPORT_STARS_sd/index.m3u8',
+      fallback:'https://trace.plus/'
+    },
+    {
+      id:'africa24-sport', group:'More Free Sports', icon:'A24', logo:'https://i0.wp.com/africa24tv.com/wp-content/uploads/2023/12/LOGO-AFRICASPORT-4-HD-sans-fond.png?fit=512%2C107&ssl=1', badge:'Sport', badgeType:'good',
+      name:'Africa 24 Sport', short:'Africa 24 Sport', number:'Africa',
+      tag:'Sports', tagClass:'tag-sport', quality:'FHD', signal:84,
+      desc:'International sports news and event coverage from Africa 24.',
+      type:'hls',
+      src:'https://africa24.vedge.infomaniak.com/livecast/ik:africa24sport/manifest.m3u8',
+      fallback:'https://africa24tv.com/'
+    },
+    {
+      id:'alkass-one', group:'More Free Sports', icon:'AK', logo:'https://i.imgur.com/10mmlha.png', badge:'Football', badgeType:'good',
+      name:'Alkass One', short:'Alkass One', number:'Qatar',
+      tag:'Sports', tagClass:'tag-sport', quality:'FHD', signal:82,
+      desc:'Free sports channel with football and regional sports when scheduled.',
+      type:'hls',
+      src:'https://liveeu-gcp.alkassdigital.net/alkass1-p/main.m3u8',
+      fallback:'https://www.alkass.net/'
+    },
+    {
       id:'toros', group:'Pelota Dominicana', icon:'TE', logo:'https://www.google.com/s2/favicons?domain=toros.com.do&sz=128', badge:'15', badgeType:'try',
       name:'Toros del Este', short:'Toros', number:'Digital 15',
       tag:'Baseball', tagClass:'tag-baseball', quality:'HD', signal:78,
@@ -3242,38 +3509,6 @@
       fallback:'https://canalesdominicanos.live/tigres-del-licey-en-vivo'
     },
     {
-      id:'rtvd4', group:'More Dominican TV', icon:'4', logo:'https://www.google.com/s2/favicons?domain=rtvd.gob.do&sz=128', badge:'Official', badgeType:'ext',
-      name:'RTVD 4', short:'RTVD 4', number:'Canal 4',
-      tag:'TV', tagClass:'tag-tv', quality:'HD', signal:82,
-      desc:'Dominican public TV. Official page only, because the live player does not expose a stable embeddable stream.',
-      type:'external',
-      fallback:'https://rtvd.gob.do/'
-    },
-    {
-      id:'telesistema', group:'More Dominican TV', icon:'11', logo:'https://www.google.com/s2/favicons?domain=telesistema11.com.do&sz=128', badge:'Official', badgeType:'ext',
-      name:'Telesistema', short:'Telesistema', number:'Canal 11',
-      tag:'TV', tagClass:'tag-tv', quality:'HD', signal:84,
-      desc:'Official live page for Telesistema 11.',
-      type:'external',
-      fallback:'https://telesistema11.com.do/en-vivo/'
-    },
-    {
-      id:'teleantillas', group:'More Dominican TV', icon:'2', logo:'https://www.google.com/s2/favicons?domain=teleantillas.com.do&sz=128', badge:'Official', badgeType:'ext',
-      name:'Teleantillas', short:'Teleantillas', number:'Canal 2',
-      tag:'TV', tagClass:'tag-tv', quality:'HD', signal:82,
-      desc:'Official live page for Teleantillas.',
-      type:'external',
-      fallback:'https://teleantillas.com.do/en-vivo/'
-    },
-    {
-      id:'senalcolombia', group:'Colombia and PR', icon:'SC', logo:'https://www.google.com/s2/favicons?domain=senalcolombia.tv&sz=128', badge:'Official', badgeType:'ext',
-      name:'Señal Colombia', short:'Señal Colombia', number:'Colombia',
-      tag:'Sports', tagClass:'tag-sport', quality:'HD', signal:74,
-      desc:'Official Colombian public channel with sports events when scheduled.',
-      type:'external',
-      fallback:'https://www.senalcolombia.tv/senal-en-vivo'
-    },
-    {
       id:'aupur-tv', group:'Colombia TV', icon:'AU', logo:'https://i.imgur.com/FTv7zpJ.jpeg', badge:'CO', badgeType:'good',
       name:'Aupur Television', short:'Aupur TV', number:'Colombia',
       tag:'TV', tagClass:'tag-tv', quality:'FHD', signal:82,
@@ -3310,6 +3545,24 @@
       fallback:'https://www.redmas.com.co/'
     },
     {
+      id:'teleislas-co', group:'Colombia TV', icon:'TI', logo:'https://i.imgur.com/aKHGRyk.png', badge:'CO', badgeType:'good',
+      name:'Teleislas', short:'Teleislas', number:'Colombia',
+      tag:'TV', tagClass:'tag-tv', quality:'SD', signal:78,
+      desc:'Colombian Caribbean public TV signal with browser-friendly playback.',
+      type:'hls',
+      src:'https://5ab772334c39c.streamlock.net/live-teleislas/teleislas/playlist.m3u8',
+      fallback:'https://teleislas.com.co/'
+    },
+    {
+      id:'telemocoa-co', group:'Colombia TV', icon:'TM', logo:'https://i.imgur.com/XHtpEfu.png', badge:'CO', badgeType:'good',
+      name:'Tele Mocoa Canal 10', short:'Tele Mocoa', number:'Colombia',
+      tag:'TV', tagClass:'tag-tv', quality:'HD', signal:78,
+      desc:'Colombian regional live TV signal from Mocoa.',
+      type:'hls',
+      src:'https://live.amelbatv.co:81/telemocoalive/index.m3u8',
+      fallback:'https://www.facebook.com/TeleMocoaCanal10/'
+    },
+    {
       id:'telemundo-pr', group:'Colombia and PR', icon:'21', logo:'https://i.imgur.com/DVASpQj.png', badge:'PR', badgeType:'good',
       name:'Telemundo Puerto Rico', short:'Telemundo PR', number:'WKAQ 2.1',
       tag:'TV', tagClass:'tag-tv', quality:'FHD', signal:87,
@@ -3337,6 +3590,15 @@
       fallback:'https://boricuatvpr.com/'
     },
     {
+      id:'americateve-pr', group:'Colombia and PR', icon:'AT', logo:'https://i.imgur.com/K9o3mLP.png', badge:'PR', badgeType:'good',
+      name:'America TeVe', short:'America TeVe', number:'Puerto Rico',
+      tag:'TV', tagClass:'tag-tv', quality:'HD', signal:82,
+      desc:'Puerto Rico/Caribbean entertainment and general TV stream.',
+      type:'hls',
+      src:'https://live.gideo.video/americateve2/master.m3u8',
+      fallback:'https://www.americateve.com/'
+    },
+    {
       id:'telemundo-al-dia', group:'US Latino TV', icon:'TL', logo:'https://images.fubo.tv/channel-config-ui/station-logos/on-white/telemundo_al_dia_1000x1500_2x3_logo_300dpi_vertical_full_color_logo_xumo-3-copy.png', badge:'US', badgeType:'good',
       name:'Telemundo Al Dia', short:'Telemundo Al Dia', number:'USA',
       tag:'TV', tagClass:'tag-tv', quality:'HD', signal:86,
@@ -3344,15 +3606,6 @@
       type:'hls',
       src:'https://d1rqgw5gocwo9i.cloudfront.net/manifest/3fec3e5cac39a52b2132f9c66c83dae043dc17d4/prod_default_xumo-nbcu-stitched/10a44c37-f976-4d2b-ab23-8637a7a094ca/3.m3u8',
       fallback:'https://www.telemundo.com/'
-    },
-    {
-      id:'telemundo-cc', group:'US Latino TV', icon:'TC', logo:'https://upload.wikimedia.org/wikipedia/commons/9/98/Telemundo_Corpus_Christi_logo.png', badge:'US', badgeType:'good',
-      name:'Telemundo Corpus Christi', short:'Telemundo CC', number:'Texas',
-      tag:'TV', tagClass:'tag-tv', quality:'HD', signal:84,
-      desc:'Telemundo local live stream from Corpus Christi.',
-      type:'hls',
-      src:'https://content.uplynk.com/channel/b6a96ed39d694ae1b738faa98cf7dd3f.m3u8',
-      fallback:'https://www.telemundocorpuschristi.com/'
     },
     {
       id:'estrellatv', group:'US Latino TV', icon:'ET', logo:'https://i.imgur.com/IZxjnyp.png', badge:'US', badgeType:'good',
@@ -3382,22 +3635,6 @@
       fallback:'https://estrellatv.com/'
     },
     {
-      id:'wipr', group:'Colombia and PR', icon:'PR', logo:'https://www.google.com/s2/favicons?domain=wipr.pr&sz=128', badge:'Official', badgeType:'ext',
-      name:'WIPR Puerto Rico', short:'WIPR PR', number:'Puerto Rico',
-      tag:'Sports', tagClass:'tag-sport', quality:'SD', signal:84,
-      desc:'Puerto Rico public TV official page; kept as source page because its certificate chain is less reliable for browser HLS.',
-      type:'external',
-      fallback:'https://wipr.pr/envivo/'
-    },
-    {
-      id:'telecuracao', group:'Caribbean TV', icon:'TC', logo:'https://www.google.com/s2/favicons?domain=cariflix.tv&sz=128', badge:'Official', badgeType:'ext',
-      name:'TeleCuraçao / Cariflix', short:'TeleCuraçao', number:'Curaçao',
-      tag:'TV', tagClass:'tag-tv', quality:'HD', signal:76,
-      desc:'Official Curaçao TV and radio platform for TeleCuraçao and Caribbean local stations.',
-      type:'external',
-      fallback:'https://www.cariflix.tv/en'
-    },
-    {
       id:'canal8-cr', group:'Costa Rica TV', icon:'8', logo:'https://i.imgur.com/nefPi2Y.png', badge:'CR', badgeType:'good',
       name:'Canal 8 Costa Rica', short:'Canal 8 CR', number:'Costa Rica',
       tag:'TV', tagClass:'tag-tv', quality:'HD', signal:82,
@@ -3405,15 +3642,6 @@
       type:'hls',
       src:'https://mdstrm.com/live-stream-playlist/5a7b1e63a8da282c34d65445.m3u8',
       fallback:'https://canal8.co.cr/'
-    },
-    {
-      id:'gex-tv', group:'Costa Rica TV', icon:'GX', logo:'https://gextv.com/LOGO-WHITE.png', badge:'CR', badgeType:'good',
-      name:'Gex TV', short:'Gex TV', number:'Costa Rica',
-      tag:'Music', tagClass:'tag-tv', quality:'FHD', signal:84,
-      desc:'Costa Rican entertainment and music TV stream.',
-      type:'hls',
-      src:'https://live20.bozztv.com/akamaissh101/ssh101/gextvaccess/playlist.m3u8',
-      fallback:'https://gextv.com/'
     },
     {
       id:'canal3-kmk', group:'Costa Rica TV', icon:'KMK', logo:'https://i.imgur.com/sgRDRBK.jpg', badge:'CR', badgeType:'good',
@@ -3425,12 +3653,13 @@
       fallback:'https://www.facebook.com/kmktelevision/'
     },
     {
-      id:'tumusicahd', group:'Music and Entertainment', icon:'TM', logo:'https://www.google.com/s2/favicons?domain=canalesdominicanos.live&sz=128', badge:'Music', badgeType:'ext',
-      name:'Tu Música HD', short:'Tu Música HD', number:'Music 24/7',
-      tag:'Music', tagClass:'tag-tv', quality:'HD', signal:76,
-      desc:'Dominican music channel.',
-      type:'external',
-      fallback:'https://canalesdominicanos.live/teve-musica'
+      id:'vam-curacao', group:'Caribbean TV', icon:'VAM', logo:'https://i.imgur.com/CD1PffA.png', badge:'CW', badgeType:'good',
+      name:"VAM Vid's & More", short:'VAM Curaçao', number:'Curaçao',
+      tag:'Music', tagClass:'tag-tv', quality:'HD', signal:80,
+      desc:'Curaçao music and entertainment stream with direct playback.',
+      type:'hls',
+      src:'https://sincerecloud.stream/loadbalancer/public/J9EmQQGf.m3u8',
+      fallback:'https://www.cariflix.tv/en'
     },
     {
       id:'lax-pr', group:'Music and Entertainment', icon:'LX', logo:'https://i.imgur.com/i2GnQTq.png', badge:'PR', badgeType:'good',
@@ -3440,23 +3669,6 @@
       type:'hls',
       src:'https://stream.eleden.com/livelax/ngrp:livelax_all/playlist.m3u8',
       fallback:'https://lax.fm/'
-    },
-    {
-      id:'salsagorda', group:'Music and Entertainment', icon:'SG', logo:'https://www.google.com/s2/favicons?domain=canalesdominicanos.live&sz=128', badge:'Music', badgeType:'ext',
-      name:'SalsaGorda Television', short:'SalsaGorda', number:'Salsa 24/7',
-      tag:'Music', tagClass:'tag-tv', quality:'HD', signal:75,
-      desc:'Salsa music, interviews and Dominican programming.',
-      type:'external',
-      fallback:'https://canalesdominicanos.live/salsagorda-television'
-    },
-    {
-      id:'vevo-latino', group:'Latin Music', icon:'VL', logo:'https://i.imgur.com/D7SwmuB.png', badge:'Music', badgeType:'good',
-      name:'Vevo Latino', short:'Vevo Latino', number:'Latin',
-      tag:'Music', tagClass:'tag-tv', quality:'FHD', signal:90,
-      desc:'Latin music videos and artists on a free FAST stream.',
-      type:'hls',
-      src:'https://amg00056-amg00056c13-rakuten-es-3246.playouts.now.amagi.tv/playlist.m3u8',
-      fallback:'https://www.vevo.com/'
     },
     {
       id:'buenisima-tv', group:'Latin Music', icon:'BR', logo:'https://i.imgur.com/URKDlOZ.png', badge:'CO', badgeType:'good',
@@ -3495,6 +3707,51 @@
       fallback:'https://conectatv.mx/'
     },
     {
+      id:'la-kalle-co', group:'Latin Music', icon:'LK', logo:'https://www.tdtparatodos.tv/sites/default/files/la_kalle.png', badge:'CO', badgeType:'good',
+      name:'La Kalle', short:'La Kalle', number:'Colombia',
+      tag:'Music', tagClass:'tag-tv', quality:'HD', signal:82,
+      desc:'Colombian popular music TV stream.',
+      type:'hls',
+      src:'https://mdstrm.com/live-stream-playlist/58d191f07290fbb058025843.m3u8',
+      fallback:'https://www.lakalle.com/'
+    },
+    {
+      id:'parranda-vallenata', group:'Latin Music', icon:'PV', logo:'https://i.imgur.com/BzBX7Qx.jpeg', badge:'CO', badgeType:'good',
+      name:'Parranda Vallenata', short:'Parranda', number:'Colombia',
+      tag:'Music', tagClass:'tag-tv', quality:'HD', signal:78,
+      desc:'Vallenato and Colombian music with direct playback.',
+      type:'hls',
+      src:'https://backupmaxmedia.hvmultiplay.com/hls/stream3/parrandavallenata.m3u8',
+      fallback:'https://www.facebook.com/ParrandaVallenataTV/'
+    },
+    {
+      id:'supermusica-co', group:'Latin Music', icon:'SM', logo:'https://i.imgur.com/MiVs42N.jpeg', badge:'CO', badgeType:'good',
+      name:'Supermusica TV', short:'Supermusica', number:'Colombia',
+      tag:'Music', tagClass:'tag-tv', quality:'HD', signal:80,
+      desc:'Colombian music video stream.',
+      type:'hls',
+      src:'https://backupmaxmedia.hvmultiplay.com/hls/stream4/supermusica.m3u8',
+      fallback:'https://www.facebook.com/supermusicatv/'
+    },
+    {
+      id:'lobo-tv-mx', group:'Latin Music', icon:'LB', logo:'https://i.imgur.com/3fA50RJ.png', badge:'MX', badgeType:'good',
+      name:'Lobo TV', short:'Lobo TV', number:'Mexico',
+      tag:'Music', tagClass:'tag-tv', quality:'HD', signal:80,
+      desc:'Mexican music TV with direct playback.',
+      type:'hls',
+      src:'https://5ca3e84a76d30.streamlock.net/tvlobo/videotvlobo/playlist.m3u8',
+      fallback:'https://www.facebook.com/lobotvmx/'
+    },
+    {
+      id:'vision-tv-mx', group:'Latin Music', icon:'VT', logo:'https://i.imgur.com/HV5tgcM.png', badge:'MX', badgeType:'good',
+      name:'Vision Television', short:'Vision TV', number:'Mexico',
+      tag:'Music', tagClass:'tag-tv', quality:'HD', signal:78,
+      desc:'Mexican music and local entertainment stream.',
+      type:'hls',
+      src:'https://cloudvideo.servers10.com:8081/8016/index.m3u8',
+      fallback:'https://canalesdominicanos.live/'
+    },
+    {
       id:'fuego-tv', group:'Latin Music', icon:'FG', logo:'https://i.imgur.com/T9vWjeB.png', badge:'DR', badgeType:'good',
       name:'Fuego TV', short:'Fuego TV', number:'Dominican',
       tag:'Music', tagClass:'tag-tv', quality:'HD', signal:78,
@@ -3514,7 +3771,7 @@
     },
     {
       id:'qmusic-nl', group:'European Music', icon:'Q', logo:'https://i.imgur.com/fMTuqDu.png', badge:'NL', badgeType:'good',
-      name:'Qmusic Nederland', short:'Qmusic NL', number:'Netherlands',
+      name:'Qmusic NL', short:'Qmusic NL', number:'Netherlands',
       tag:'Music', tagClass:'tag-tv', quality:'FHD', signal:88,
       desc:'Dutch music TV/radio visual stream.',
       type:'hls',
@@ -3585,6 +3842,42 @@
       fallback:'https://www.vevo.com/'
     },
     {
+      id:'vevo-80s', group:'Global Music', icon:'80s', logo:'https://images.pluto.tv/channels/5fd7b8bf927e090007685853/featuredImage.jpg', badge:'Music', badgeType:'good',
+      name:'Vevo 80s', short:'Vevo 80s', number:'Global',
+      tag:'Music', tagClass:'tag-tv', quality:'FHD', signal:86,
+      desc:'Classic 80s music videos on a free FAST stream.',
+      type:'hls',
+      src:'https://amg00056-vevotv-vevo80saunz-samsungau-rp5e3.amagi.tv/playlist/amg00056-vevotv-vevo80saunz-samsungau/playlist.m3u8',
+      fallback:'https://www.vevo.com/'
+    },
+    {
+      id:'vevo-90s', group:'Global Music', icon:'90s', logo:'https://images.pluto.tv/channels/5fd7bb1f86d94a000796e2c2/featuredImage.jpg', badge:'Music', badgeType:'good',
+      name:'Vevo 90s', short:'Vevo 90s', number:'Global',
+      tag:'Music', tagClass:'tag-tv', quality:'FHD', signal:86,
+      desc:'Classic 90s music videos on a free FAST stream.',
+      type:'hls',
+      src:'https://amg00056-vevotv-vevo90saunz-samsungau-n6a0d.amagi.tv/playlist/amg00056-vevotv-vevo90saunz-samsungau/playlist.m3u8',
+      fallback:'https://www.vevo.com/'
+    },
+    {
+      id:'xite-nuevo-latino', group:'Global Music', icon:'XL', logo:'https://i.imgur.com/2qyl2y3.png', badge:'Latin', badgeType:'good',
+      name:'XITE Nuevo Latino', short:'XITE Latino', number:'Global',
+      tag:'Music', tagClass:'tag-tv', quality:'FHD', signal:84,
+      desc:'Latin pop and urban music video channel.',
+      type:'hls',
+      src:'https://d3bsgqzbpkrvbb.cloudfront.net/v1/master/3722c60a815c199d9c0ef36c5b73da68a62b09d1/cc-w288eaw03izg1/XITE_Nuevo_Latino.m3u8',
+      fallback:'https://xite.com/'
+    },
+    {
+      id:'xite-siempre-latino', group:'Global Music', icon:'XS', logo:'https://i.imgur.com/bwmIEgG.png', badge:'Latin', badgeType:'good',
+      name:'XITE Siempre Latino', short:'XITE Siempre', number:'Global',
+      tag:'Music', tagClass:'tag-tv', quality:'FHD', signal:84,
+      desc:'Non-stop Latin classics and Spanish-language music videos.',
+      type:'hls',
+      src:'https://d1xc25jm9e0l4b.cloudfront.net/v1/master/3722c60a815c199d9c0ef36c5b73da68a62b09d1/cc-xplkt8i7m24dc/XITE_Siempre_Latino.m3u8',
+      fallback:'https://xite.com/'
+    },
+    {
       id:'360tunebox', group:'Global Music', icon:'360', logo:'https://i.imgur.com/1Fyezng.png', badge:'Music', badgeType:'good',
       name:'360TuneBox', short:'360TuneBox', number:'Global',
       tag:'Music', tagClass:'tag-tv', quality:'FHD', signal:82,
@@ -3592,6 +3885,87 @@
       type:'hls',
       src:'https://dash3.antik.sk/live/test_360_tunebox_medium_atk/playlist.m3u8',
       fallback:'https://www.360tunebox.com/'
+    },
+    {
+      id:'bonappetit', group:'Cocina and Food', icon:'BA', logo:'https://i.imgur.com/YhFFxlE.png', badge:'Food', badgeType:'good',
+      name:'Bon Appetit', short:'Bon Appetit', number:'Cooking',
+      tag:'Cooking', tagClass:'tag-tv', quality:'FHD', signal:84,
+      desc:'Cooking videos, food culture and recipe programming.',
+      type:'hls',
+      src:'https://bonappetit-samsung.amagi.tv/playlist.m3u8',
+      fallback:'https://www.bonappetit.com/'
+    },
+    {
+      id:'tastemade', group:'Cocina and Food', icon:'TM', logo:'https://i.imgur.com/xP7Ehn8.png', badge:'Food', badgeType:'good',
+      name:'Tastemade', short:'Tastemade', number:'Cooking',
+      tag:'Cooking', tagClass:'tag-tv', quality:'FHD', signal:84,
+      desc:'Food, travel and cooking programming with direct browser playback.',
+      type:'hls',
+      src:'https://rakutenaa-tm-intl-aus-rakuten-eu-n1gtg.amagi.tv/playlist/rakutenAA-tm-intl-aus-rakuten-eu/playlist.m3u8',
+      fallback:'https://www.tastemade.com/'
+    },
+    {
+      id:'chef-champion', group:'Cocina and Food', icon:'CH', logo:'https://i.imgur.com/15a9pG9.png', badge:'Food', badgeType:'good',
+      name:'Chef Champion', short:'Chef Champion', number:'Cooking',
+      tag:'Cooking', tagClass:'tag-tv', quality:'HD', signal:78,
+      desc:'Cooking competition and chef programming.',
+      type:'hls',
+      src:'https://rpn.bozztv.com/gusa/gusa-chefchampion/index.m3u8',
+      fallback:'https://www.watchyour.tv/'
+    },
+    {
+      id:'chef-roc', group:'Cocina and Food', icon:'CR', logo:'https://i.imgur.com/vhVnAzE.png', badge:'Food', badgeType:'good',
+      name:'Chef Roc Show', short:'Chef Roc', number:'Cooking',
+      tag:'Cooking', tagClass:'tag-tv', quality:'HD', signal:78,
+      desc:'Chef Roc cooking and food show stream.',
+      type:'hls',
+      src:'https://rpn.bozztv.com/gusa/gusa-chefrock/index.m3u8',
+      fallback:'https://www.watchyour.tv/'
+    },
+    {
+      id:'food-food', group:'Cocina and Food', icon:'FF', logo:'https://jiotvimages.cdn.jio.com/dare_images/images/Food_Food.png', badge:'Food', badgeType:'good',
+      name:'Food Food', short:'Food Food', number:'Cooking',
+      tag:'Cooking', tagClass:'tag-tv', quality:'SD', signal:76,
+      desc:'Food and recipe programming with browser-friendly playback.',
+      type:'hls',
+      src:'https://mumt03.tangotv.in/Dsly5z3HFOODFOOD/index.m3u8',
+      fallback:'https://www.foodfood.com/'
+    },
+    {
+      id:'hello-taste', group:'Cocina and Food', icon:'HT', logo:'https://i.imgur.com/TdKO0er.png', badge:'Food', badgeType:'good',
+      name:'Hello Taste', short:'Hello Taste', number:'Cooking',
+      tag:'Cooking', tagClass:'tag-tv', quality:'HD', signal:80,
+      desc:'Cooking and lifestyle TV stream.',
+      type:'hls',
+      src:'https://stream1.antenaplay.ro/live/HelloTaste/playlist.m3u8',
+      fallback:'https://hellotaste.ro/'
+    },
+    {
+      id:'in-the-kitchen', group:'Cocina and Food', icon:'IK', logo:'https://i.imgur.com/HrRUd6r.png', badge:'Food', badgeType:'good',
+      name:'In the Kitchen', short:'In the Kitchen', number:'Cooking',
+      tag:'Cooking', tagClass:'tag-tv', quality:'HD', signal:82,
+      desc:'Kitchen, cookware and food programming.',
+      type:'hls',
+      src:'https://qvc-amd-live.akamaized.net/hls/live/2034113/lsqvc4us/master.m3u8',
+      fallback:'https://www.qvc.com/'
+    },
+    {
+      id:'kulinar-tv', group:'Cocina and Food', icon:'KT', logo:'https://smotret.tv/images/kulinar-tv.webp', badge:'Food', badgeType:'good',
+      name:'Kulinar TV', short:'Kulinar TV', number:'Cooking',
+      tag:'Cooking', tagClass:'tag-tv', quality:'SD', signal:76,
+      desc:'Recipe and culinary TV stream.',
+      type:'hls',
+      src:'https://api.alpaca.t62a.com/hls/9110/stream0.m3u8',
+      fallback:'https://smotret.tv/'
+    },
+    {
+      id:'mad-dog-merrill', group:'Cocina and Food', icon:'MM', logo:'https://i.imgur.com/5QQy3aW.png', badge:'Food', badgeType:'good',
+      name:'Mad Dog and Merrill', short:'Mad Dog', number:'Cooking',
+      tag:'Cooking', tagClass:'tag-tv', quality:'SD', signal:76,
+      desc:'Outdoor cooking and food show stream.',
+      type:'hls',
+      src:'https://rpn.bozztv.com/gusa/gusa-mwg/index.m3u8',
+      fallback:'https://maddogandmerrill.com/'
     },
     {
       id:'france24-es', group:'News and Europe', icon:'F24', logo:'https://xstreamcp-assets-msp.streamready.in/assets/LIVETV/LIVECHANNEL/LIVETV_LIVETVCHANNEL_FRANCE_24/images/LOGO_HD/image.png', badge:'ES', badgeType:'good',
@@ -3629,68 +4003,55 @@
       src:'https://dai.google.com/linear/hls/event/oYQGDqEGTmGdHE_fz9oLlg/master.m3u8',
       fallback:'https://www.latina.pe/noticias'
     },
-    {
-      id:'fanatiz', group:'Apps and Guides', icon:'FT', logo:'https://www.google.com/s2/favicons?domain=fanatiz.com&sz=128', badge:'App', badgeType:'ext',
-      name:'Fanatiz', short:'Fanatiz', number:'South America',
-      tag:'Football', tagClass:'tag-sport', quality:'HD', signal:84,
-      desc:'Legal paid option for South American football when free channels do not carry the match.',
-      type:'external',
-      fallback:'https://www.fanatiz.com/es'
-    },
-    {
-      id:'onefootball', group:'Apps and Guides', icon:'1F', logo:'https://www.google.com/s2/favicons?domain=onefootball.com&sz=128', badge:'PPV', badgeType:'ext',
-      name:'OneFootball TV', short:'OneFootball TV', number:'Europe',
-      tag:'Football', tagClass:'tag-sport', quality:'HD', signal:82,
-      desc:'Official pay-per-match option for selected European games.',
-      type:'external',
-      fallback:'https://tv.onefootball.com/'
-    },
-    {
-      id:'scores365', group:'Apps and Guides', icon:'365', logo:'https://www.google.com/s2/favicons?domain=365scores.com&sz=128', badge:'Guide', badgeType:'ext',
-      name:'365Scores Where to Watch', short:'365Scores', number:'TV guide',
-      tag:'Football', tagClass:'tag-sport', quality:'Info', signal:90,
-      desc:'Quick guide for where a match is legally shown today.',
-      type:'external',
-      fallback:'https://www.365scores.com/es/where-to-watch'
-    },
-    {
-      id:'livesoccertv', group:'Apps and Guides', icon:'LS', logo:'https://www.google.com/s2/favicons?domain=livesoccertv.com&sz=128', badge:'Guide', badgeType:'ext',
-      name:'Live Soccer TV', short:'Live Soccer TV', number:'TV guide',
-      tag:'Football', tagClass:'tag-sport', quality:'Info', signal:90,
-      desc:'Worldwide broadcaster guide for football fixtures.',
-      type:'external',
-      fallback:'https://www.livesoccertv.com/'
-    }
 	  ];
 	  var FIFA_LAST = {'fifa-es':true,'fifa-pt':true,'fifa-spain':true,'fifa-us':true,'fifa-women':true};
 	  CHANNELS.forEach(function(ch) {
 	    if (FIFA_LAST[ch.id]) ch.group = 'Football Archive';
 	  });
 	  CHANNELS = CHANNELS.filter(function(ch) { return !FIFA_LAST[ch.id]; }).concat(CHANNELS.filter(function(ch) { return FIFA_LAST[ch.id]; }));
+	  CHANNELS.forEach(function(ch, index) {
+	    ch.channelNo = index + 1;
+	  });
 	  var NOW_PRESETS = {
-	    colorvision:{title:'Programacion dominicana en vivo', meta:'Canal 9 live'},
+	    colorvision:{title:'Color Vision en vivo', meta:'Canal 9 dominicano en directo'},
 	    telemicro5:{title:'Telemicro en vivo', meta:'Noticias, entretenimiento y eventos'},
 	    digital15:{title:'Digital 15 en vivo', meta:'TV dominicana y pelota cuando hay juego'},
 	    coral39:{title:'Coral 39 en vivo', meta:'Noticias, deportes y programacion local'},
-	    claro:{title:'Claro Sports CENAM live', meta:'Futbol, beisbol, basketbal y eventos regionales'},
+	    telesistema11:{title:'Telesistema 11 en vivo', meta:'Noticias, entretenimiento y eventos nacionales'},
+	    rtvd4:{title:'RTVD 4 en vivo', meta:'Television publica dominicana'},
+	    rtvd17:{title:'RTVD 17 en vivo', meta:'Cultura dominicana y programacion publica'},
+	    claro:{title:'Claro Sports CENAM live', meta:'Futbol, beisbol, basquetbol y eventos regionales'},
 	    pio2:{title:'PIO Deportes - senal alterna', meta:'Eventos dominicanos cuando estan activos'},
 	    pio1:{title:'PIO Deportes - senal alterna', meta:'Eventos dominicanos cuando estan activos'},
-	    cazetv:{title:'CazeTV live', meta:'Futbol brasileno, shows y eventos gratuitos'},
-	    gefast:{title:'ge Fast live', meta:'Futbol, noticias y highlights de Brasil'},
+	    colimdo:{title:'COLIMDO TV en vivo', meta:'Deporte olimpico dominicano'},
+	    'tourspot-tv':{title:'Tour Spot TV live', meta:'Deportes dominicanos y eventos'},
 	    realmadridtv:{title:'Real Madrid TV live', meta:'Club TV, replays, cantera y actualidad'},
 	    'tyc-fast':{title:'TyC Sports FAST live', meta:'Deportes argentinos y futbol cuando programado'},
 	    'bein-xtra-es':{title:'beIN SPORTS XTRA en Espanol', meta:'Futbol internacional y programas deportivos'},
-	    'bein-xtra':{title:'beIN SPORTS XTRA', meta:'Sports shows, football and highlights'},
 	    redbulltv:{title:'Red Bull TV live', meta:'Motorsport, surf, bike, padel y aventura'},
 	    'telemundo-al-dia':{title:'Telemundo Al Dia', meta:'Noticias y actualidad en espanol'},
 	    estrellatv:{title:'Estrella TV live', meta:'Entretenimiento latino y TV en vivo'},
 	    estrellanews:{title:'Estrella News live', meta:'Noticias en espanol'},
 	    'lasestrellas-mx':{title:'Las Estrellas en vivo', meta:'TV mexicana, entretenimiento y eventos'},
 	    'redplus-co':{title:'Red+ en vivo', meta:'Noticias y programacion colombiana'},
+	    'americateve-pr':{title:'America TeVe en vivo', meta:'TV de Puerto Rico y Caribe'},
+	    'vam-curacao':{title:'VAM Curaçao live', meta:'Musica y entretenimiento del Caribe'},
 	    'france24-es':{title:'France 24 Espanol', meta:'Noticias internacionales en directo'},
-	    'vevo-latino':{title:'Vevo Latino live', meta:'Videoclips latinos non-stop'},
-	    'qmusic-nl':{title:'Qmusic Nederland visual radio', meta:'Music and live radio from the Netherlands'},
-	    'm2o-tv':{title:'m2o TV live', meta:'Dance en electronic music uit Italie'}
+	    'la-kalle-co':{title:'La Kalle live', meta:'Musica popular colombiana'},
+	    'parranda-vallenata':{title:'Parranda Vallenata live', meta:'Vallenato y musica colombiana'},
+	    'xite-nuevo-latino':{title:'XITE Nuevo Latino', meta:'Pop latino y urbano'},
+	    'xite-siempre-latino':{title:'XITE Siempre Latino', meta:'Clasicos latinos y musica en espanol'},
+	    bonappetit:{title:'Bon Appetit', meta:'Recetas, chefs y cultura de comida'},
+	    tastemade:{title:'Tastemade', meta:'Cocina, viajes y comida'},
+	    'chef-champion':{title:'Chef Champion', meta:'Competencia y chefs'},
+	    'chef-roc':{title:'Chef Roc', meta:'Cocina caribena y food shows'},
+	    'food-food':{title:'Food Food', meta:'Recetas y cocina internacional'},
+	    'hello-taste':{title:'Hello Taste', meta:'Recetas, cocina y lifestyle'},
+	    'in-the-kitchen':{title:'In the Kitchen', meta:'Cocina casera y demostraciones'},
+	    'kulinar-tv':{title:'Kulinar TV', meta:'Recetas y cocina europea'},
+	    'mad-dog-merrill':{title:'Mad Dog and Merrill', meta:'BBQ, parrilla y cocina exterior'},
+	    'qmusic-nl':{title:'Qmusic NL visual radio', meta:'Music and live radio from the Netherlands'},
+	    'm2o-tv':{title:'m2o TV live', meta:'Dance and electronic music from Italy'}
 	  };
 	  CHANNELS.forEach(function(ch) {
 	    if (NOW_PRESETS[ch.id]) ch.now = NOW_PRESETS[ch.id];
@@ -3709,6 +4070,7 @@
       'go-live':'En vivo',
       'cast':'Enviar al TV',
       'fullscreen':'Pantalla completa',
+	      'sound':'Audio',
 	      'reload':'Recargar',
 	      'hard-refresh':'Recargar sitio',
 	      'loading':'Cargando',
@@ -3747,6 +4109,7 @@
       'go-live':'Go live',
       'cast':'Cast to TV',
       'fullscreen':'Fullscreen',
+	      'sound':'Audio',
 	      'reload':'Reload',
 	      'hard-refresh':'Refresh site',
 	      'loading':'Loading',
@@ -3781,10 +4144,50 @@
 	  var loadingProgress = {};
 	  var bufferTimers = {};
 	  var playbackReady = {};
+	  var audioBlocked = {};
+	  var HlsRuntime = null;
+  var hlsRuntimeReady = false;
+  var hlsRuntimeFailed = false;
+  var hlsWaitTimers = {};
 	  var zapTimer = null;
+	  var numberEntry = '';
+	  var numberEntryTimer = null;
   var lastZapAt = 0;
   var savedLang = localStorage.getItem('sportTvLang');
   var currentLang = STRINGS[savedLang] ? savedLang : 'es';
+
+	  function markHlsRuntime(state) {
+	    try { document.documentElement.setAttribute('data-hls-runtime', state); } catch(e) {}
+	  }
+
+	  function activateHlsRuntime(runtime) {
+	    HlsRuntime = runtime || null;
+	    hlsRuntimeReady = !!HlsRuntime;
+	    hlsRuntimeFailed = !HlsRuntime;
+	    markHlsRuntime(hlsRuntimeReady ? 'ready' : 'failed');
+	    Object.keys(hlsWaitTimers).forEach(function(id) {
+	      clearTimeout(hlsWaitTimers[id]);
+	      delete hlsWaitTimers[id];
+	    });
+	    var active = channelById(activeId);
+	    if (active && active.type === 'hls') initHls(active);
+	  }
+
+	  function failHlsRuntime() {
+	    hlsRuntimeFailed = true;
+	    markHlsRuntime('failed');
+	    var active = channelById(activeId);
+	    if (active && active.type === 'hls') initHls(active);
+	  }
+
+	  markHlsRuntime('loading');
+	  try {
+	    import('./assets/hls.mjs').then(function(mod) {
+	      activateHlsRuntime(mod.default || mod.Hls);
+	    }).catch(failHlsRuntime);
+	  } catch(e) {
+	    failHlsRuntime();
+	  }
 
   function t(key) {
     var dict = STRINGS[currentLang] || STRINGS.es;
@@ -3805,6 +4208,23 @@
     var idx = CHANNELS.findIndex(function(ch) { return ch.id === id; });
     return idx < 0 ? 0 : idx;
   }
+
+	  function formatChannelNumber(ch) {
+	    var no = Number(ch && ch.channelNo) || (channelIndex(ch && ch.id) + 1);
+	    var width = CHANNELS.length >= 100 ? 3 : 2;
+	    var value = String(no);
+	    while (value.length < width) value = '0' + value;
+	    return value;
+	  }
+
+	  function channelByNumber(value) {
+	    var no = parseInt(value, 10);
+	    if (!isFinite(no)) return null;
+	    for (var i = 0; i < CHANNELS.length; i++) {
+	      if (CHANNELS[i].channelNo === no) return CHANNELS[i];
+	    }
+	    return null;
+	  }
 
   function channelAtOffset(id, offset) {
     var idx = channelIndex(id);
@@ -3853,6 +4273,12 @@
 	      return {
 	        title: currentLang === 'es' ? 'Musica non-stop' : 'Non-stop music',
 	        meta: currentLang === 'es' ? 'Videoclips y sesiones en vivo' : 'Music videos and live sessions'
+	      };
+	    }
+	    if (ch.tag === 'Cooking') {
+	      return {
+	        title: currentLang === 'es' ? 'Cocina y recetas' : 'Cooking and recipes',
+	        meta: currentLang === 'es' ? 'Chefs, comida y competencia' : 'Chefs, food and competition'
 	      };
 	    }
 	    if (ch.tag === 'News') {
@@ -3947,6 +4373,30 @@
 	    if (loading) setTimeout(function() { loading.classList.add('hidden'); }, 220);
 	  }
 
+	  function updateAudioButton(ch, muted) {
+	    var btn = document.getElementById('audio-' + ch.id);
+	    if (!btn) return;
+	    var video = document.getElementById('pl-' + ch.id);
+	    var isMuted = muted;
+	    if (typeof isMuted !== 'boolean' && video && video.tagName === 'VIDEO') {
+	      isMuted = !!(video.muted || video.volume === 0);
+	    }
+	    btn.classList.toggle('sound-on', isMuted === false);
+	    btn.classList.toggle('needs-tap', isMuted === true);
+	    btn.setAttribute('title', t('sound'));
+	    btn.setAttribute('aria-label', t('sound'));
+	  }
+
+	  function showAudioPrompt(ch) {
+	    updateAudioButton(ch, true);
+	    var btn = document.getElementById('audio-' + ch.id);
+	    if (!btn) return;
+	    if (btn.audioPromptTimer) clearTimeout(btn.audioPromptTimer);
+	    btn.audioPromptTimer = setTimeout(function() {
+	      btn.classList.remove('needs-tap');
+	    }, 9000);
+	  }
+
 	  function scheduleBuffering(ch, video) {
 	    if (!video || video.paused || video.ended) return;
 	    if (bufferTimers[ch.id]) clearTimeout(bufferTimers[ch.id]);
@@ -3964,11 +4414,14 @@
 
 	  function markVideoActive(ch, video) {
 	    if (video) {
-	      video.defaultMuted = false;
-	      video.muted = false;
-	      video.volume = 1;
+	      if (!audioBlocked[ch.id]) {
+	        video.defaultMuted = false;
+	        video.muted = false;
+	        video.volume = 1;
+	      }
 	      updateVideoQuality(ch, video);
 	    }
+	    updateAudioButton(ch, !!audioBlocked[ch.id]);
 	    refreshStatsUi(ch);
 	    finishLoadingState(ch);
 	    syncRailHeight();
@@ -3979,7 +4432,20 @@
 	    video.defaultMuted = false;
 	    video.muted = false;
 	    video.volume = 1;
-	    video.play().catch(function() {});
+	    var playAttempt = video.play();
+	    if (playAttempt && playAttempt.catch) {
+	      playAttempt.catch(function() {
+	        if (activeId !== ch.id) return;
+	        audioBlocked[ch.id] = true;
+	        video.muted = true;
+	        var mutedAttempt = video.play();
+	        if (mutedAttempt && mutedAttempt.then) {
+	          mutedAttempt.then(function() { showAudioPrompt(ch); }).catch(function() {});
+	        } else {
+	          showAudioPrompt(ch);
+	        }
+	      });
+	    }
 	  }
 
 	  function keepTryingVideoPlay(ch, video) {
@@ -4002,6 +4468,7 @@
 	  function statsHtml(ch) {
     var signal = Math.max(0, Math.min(100, Number(ch.signal) || 0));
     return '<div class="ch-stats">' +
+      '<span class="metric-pill">' + esc(formatChannelNumber(ch)) + '</span>' +
       '<span class="metric-pill">' + esc(qualityLabel(ch)) + '</span>' +
       '<span class="metric-pill">' + signalBars(signal) + esc(signal + '%') + '</span>' +
     '</div>';
@@ -4055,8 +4522,45 @@
       frame.contentWindow.postMessage(JSON.stringify({ event:'command', func:'playVideo', args:[] }), '*');
       frame.contentWindow.postMessage(JSON.stringify({ event:'command', func:'unMute', args:[] }), '*');
       frame.contentWindow.postMessage(JSON.stringify({ event:'command', func:'setVolume', args:[100] }), '*');
+      frame.contentWindow.postMessage(JSON.stringify({ command:'play' }), '*');
+      frame.contentWindow.postMessage(JSON.stringify({ command:'setVolume', parameters:[1] }), '*');
+      frame.contentWindow.postMessage(JSON.stringify({ command:'muted', parameters:[false] }), '*');
     } catch(e) {}
   }
+
+  window.unmuteStream = function(id, event) {
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+    var ch = channelById(id);
+    var sec = document.getElementById('sec-' + ch.id);
+    if (!sec) return false;
+    audioBlocked[ch.id] = false;
+    var video = sec.querySelector('video');
+    if (video) {
+      video.defaultMuted = false;
+      video.muted = false;
+      video.volume = 1;
+      video.removeAttribute('muted');
+      if (video.seekable && video.seekable.length) {
+        try { video.currentTime = video.seekable.end(video.seekable.length - 1); } catch(e) {}
+      }
+      updateAudioButton(ch, false);
+      video.play().catch(function() { showAudioPrompt(ch); });
+      setTimeout(function() {
+        if (activeId !== ch.id) return;
+        video.muted = false;
+        video.volume = 1;
+        video.play().catch(function() {});
+      }, 350);
+      return false;
+    }
+    kickIframePlayback(ch.id);
+    updateAudioButton(ch, false);
+    setTimeout(function() { kickIframePlayback(ch.id); }, 300);
+    return false;
+  };
 
   window.remotePlayerTap = function(id, el) {
     touchToggle(id);
@@ -4082,7 +4586,7 @@
 	    return '<div class="zap-row ' + cls + '">' +
 	      '<div class="zap-logo">' + zapLogoHtml(ch) + '</div>' +
 	      '<div class="zap-name"><strong>' + esc(ch.short) + '</strong><span>' + esc(ch.number + ' · ' + ch.tag) + '</span></div>' +
-      '<div class="zap-number">' + esc(side) + '</div>' +
+      '<div class="zap-number">' + esc(side + ' · ' + formatChannelNumber(ch)) + '</div>' +
     '</div>';
   }
 
@@ -4098,7 +4602,7 @@
     });
 	    overlay.innerHTML =
 	      '<div class="zap-shell">' +
-	        '<div class="zap-kicker"><span>' + esc(direction < 0 ? 'CH-' : direction > 0 ? 'CH+' : 'ON AIR') + '</span><strong>' + esc(ch.name) + '</strong><span>' + esc(ch.group) + '</span></div>' +
+	        '<div class="zap-kicker"><span class="zap-channel-no">' + esc(formatChannelNumber(ch)) + '</span><strong>' + esc(ch.name) + '</strong><span>' + esc(direction < 0 ? 'CH-' : direction > 0 ? 'CH+' : ch.group) + '</span></div>' +
 	        programHtml(ch, 'zap-program') +
 	        '<div class="zap-track">' +
 	          zapRowHtml(prev, 'ghost prev', 'PREV') +
@@ -4119,6 +4623,79 @@
 	    }, 9000);
 	  }
 
+	  function digitFromEvent(event) {
+	    var key = event.key || '';
+	    if (/^[0-9]$/.test(key)) return key;
+	    var code = event.keyCode || event.which || 0;
+	    if (code >= 48 && code <= 57) return String(code - 48);
+	    if (code >= 96 && code <= 105) return String(code - 96);
+	    if (/^Digit[0-9]$/.test(event.code || '')) return (event.code || '').slice(-1);
+	    if (/^Numpad[0-9]$/.test(event.code || '')) return (event.code || '').slice(-1);
+	    return '';
+	  }
+
+	  function clearNumberEntry() {
+	    numberEntry = '';
+	    if (numberEntryTimer) clearTimeout(numberEntryTimer);
+	    numberEntryTimer = null;
+	  }
+
+	  function showNumberEntryOverlay(value, invalid) {
+	    var current = channelById(activeId);
+	    var target = channelByNumber(value);
+	    var overlay = document.getElementById('zap-' + current.id);
+	    if (!overlay) return;
+	    var label = invalid
+	      ? (currentLang === 'es' ? 'Canal no encontrado' : 'Channel not found')
+	      : (currentLang === 'es' ? 'Ir al canal' : 'Go to channel');
+	    var targetText = target
+	      ? formatChannelNumber(target) + ' · ' + target.name + ' · ' + target.group
+	      : (currentLang === 'es' ? 'Espera otro numero o intenta otro canal' : 'Wait for another digit or try another channel');
+	    overlay.innerHTML =
+	      '<div class="zap-shell number-entry">' +
+	        '<div class="zap-digits"><span class="zap-entry-label">' + esc(label) + '</span><strong>' + esc(value || '0') + '</strong></div>' +
+	        '<div class="zap-target">' + esc(targetText) + '</div>' +
+	      '</div>';
+	    document.querySelectorAll('.zap-overlay.show').forEach(function(el) {
+	      if (el !== overlay) el.classList.remove('show');
+	    });
+	    overlay.classList.remove('show');
+	    overlay.offsetHeight;
+	    overlay.classList.add('show');
+	    if (zapTimer) clearTimeout(zapTimer);
+	    zapTimer = setTimeout(function() {
+	      overlay.classList.remove('show');
+	    }, invalid ? 1800 : 3200);
+	  }
+
+	  function commitNumberEntry() {
+	    var value = numberEntry;
+	    clearNumberEntry();
+	    var target = channelByNumber(value);
+	    if (!target) {
+	      showNumberEntryOverlay(value, true);
+	      return;
+	    }
+	    sw(target.id, {
+	      zap:true,
+	      direction:0,
+	      keepIosFs:document.body.classList.contains('has-ios-fs')
+	    });
+	  }
+
+	  function handleNumberDigit(digit) {
+	    var maxDigits = String(CHANNELS.length).length;
+	    if (numberEntry.length >= maxDigits) numberEntry = '';
+	    numberEntry = (numberEntry + digit).slice(-maxDigits);
+	    showNumberEntryOverlay(numberEntry, false);
+	    if (numberEntryTimer) clearTimeout(numberEntryTimer);
+	    var parsed = parseInt(numberEntry, 10);
+	    var delay = 1150;
+	    if (numberEntry.length >= maxDigits) delay = 260;
+	    else if (isFinite(parsed) && parsed > Math.floor(CHANNELS.length / 10)) delay = 540;
+	    numberEntryTimer = setTimeout(commitNumberEntry, delay);
+	  }
+
   function isFullscreenMode() {
     return !!(document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement || document.body.classList.contains('has-ios-fs'));
   }
@@ -4126,19 +4703,14 @@
   window.zapChannel = function(delta) {
     var now = Date.now();
     if (now - lastZapAt < 140) return;
+	    clearNumberEntry();
     lastZapAt = now;
     var keepIosFs = document.body.classList.contains('has-ios-fs');
     var next = zappableAtOffset(activeId, delta);
     sw(next.id, { zap:true, direction:delta, keepIosFs:keepIosFs });
   };
 
-  function renderPlayers() {
-    Object.keys(hlsInstances).forEach(function(id) {
-      try { hlsInstances[id].destroy(); } catch(e) {}
-    });
-    hlsInstances = {};
-    var mount = document.getElementById('playerMount');
-    mount.innerHTML = CHANNELS.map(function(ch) {
+	  function playerSectionHtml(ch) {
 	      var player = '';
 	      if (ch.type === 'iframe') {
 	        player = '<iframe id="pl-' + esc(ch.id) + '" data-src="' + esc(ch.src) + '" tabindex="-1" onload="iframeReady(\'' + esc(ch.id) + '\')" allowfullscreen allow="autoplay;fullscreen;picture-in-picture;encrypted-media;web-share;cast" referrerpolicy="no-referrer-when-downgrade"></iframe><button class="remote-guard" id="guard-' + esc(ch.id) + '" tabindex="0" onclick="event.stopPropagation(); remotePlayerTap(\'' + esc(ch.id) + '\', this);" aria-label="TV remote focus"></button><div class="player-loading iframe-loading" id="load-' + esc(ch.id) + '">' + loadingHtml(ch, 12, t('loading')) + '</div>';
@@ -4148,26 +4720,32 @@
         player = '<div class="ext-panel"><div class="ext-icon"><svg class="ic"><use href="#i-tv"/></svg></div><h2>' + t('external-title') + '</h2><p>' + t('external-body') + '</p><a class="act-btn act-ext" href="' + esc(ch.fallback) + '" target="_blank" rel="noopener"><svg class="ic"><use href="#i-play"/></svg><span class="act-lbl">' + t('open-original') + '</span></a></div>';
       }
 
-      var controls = ch.type !== 'external'
+      var controls = ch.type === 'hls'
         ? '<div class="player-controls"><button class="ctrl-btn" onclick="event.stopPropagation(); reloadStream(\'' + esc(ch.id) + '\')" title="' + esc(t('reload')) + '"><svg class="ic"><use href="#i-refresh"/></svg></button><button class="ctrl-btn" onclick="doFS(\'' + esc(ch.id) + '\',event)" title="' + esc(t('fullscreen')) + '"><svg class="ic"><use href="#i-maximize"/></svg></button></div>'
         : '';
-      var fsRefresh = ch.type !== 'external'
+      var fsRefresh = ch.type === 'hls'
         ? '<button class="fs-reload-btn" onclick="event.stopPropagation(); reloadStream(\'' + esc(ch.id) + '\')" title="' + esc(t('reload')) + '" aria-label="' + esc(t('reload')) + '"><svg class="ic"><use href="#i-refresh"/></svg></button>'
         : '';
-      var outerAttrs = ch.type !== 'external' ? ' onclick="touchToggle(\'' + esc(ch.id) + '\')"' : '';
+      var outerAttrs = ch.type === 'hls' ? ' onclick="touchToggle(\'' + esc(ch.id) + '\')"' : '';
 
-      return '<section class="section" id="sec-' + esc(ch.id) + '">' +
-        '<div class="player-outer" id="po-' + esc(ch.id) + '"' + outerAttrs + '>' + player + controls + fsRefresh + '<div class="zap-overlay" id="zap-' + esc(ch.id) + '" aria-hidden="true"></div></div>' +
-        '<div class="ch-info">' + logoHtml(ch, 'now-logo') + '<div class="ch-info-main"><div class="ch-name">' + esc(ch.name) + ' · ' + esc(ch.number) + '</div><div class="ch-desc">' + esc(ch.desc) + '</div>' + programHtml(ch, 'now-program') + '</div>' + statsHtml(ch) + '</div>' +
+	      return '<section class="section" id="sec-' + esc(ch.id) + '" style="display:block">' +
+	        '<div class="player-outer" id="po-' + esc(ch.id) + '"' + outerAttrs + '>' + player + controls + fsRefresh + '<div class="zap-overlay" id="zap-' + esc(ch.id) + '" aria-hidden="true"></div></div>' +
+	        '<div class="ch-info">' + logoHtml(ch, 'now-logo') + '<div class="ch-info-main"><div class="ch-name">' + esc(formatChannelNumber(ch)) + ' · ' + esc(ch.name) + ' · ' + esc(ch.number) + '</div><div class="ch-desc">' + esc(ch.desc) + '</div>' + programHtml(ch, 'now-program') + '</div>' + statsHtml(ch) + '</div>' +
         '<div class="action-row">' +
+          (ch.type !== 'external' ? '<button class="act-btn act-audio audio-btn" id="audio-' + esc(ch.id) + '" onclick="unmuteStream(\'' + esc(ch.id) + '\',event)" title="' + esc(t('sound')) + '" aria-label="' + esc(t('sound')) + '"><svg class="ic"><use href="#i-volume"/></svg><span class="act-lbl audio-label">' + esc(t('sound')) + '</span></button>' : '') +
           (ch.type !== 'external' ? '<button class="act-btn act-live" onclick="goLive(\'' + esc(ch.id) + '\')"><svg class="ic"><use href="#i-play"/></svg><span class="act-lbl">' + t('go-live') + '</span></button>' : '') +
           '<button class="act-btn act-cast" onclick="doCast()"><svg class="ic"><use href="#i-cast"/></svg><span class="act-lbl">' + t('cast') + '</span></button>' +
           (ch.type !== 'external' ? '<button class="act-btn act-fs" onclick="doFS(\'' + esc(ch.id) + '\')"><svg class="ic"><use href="#i-maximize"/></svg><span class="act-lbl">' + t('fullscreen') + '</span></button>' : '') +
           (ch.type === 'external' ? '<a class="act-btn act-ext" href="' + esc(ch.fallback) + '" target="_blank" rel="noopener"><svg class="ic"><use href="#i-tv"/></svg><span class="act-lbl">' + t('open-original') + '</span></a>' : '') +
-        '</div>' +
-      '</section>';
-    }).join('');
-  }
+	        '</div>' +
+	      '</section>';
+	  }
+
+	  function renderPlayers() {
+	    stopAllMedia();
+	    var mount = document.getElementById('playerMount');
+	    mount.innerHTML = playerSectionHtml(channelById(activeId));
+	  }
 
   function renderRail(filter) {
     var rail = document.getElementById('channelRail');
@@ -4187,12 +4765,13 @@
     rail.innerHTML = visible.map(function(ch) {
       var groupHtml = ch.group !== lastGroup ? '<div class="channel-group">' + esc(ch.group) + '</div>' : '';
       lastGroup = ch.group;
-      return groupHtml +
-        '<button class="channel-item" id="tab-' + esc(ch.id) + '" data-channel="' + esc(ch.id) + '" onclick="sw(\'' + esc(ch.id) + '\')">' +
-          logoHtml(ch, 'channel-logo') +
-          '<span class="channel-meta"><span class="channel-name">' + esc(ch.short) + '</span><span class="channel-sub">' + esc(ch.number + ' · ' + ch.tag) + '</span></span>' +
-          '<span class="channel-badge ' + esc(ch.badgeType) + '">' + esc(ch.badge) + '</span>' +
-        '</button>';
+	      return groupHtml +
+	        '<button class="channel-item" id="tab-' + esc(ch.id) + '" data-channel="' + esc(ch.id) + '" onclick="sw(\'' + esc(ch.id) + '\')">' +
+	          '<span class="channel-number">' + esc(formatChannelNumber(ch)) + '</span>' +
+	          logoHtml(ch, 'channel-logo') +
+	          '<span class="channel-meta"><span class="channel-name">' + esc(ch.short) + '</span><span class="channel-sub">' + esc(ch.number + ' · ' + ch.tag) + '</span></span>' +
+	          '<span class="channel-badge ' + esc(ch.badgeType) + '">' + esc(ch.badge) + '</span>' +
+	        '</button>';
     }).join('');
     setActiveRail();
   }
@@ -4203,7 +4782,12 @@
 	      try { hlsInstances[id].destroy(); } catch(e) {}
 	      delete hlsInstances[id];
 	      clearLoadingTimer(id);
+	      if (hlsWaitTimers[id]) {
+	        clearTimeout(hlsWaitTimers[id]);
+	        delete hlsWaitTimers[id];
+	      }
 	      delete playbackReady[id];
+	      delete audioBlocked[id];
 	    });
 	    document.querySelectorAll('.section video').forEach(function(video) {
 	      var id = video.id ? video.id.replace(/^pl-/, '') : '';
@@ -4211,12 +4795,24 @@
 	      try { video.pause(); } catch(e) {}
 	      video.removeAttribute('src');
 	      video.dataset.loaded = '';
+	      if (hlsWaitTimers[id]) {
+	        clearTimeout(hlsWaitTimers[id]);
+	        delete hlsWaitTimers[id];
+	      }
 	      delete playbackReady[id];
+	      delete audioBlocked[id];
 	    });
 	    document.querySelectorAll('.section iframe[data-src]').forEach(function(frame) {
 	      var id = frame.id ? frame.id.replace(/^pl-/, '') : '';
 	      if (id === keepId) return;
 	      if (frame.src && frame.src !== 'about:blank') frame.src = 'about:blank';
+	      clearLoadingTimer(id);
+	      if (hlsWaitTimers[id]) {
+	        clearTimeout(hlsWaitTimers[id]);
+	        delete hlsWaitTimers[id];
+	      }
+	      delete playbackReady[id];
+	      delete audioBlocked[id];
 	    });
 	  }
 
@@ -4231,20 +4827,33 @@
 	    var loading = document.getElementById('load-' + ch.id);
 	    if (!video) return;
 	    playbackReady[ch.id] = false;
-	    video.defaultMuted = false;
-	    video.muted = false;
-	    video.volume = 1;
-	    startLoadingState(ch, t('loading'));
+		    video.defaultMuted = false;
+		    video.muted = false;
+		    video.volume = 1;
+		    var loadStartedAt = Date.now();
+		    var failPending = false;
+		    startLoadingState(ch, t('loading'));
 
 	    function ready() {
 	      markVideoActive(ch, video);
 	      requestVideoPlay(ch, video);
 	    }
 
-	    function fail() {
-	      clearLoadingTimer(ch.id);
-	      playbackReady[ch.id] = false;
-	      if (loading) {
+		    function fail() {
+		      if (activeId === ch.id && !playbackReady[ch.id] && Date.now() - loadStartedAt < 22000) {
+		        if (!failPending) {
+		          failPending = true;
+		          setLoadingState(ch, 76, t('reconnecting'));
+		          setTimeout(function() {
+		            failPending = false;
+		            if (activeId === ch.id && !playbackReady[ch.id]) fail();
+		          }, 5200);
+		        }
+		        return;
+		      }
+		      clearLoadingTimer(ch.id);
+		      playbackReady[ch.id] = false;
+		      if (loading) {
 	        loading.classList.remove('hidden');
 	        loading.innerHTML = flagLoaderHtml() + '<div class="load-copy"><strong>' + esc(t('stream-unavailable')) + '</strong><span>' + esc(ch.short) + '</span></div><a class="load-source" href="' + esc(ch.fallback) + '" target="_blank" rel="noopener">' + esc(t('open-original')) + '</a>';
 	      }
@@ -4257,6 +4866,7 @@
 	      video.addEventListener('canplaythrough', ready);
 	      video.addEventListener('loadeddata', ready, { once:true });
 	      video.addEventListener('playing', ready);
+	      video.addEventListener('volumechange', function() { updateAudioButton(ch); });
 	      video.addEventListener('timeupdate', function() {
 	        if (!video.paused && video.currentTime > 0) hideLoadingState(ch);
 	      });
@@ -4267,10 +4877,14 @@
 	      return;
 	    }
 
-    if (hlsInstances[ch.id]) {
-      try { hlsInstances[ch.id].destroy(); } catch(e) {}
-      delete hlsInstances[ch.id];
-    }
+	    if (hlsInstances[ch.id]) {
+	      try { hlsInstances[ch.id].destroy(); } catch(e) {}
+	      delete hlsInstances[ch.id];
+	    }
+	    if (hlsWaitTimers[ch.id]) {
+	      clearTimeout(hlsWaitTimers[ch.id]);
+	      delete hlsWaitTimers[ch.id];
+	    }
 
 	    video.dataset.loaded = ch.src;
 	    if (video.canPlayType('application/vnd.apple.mpegurl')) {
@@ -4282,9 +4896,10 @@
 	      return;
 	    }
 
-	    if (window.Hls && Hls.isSupported()) {
+	    var HlsPlayer = HlsRuntime || window.Hls;
+	    if (HlsPlayer && HlsPlayer.isSupported()) {
 	      var recoveries = 0;
-	      var hls = new Hls({
+	      var hls = new HlsPlayer({
 	        enableWorker:false,
 	        lowLatencyMode:false,
 	        backBufferLength:18,
@@ -4294,32 +4909,32 @@
 	        capLevelToPlayerSize:true
 	      });
 	      hlsInstances[ch.id] = hls;
-	      hls.on(Hls.Events.MANIFEST_LOADING, function() {
+	      hls.on(HlsPlayer.Events.MANIFEST_LOADING, function() {
 	        if (!playbackReady[ch.id]) setLoadingState(ch, 18, t('loading'));
 	      });
-	      hls.on(Hls.Events.MANIFEST_LOADED, function() {
+	      hls.on(HlsPlayer.Events.MANIFEST_LOADED, function() {
 	        if (!playbackReady[ch.id]) setLoadingState(ch, 42, t('loading'));
 	      });
-	      hls.on(Hls.Events.LEVEL_LOADED, function() {
+	      hls.on(HlsPlayer.Events.LEVEL_LOADED, function() {
 	        if (!playbackReady[ch.id]) setLoadingState(ch, 62, t('loading'));
 	      });
-	      hls.on(Hls.Events.FRAG_LOADED, function() {
+	      hls.on(HlsPlayer.Events.FRAG_LOADED, function() {
 	        if (!playbackReady[ch.id]) setLoadingState(ch, 86, t('loading'));
 	      });
 	      hls.loadSource(ch.src);
 	      hls.attachMedia(video);
 	      bindBufferEvents();
 	      video.addEventListener('loadedmetadata', function() { updateVideoQuality(ch, video); refreshStatsUi(ch); }, { once:true });
-	      hls.on(Hls.Events.MANIFEST_PARSED, function() {
+	      hls.on(HlsPlayer.Events.MANIFEST_PARSED, function() {
 	        if (!playbackReady[ch.id]) setLoadingState(ch, 70, t('loading'));
 	        keepTryingVideoPlay(ch, video);
 	      });
-	      hls.on(Hls.Events.ERROR, function(evt, data) {
+	      hls.on(HlsPlayer.Events.ERROR, function(evt, data) {
 	        if (!data || !data.fatal) return;
 	        if (recoveries < 2) {
 	          recoveries += 1;
 	          setLoadingState(ch, 35 + recoveries * 15, t('reconnecting'));
-	          if (data.type === Hls.ErrorTypes.MEDIA_ERROR) hls.recoverMediaError();
+	          if (data.type === HlsPlayer.ErrorTypes.MEDIA_ERROR) hls.recoverMediaError();
 	          else hls.startLoad();
 	          return;
 	        }
@@ -4328,22 +4943,29 @@
 	      return;
 	    }
 
+	    if (!hlsRuntimeReady && !hlsRuntimeFailed) {
+	      setLoadingState(ch, 28, t('loading'));
+	      hlsWaitTimers[ch.id] = setTimeout(function() {
+	        delete hlsWaitTimers[ch.id];
+	        if (activeId !== ch.id || playbackReady[ch.id]) return;
+	        fail();
+	      }, 18000);
+	      return;
+	    }
+
     fail();
   }
 
-  window.sw = function(id, opts) {
-    opts = opts || {};
-    var ch = channelById(id);
-    activeId = ch.id;
-    if (opts.keepIosFs) {
-      document.querySelectorAll('.player-outer.ios-fs').forEach(function(el) { el.classList.remove('ios-fs'); });
-    }
-	    stopAllMedia(ch.id);
-
-    document.querySelectorAll('.section').forEach(function(sec) { sec.style.display = 'none'; });
-    var sec = document.getElementById('sec-' + ch.id);
-    if (sec) sec.style.display = 'block';
-    setActiveRail();
+	  window.sw = function(id, opts) {
+	    opts = opts || {};
+	    var ch = channelById(id);
+	    activeId = ch.id;
+	    if (opts.keepIosFs) {
+	      document.querySelectorAll('.player-outer.ios-fs').forEach(function(el) { el.classList.remove('ios-fs'); });
+	    }
+	    renderPlayers();
+	    var sec = document.getElementById('sec-' + ch.id);
+	    setActiveRail();
 
 	    var iframe = sec && sec.querySelector('iframe[data-src]');
 	    if (iframe) {
@@ -4457,12 +5079,20 @@
     document.body.classList.remove('has-ios-fs');
   };
 
-  document.addEventListener('keydown', function(event) {
-    var target = event.target;
-    if (target && /INPUT|TEXTAREA|SELECT/.test(target.tagName)) return;
-    var key = event.key || event.code || '';
-    var code = event.code || '';
-    var delta = 0;
+	  document.addEventListener('keydown', function(event) {
+	    var target = event.target;
+	    if (target && /INPUT|TEXTAREA|SELECT/.test(target.tagName)) return;
+	    if (event.metaKey || event.ctrlKey || event.altKey) return;
+	    var digit = digitFromEvent(event);
+	    if (digit !== '') {
+	      event.preventDefault();
+	      event.stopPropagation();
+	      handleNumberDigit(digit);
+	      return;
+	    }
+	    var key = event.key || event.code || '';
+	    var code = event.code || '';
+	    var delta = 0;
     var fs = isFullscreenMode();
     if (key === 'ArrowUp') {
       delta = 1;
@@ -4553,7 +5183,6 @@
 	      hardRefreshBtn.title = t('hard-refresh');
 	      hardRefreshBtn.setAttribute('aria-label', t('hard-refresh'));
 	    }
-	    renderPlayers();
     renderRail(document.getElementById('channelSearch').value);
     sw(activeId);
   }

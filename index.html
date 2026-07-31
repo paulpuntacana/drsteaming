@@ -314,6 +314,7 @@
       min-height:0; flex:1;
       overflow-y:auto;
       overscroll-behavior:contain;
+      touch-action:pan-y;
       padding:10px;
       scrollbar-width:thin;
       scrollbar-color:var(--s3) transparent;
@@ -5089,6 +5090,9 @@
 	  var swipeStartX = 0;
 	  var swipeStartY = 0;
 	  var swipeStartAt = 0;
+	  var swipePointerId = null;
+	  var lastSwipeFiredAt = 0;
+	  var suppressChannelClickUntil = 0;
 	  var lastRailActiveId = '';
 	  var lastZapAt = 0;
 	  var streamFailureTimes = [];
@@ -5471,11 +5475,16 @@
 	  }
 
 	  function finishLoadingState(ch) {
+	    var loading = document.getElementById('load-' + ch.id);
+	    var alreadyDone = playbackReady[ch.id] && loading && loading.classList.contains('hidden');
 	    playbackReady[ch.id] = true;
 	    clearLoadingTimer(ch.id);
 	    loadingProgress[ch.id] = 100;
-	    setLoadingState(ch, 100, t('loading'));
-	    var loading = document.getElementById('load-' + ch.id);
+	    if (alreadyDone) return;
+	    if (loading) {
+	      loading.classList.remove('hidden');
+	      loading.innerHTML = loadingHtml(ch, 100, t('loading'));
+	    }
 	    if (loading) setTimeout(function() { loading.classList.add('hidden'); }, 220);
 	  }
 
@@ -5996,9 +6005,8 @@
 
 	      return '<section class="section" id="sec-' + esc(ch.id) + '" style="display:block">' +
 	        '<div class="player-outer" id="po-' + esc(ch.id) + '"' + outerAttrs + '>' + player + controls + fsRefresh + '<div class="zap-overlay" id="zap-' + esc(ch.id) + '" aria-hidden="true"></div></div>' +
-	        '<div class="ch-info">' + logoHtml(ch, 'now-logo') + '<div class="ch-info-main"><div class="ch-name">' + esc(formatChannelNumber(ch)) + ' · ' + esc(ch.name) + ' · ' + esc(ch.number) + '</div><div class="ch-desc">' + esc(ch.desc) + '</div>' + programHtml(ch, 'now-program') + '</div>' + statsHtml(ch) + '</div>' +
+        '<div class="ch-info">' + logoHtml(ch, 'now-logo') + '<div class="ch-info-main"><div class="ch-name">' + esc(formatChannelNumber(ch)) + ' · ' + esc(ch.name) + ' · ' + esc(ch.number) + '</div><div class="ch-desc">' + esc(ch.desc) + '</div>' + programHtml(ch, 'now-program') + '</div>' + statsHtml(ch) + '</div>' +
         '<div class="action-row">' +
-          (ch.type !== 'external' ? '<button class="act-btn act-audio audio-btn" id="audio-' + esc(ch.id) + '" onclick="unmuteStream(\'' + esc(ch.id) + '\',event)" title="' + esc(t('sound')) + '" aria-label="' + esc(t('sound')) + '"><svg class="ic"><use href="#i-volume"/></svg><span class="act-lbl audio-label">' + esc(t('sound')) + '</span></button>' : '') +
           (ch.type !== 'external' ? '<button class="act-btn act-live" onclick="goLive(\'' + esc(ch.id) + '\')"><svg class="ic"><use href="#i-play"/></svg><span class="act-lbl">' + t('go-live') + '</span></button>' : '') +
           '<button class="act-btn act-cast" onclick="doCast()"><svg class="ic"><use href="#i-cast"/></svg><span class="act-lbl">' + t('cast') + '</span></button>' +
           (ch.type !== 'external' ? '<button class="act-btn act-fs" onclick="doFS(\'' + esc(ch.id) + '\')"><svg class="ic"><use href="#i-maximize"/></svg><span class="act-lbl">' + t('fullscreen') + '</span></button>' : '') +
@@ -6074,7 +6082,7 @@
       var groupHtml = ch.group !== lastGroup ? '<div class="channel-group">' + esc(ch.group) + '</div>' : '';
       lastGroup = ch.group;
 	      return groupHtml +
-	        '<button class="channel-item" id="tab-' + esc(ch.id) + '" data-channel="' + esc(ch.id) + '" onclick="sw(\'' + esc(ch.id) + '\')">' +
+	        '<button class="channel-item" id="tab-' + esc(ch.id) + '" data-channel="' + esc(ch.id) + '" onclick="channelClick(\'' + esc(ch.id) + '\',event)">' +
 	          '<span class="channel-number">' + esc(formatChannelNumber(ch, visible)) + '</span>' +
 	          logoHtml(ch, 'channel-logo') +
 	          '<span class="channel-meta"><span class="channel-name">' + esc(ch.short) + '</span><span class="channel-sub">' + esc(ch.number + ' · ' + ch.tag) + '</span></span>' +
@@ -6135,6 +6143,18 @@
     if (current) current.classList.add('active');
     lastRailActiveId = activeId;
   }
+
+  window.channelClick = function(id, event) {
+    if (Date.now() < suppressChannelClickUntil) {
+      if (event) {
+        event.preventDefault();
+        event.stopPropagation();
+      }
+      return false;
+    }
+    window.sw(id);
+    return false;
+  };
 
 	  function initHls(ch) {
 	    var video = document.getElementById('pl-' + ch.id);
@@ -6522,27 +6542,78 @@
   };
 
   function bindSwipeZap() {
-    var mount = document.getElementById('playerMount');
-    if (!mount || mount.swipeZapBound) return;
-    mount.swipeZapBound = true;
-    mount.addEventListener('touchstart', function(event) {
-      if (!event.touches || event.touches.length !== 1) return;
-      var point = event.touches[0];
-      swipeStartX = point.clientX;
-      swipeStartY = point.clientY;
+    function swipeAllowedTarget(target) {
+      if (!target || !target.closest) return true;
+      return !target.closest('input,textarea,select,.category-strip,.topbar,#cast-modal');
+    }
+
+    function startSwipe(x, y, pointerId) {
+      swipeStartX = x;
+      swipeStartY = y;
       swipeStartAt = Date.now();
-    }, { passive:true });
-    mount.addEventListener('touchend', function(event) {
-      if (!swipeStartAt || !event.changedTouches || !event.changedTouches.length) return;
-      var point = event.changedTouches[0];
-      var dx = point.clientX - swipeStartX;
-      var dy = point.clientY - swipeStartY;
+      swipePointerId = pointerId == null ? null : pointerId;
+    }
+
+    function finishSwipe(x, y, event) {
+      if (!swipeStartAt) return false;
+      var dx = x - swipeStartX;
+      var dy = y - swipeStartY;
       var dt = Date.now() - swipeStartAt;
       swipeStartAt = 0;
-      if (dt > 900 || Math.abs(dx) < 58 || Math.abs(dx) < Math.abs(dy) * 1.35) return;
-      event.preventDefault();
+      swipePointerId = null;
+      if (dt > 1100 || Math.abs(dx) < 48 || Math.abs(dx) < Math.abs(dy) * 1.2) return false;
+      if (Date.now() - lastSwipeFiredAt < 320) return false;
+      lastSwipeFiredAt = Date.now();
+      suppressChannelClickUntil = Date.now() + 520;
+      if (event) {
+        if (event.cancelable) event.preventDefault();
+        event.stopPropagation();
+      }
       window.zapChannel(dx < 0 ? 1 : -1);
-    }, { passive:false });
+      return true;
+    }
+
+    function bindSurface(surface) {
+      if (!surface || surface.swipeZapBound) return;
+      surface.swipeZapBound = true;
+      surface.addEventListener('touchstart', function(event) {
+        if (!swipeAllowedTarget(event.target)) return;
+        if (!event.touches || event.touches.length !== 1) return;
+        var point = event.touches[0];
+        startSwipe(point.clientX, point.clientY, null);
+      }, { passive:true });
+      surface.addEventListener('touchend', function(event) {
+        if (!event.changedTouches || !event.changedTouches.length) return;
+        var point = event.changedTouches[0];
+        finishSwipe(point.clientX, point.clientY, event);
+      }, { passive:false });
+      if (window.PointerEvent) {
+        surface.addEventListener('pointerdown', function(event) {
+          if (!swipeAllowedTarget(event.target)) return;
+          if (event.pointerType && event.pointerType !== 'touch' && event.pointerType !== 'pen' && event.pointerType !== 'mouse') return;
+          startSwipe(event.clientX, event.clientY, event.pointerId);
+        }, { passive:true });
+        surface.addEventListener('pointerup', function(event) {
+          if (swipePointerId != null && event.pointerId !== swipePointerId) return;
+          finishSwipe(event.clientX, event.clientY, event);
+        }, { passive:false });
+        surface.addEventListener('pointercancel', function() {
+          swipeStartAt = 0;
+          swipePointerId = null;
+        }, { passive:true });
+      }
+      surface.addEventListener('mousedown', function(event) {
+        if (event.button !== 0 || !swipeAllowedTarget(event.target)) return;
+        startSwipe(event.clientX, event.clientY, null);
+      }, { passive:true });
+      surface.addEventListener('mouseup', function(event) {
+        finishSwipe(event.clientX, event.clientY, event);
+      }, { passive:false });
+    }
+
+    bindSurface(document.getElementById('playerMount'));
+    bindSurface(document.getElementById('channelRail'));
+    bindSurface(document.querySelector('.layout'));
   }
 
   window.doCast = function() {
@@ -6628,7 +6699,8 @@
   window.addEventListener('orientationchange', function() {
     setTimeout(syncRailHeight, 250);
   });
-  window.addEventListener('pageshow', function() {
+  window.addEventListener('pageshow', function(event) {
+    if (!event || !event.persisted) return;
     setTimeout(reviveActivePlayer, 450);
     setTimeout(reviveActivePlayer, 1800);
   });

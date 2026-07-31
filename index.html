@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="theme-color" content="#030b16">
   <meta name="screen-orientation" content="auto">
+  <meta name="robots" content="noindex,nofollow,noarchive,noimageindex">
+  <meta name="googlebot" content="noindex,nofollow,noarchive,noimageindex">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -3015,6 +3017,144 @@
 	      .side-col {
 	        top:auto;
 	        height:min(60vh,620px);
+	      }
+	    }
+
+	    @media (min-width:861px) and (max-width:1180px) {
+	      :root {
+	        --topbar-h:104px;
+	        --rail-top:122px;
+	        --category-h:74px;
+	        --player-h:calc(100vh - 136px);
+	      }
+	      .topbar {
+	        min-height:var(--topbar-h);
+	        padding:12px 18px;
+	      }
+	      .brand { gap:14px; }
+	      .brand-logo-frame { width:168px!important; height:64px!important; }
+	      .brand-logo { width:164px!important; height:62px!important; }
+	      .brand-title { font-size:26px; }
+	      .brand-sub { max-width:330px; font-size:12px; }
+	      .brand-text::after { display:none; }
+	      .top-actions {
+	        gap:6px;
+	        padding:5px;
+	      }
+	      .hard-refresh-btn,
+	      .lang-btn,
+	      .badge-live {
+	        height:38px;
+	        min-height:38px;
+	      }
+	      .hard-refresh-btn,
+	      .lang-btn {
+	        width:40px;
+	        min-width:40px;
+	      }
+	      .badge-live { padding:0 10px; }
+	      .category-strip {
+	        gap:8px;
+	        min-height:var(--category-h);
+	        padding:10px 14px;
+	      }
+	      .category-btn {
+	        min-height:52px;
+	        grid-template-columns:34px minmax(0,1fr) auto;
+	        gap:8px;
+	        padding:8px;
+	      }
+	      .category-icon {
+	        width:34px;
+	        height:34px;
+	      }
+	      .category-label { font-size:11px; }
+	      .category-count {
+	        min-width:28px;
+	        height:24px;
+	        padding:0 6px;
+	        font-size:10px;
+	      }
+	      .layout {
+	        grid-template-columns:minmax(0,1fr) clamp(260px,28vw,318px);
+	        gap:12px;
+	        padding:12px 14px 16px;
+	        min-height:calc(100vh - var(--topbar-h) - 42px - var(--category-h));
+	      }
+	      .side-col {
+	        top:calc(var(--rail-top) + var(--category-h));
+	        height:calc(100vh - var(--rail-top) - var(--category-h) - 16px);
+	        min-height:360px;
+	      }
+	      .channel-panel-head { padding:10px; }
+	      .channel-panel-title { font-size:18px; }
+	      .channel-search {
+	        min-height:36px;
+	        margin-top:9px;
+	        font-size:12px;
+	      }
+	      .channel-scroll { padding:7px; }
+	      .channel-group {
+	        margin:8px 0 5px;
+	        padding:6px 5px;
+	        font-size:10px;
+	      }
+	      .channel-item {
+	        grid-template-columns:34px 36px minmax(0,1fr);
+	        min-height:48px;
+	        gap:7px;
+	        padding:6px;
+	        margin-bottom:5px;
+	      }
+	      .channel-number {
+	        min-width:34px;
+	        height:30px;
+	        font-size:11px;
+	      }
+	      .channel-logo {
+	        width:36px;
+	        height:36px;
+	      }
+	      .channel-badge { display:none; }
+	      .channel-name { font-size:12px; }
+	      .channel-sub { font-size:9.5px; }
+	      .ch-info {
+	        grid-template-columns:54px minmax(0,1fr);
+	        padding:13px 14px;
+	      }
+	      .ch-stats {
+	        grid-column:1 / -1;
+	        justify-content:flex-start;
+	      }
+	      .now-logo {
+	        width:54px;
+	        height:54px;
+	      }
+	      .ch-name { font-size:18px; }
+	      .action-row {
+	        padding:11px 14px 13px;
+	        gap:8px;
+	      }
+	      .act-btn {
+	        min-height:42px;
+	        padding:0 12px;
+	      }
+	    }
+
+	    @media (max-width:860px) {
+	      .side-col {
+	        height:min(46vh,430px);
+	        min-height:250px;
+	      }
+	      .category-btn {
+	        flex-basis:min(156px,40vw);
+	      }
+	    }
+
+	    @media (max-width:620px) {
+	      .side-col {
+	        height:min(44vh,380px);
+	        min-height:230px;
 	      }
 	    }
 	  </style>

@@ -2003,7 +2003,15 @@
 	    .main-col:fullscreen .zap-overlay,
 	    .main-col:-webkit-full-screen .zap-overlay,
 	    .player-outer.ios-fs .zap-overlay {
-	      bottom:max(24px,env(safe-area-inset-bottom));
+	      left:50% !important;
+	      right:auto !important;
+	      top:auto !important;
+	      bottom:max(40px,env(safe-area-inset-bottom)) !important;
+	    }
+	    .main-col:fullscreen .zap-overlay.show,
+	    .main-col:-webkit-full-screen .zap-overlay.show,
+	    .player-outer.ios-fs .zap-overlay.show {
+	      transform:translate(-50%,0) !important;
 	    }
 	    .tv-guide,
 	    .footer { display:none; }

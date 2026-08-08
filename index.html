@@ -6183,10 +6183,10 @@
       var outerAttrs = ch.type === 'hls' ? ' onclick="touchToggle(\'' + esc(ch.id) + '\')"' : '';
 
 	      var fsZones =
-	        '<div class="fs-zone fs-zone-left fs-zone-intro" onclick="event.stopPropagation(); zapChannel(-1)" aria-label="CH-">' +
+	        '<div class="fs-zone fs-zone-left fs-zone-intro" onclick="event.stopPropagation(); browseChannel(-1)" aria-label="CH-">' +
 	          '<span class="fs-hint"><svg viewBox="0 0 24 24"><polyline points="15 6 9 12 15 18"/></svg><span class="fs-hint-label">CH-</span></span>' +
 	        '</div>' +
-	        '<div class="fs-zone fs-zone-right fs-zone-intro" onclick="event.stopPropagation(); zapChannel(1)" aria-label="CH+">' +
+	        '<div class="fs-zone fs-zone-right fs-zone-intro" onclick="event.stopPropagation(); browseChannel(1)" aria-label="CH+">' +
 	          '<span class="fs-hint"><svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg><span class="fs-hint-label">CH+</span></span>' +
 	        '</div>';
 	      return '<section class="section" id="sec-' + esc(ch.id) + '" style="display:block">' +

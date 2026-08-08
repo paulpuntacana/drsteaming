@@ -2792,6 +2792,16 @@
 	    }
 	    .tv-lite-mode .zap-overlay {
 	      transition:opacity 0.08s linear!important;
+	      transform:translate(0,-50%) scale(1)!important;
+	    }
+	    .tv-lite-mode .zap-shell {
+	      box-shadow:0 4px 20px rgba(0,0,0,0.6)!important;
+	      background:rgba(7,9,13,0.92)!important;
+	    }
+	    .tv-lite-mode .fs-zone-intro .fs-hint { animation:none!important; opacity:0.5; }
+	    .tv-lite-mode .fs-zone-intro .fs-hint svg { animation:none!important; }
+	    .tv-lite-mode * {
+	      transition-duration:0.08s!important;
 	    }
 	    .zap-digits {
 	      display:flex;
@@ -6172,13 +6182,11 @@
         : '';
       var outerAttrs = ch.type === 'hls' ? ' onclick="touchToggle(\'' + esc(ch.id) + '\')"' : '';
 
-	      var chPrev = currentLang === 'es' ? 'Anterior' : 'Prev';
-	      var chNext = currentLang === 'es' ? 'Siguiente' : 'Next';
 	      var fsZones =
-	        '<div class="fs-zone fs-zone-left fs-zone-intro" onclick="event.stopPropagation(); browseChannel(-1)" aria-label="CH-">' +
+	        '<div class="fs-zone fs-zone-left fs-zone-intro" onclick="event.stopPropagation(); zapChannel(-1)" aria-label="CH-">' +
 	          '<span class="fs-hint"><svg viewBox="0 0 24 24"><polyline points="15 6 9 12 15 18"/></svg><span class="fs-hint-label">CH-</span></span>' +
 	        '</div>' +
-	        '<div class="fs-zone fs-zone-right fs-zone-intro" onclick="event.stopPropagation(); browseChannel(1)" aria-label="CH+">' +
+	        '<div class="fs-zone fs-zone-right fs-zone-intro" onclick="event.stopPropagation(); zapChannel(1)" aria-label="CH+">' +
 	          '<span class="fs-hint"><svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg><span class="fs-hint-label">CH+</span></span>' +
 	        '</div>';
 	      return '<section class="section" id="sec-' + esc(ch.id) + '" style="display:block">' +

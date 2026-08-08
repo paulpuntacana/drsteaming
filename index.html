@@ -6432,10 +6432,11 @@
 
   window.doFS = function(id, event) {
     if (event) event.stopPropagation();
+    if (!id) id = activeId;
     var po = document.getElementById('po-' + id);
-    if (!po) return;
-    forceNormalSpeed(id);
+    if (po) forceNormalSpeed(id);
     if (isIOS) {
+      if (!po) return;
       po.classList.add('ios-fs');
       document.body.classList.add('has-ios-fs');
       setTimeout(function() { forceNormalSpeed(id); }, 180);
@@ -6443,6 +6444,7 @@
       return;
     }
     var stage = document.getElementById('playerMount');
+    if (!stage) return;
     safeFocus(stage);
     var req = stage.requestFullscreen || stage.webkitRequestFullscreen || stage.mozRequestFullScreen || stage.msRequestFullscreen;
     if (req) {

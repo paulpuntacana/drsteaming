@@ -836,64 +836,55 @@
       object-fit:contain;
     }
 
-    /* Fullscreen tap zones for TV D-pad/cursor (CH+/CH-) */
-    .fs-zone { display:none; }
-    .main-col:fullscreen .fs-zone,
-    .main-col:-webkit-full-screen .fs-zone,
-    .player-outer.ios-fs .fs-zone {
+    /* Fullscreen remote bar — visible on mouse move, hides on idle */
+    .fs-remote { display:none; }
+    .main-col:fullscreen .fs-remote,
+    .main-col:-webkit-full-screen .fs-remote,
+    .player-outer.ios-fs .fs-remote {
       display:flex;
-      align-items:center;
-      justify-content:center;
       position:absolute;
-      z-index:140;
-      cursor:pointer;
-      -webkit-tap-highlight-color:transparent;
-    }
-    .fs-zone-left {
-      top:0; left:0; width:18%; height:70%;
-    }
-    .fs-zone-right {
-      top:0; right:0; width:18%; height:70%;
-    }
-    .fs-zone .fs-hint {
-      display:flex; flex-direction:column; align-items:center; gap:6px;
-      opacity:0; transition:opacity 0.3s ease;
+      bottom:32px; right:32px;
+      z-index:170;
+      gap:8px;
+      opacity:0;
+      transform:translateY(12px);
+      transition:opacity 0.35s ease, transform 0.35s ease;
       pointer-events:none;
     }
-    .fs-zone .fs-hint svg {
-      width:48px; height:48px;
-      fill:none; stroke:#fff; stroke-width:2.5;
+    .fs-remote.visible {
+      opacity:1;
+      transform:translateY(0);
+      pointer-events:auto;
+    }
+    .fs-remote-btn {
+      display:flex; align-items:center; justify-content:center; gap:8px;
+      padding:14px 24px;
+      border:none; border-radius:14px;
+      font-family:'Geist',sans-serif; font-size:15px; font-weight:700;
+      text-transform:uppercase; letter-spacing:1px;
+      cursor:pointer;
+      transition:background 0.15s ease, transform 0.1s ease;
+      -webkit-tap-highlight-color:transparent;
+    }
+    .fs-remote-btn svg {
+      width:22px; height:22px;
+      fill:none; stroke:currentColor; stroke-width:2.5;
       stroke-linecap:round; stroke-linejoin:round;
-      filter:drop-shadow(0 2px 12px rgba(0,0,0,0.8));
     }
-    .fs-zone .fs-hint-label {
-      font-family:'Geist',sans-serif; font-size:13px; font-weight:700;
-      color:#fff; text-transform:uppercase; letter-spacing:1.5px;
-      text-shadow:0 2px 8px rgba(0,0,0,0.9);
+    .fs-remote-btn.ch-btn {
+      background:rgba(255,255,255,0.12);
+      color:#fff;
+      min-width:90px;
     }
-    /* Intro: fade in visibly, hold, then fade out */
-    @keyframes fsHintIntro {
-      0%   { opacity:0; transform:scale(0.85); }
-      10%  { opacity:0.7; transform:scale(1); }
-      65%  { opacity:0.7; transform:scale(1); }
-      100% { opacity:0; transform:scale(0.95); }
+    .fs-remote-btn.ch-btn:hover { background:rgba(255,255,255,0.22); }
+    .fs-remote-btn.ch-btn:active { background:rgba(255,255,255,0.30); transform:scale(0.95); }
+    .fs-remote-btn.ok-btn {
+      background:rgba(255,140,0,0.85);
+      color:#fff;
+      min-width:80px;
     }
-    .fs-zone-intro .fs-hint { animation:fsHintIntro 5s ease forwards; }
-    /* Pulse the chevron during intro */
-    @keyframes fsChevronPulse {
-      0%, 100% { transform:translateX(0); }
-      50% { transform:translateX(4px); }
-    }
-    @keyframes fsChevronPulseLeft {
-      0%, 100% { transform:translateX(0); }
-      50% { transform:translateX(-4px); }
-    }
-    .fs-zone-intro.fs-zone-right .fs-hint svg { animation:fsChevronPulse 1.2s ease infinite; }
-    .fs-zone-intro.fs-zone-left .fs-hint svg { animation:fsChevronPulseLeft 1.2s ease infinite; }
-    /* Hover & active */
-    .fs-zone:hover .fs-hint { opacity:0.6; }
-    .fs-zone:active .fs-hint { opacity:0.85; }
-    .fs-zone:active { background:rgba(255,255,255,0.05); }
+    .fs-remote-btn.ok-btn:hover { background:rgba(255,140,0,1); }
+    .fs-remote-btn.ok-btn:active { background:rgba(255,160,40,1); transform:scale(0.95); }
 
     .zap-overlay {
       position:absolute; top:50%; right:18px; z-index:160;
@@ -6183,11 +6174,16 @@
       var outerAttrs = ch.type === 'hls' ? ' onclick="touchToggle(\'' + esc(ch.id) + '\')"' : '';
 
 	      var fsZones =
-	        '<div class="fs-zone fs-zone-left fs-zone-intro" onclick="event.stopPropagation(); browseChannel(-1)" aria-label="CH-">' +
-	          '<span class="fs-hint"><svg viewBox="0 0 24 24"><polyline points="15 6 9 12 15 18"/></svg><span class="fs-hint-label">CH-</span></span>' +
-	        '</div>' +
-	        '<div class="fs-zone fs-zone-right fs-zone-intro" onclick="event.stopPropagation(); browseChannel(1)" aria-label="CH+">' +
-	          '<span class="fs-hint"><svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg><span class="fs-hint-label">CH+</span></span>' +
+	        '<div class="fs-remote" id="fsRemote-' + esc(ch.id) + '">' +
+	          '<button class="fs-remote-btn ch-btn" onclick="event.stopPropagation(); browseChannel(-1)">' +
+	            '<svg viewBox="0 0 24 24"><polyline points="15 6 9 12 15 18"/></svg>CH-' +
+	          '</button>' +
+	          '<button class="fs-remote-btn ch-btn" onclick="event.stopPropagation(); browseChannel(1)">' +
+	            'CH+<svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg>' +
+	          '</button>' +
+	          '<button class="fs-remote-btn ok-btn" onclick="event.stopPropagation(); commitBrowseSelection()">' +
+	            'OK' +
+	          '</button>' +
 	        '</div>';
 	      return '<section class="section" id="sec-' + esc(ch.id) + '" style="display:block">' +
 	        '<div class="player-outer" id="po-' + esc(ch.id) + '"' + outerAttrs + '>' + player + controls + fsRefresh + fsZones + '<div class="zap-overlay" id="zap-' + esc(ch.id) + '" aria-hidden="true" onclick="event.stopPropagation(); commitBrowseSelection()"></div></div>' +
@@ -6778,18 +6774,39 @@
     setTimeout(function() { focusRemoteGuard(activeId); }, 80);
     if (isFullscreenMode()) {
       showZapOverlay(activeId, 0);
-      // Re-trigger intro hint animation on fullscreen enter
-      document.querySelectorAll('.fs-zone-intro').forEach(function(el) {
-        el.classList.remove('fs-zone-intro');
-        el.offsetHeight;
-        el.classList.add('fs-zone-intro');
-      });
+      showFsRemote();
     }
-    else hideZapOverlays();
+    else {
+      hideZapOverlays();
+      hideFsRemote();
+    }
   }
   document.addEventListener('fullscreenchange', onFsChange);
   document.addEventListener('webkitfullscreenchange', onFsChange);
   document.addEventListener('mozfullscreenchange', onFsChange);
+
+  // Fullscreen remote bar — show on mouse/cursor move, hide after 4s idle
+  var fsRemoteTimer = null;
+  function showFsRemote() {
+    document.querySelectorAll('.fs-remote').forEach(function(el) {
+      el.classList.add('visible');
+    });
+    clearTimeout(fsRemoteTimer);
+    fsRemoteTimer = setTimeout(hideFsRemote, 4000);
+  }
+  function hideFsRemote() {
+    document.querySelectorAll('.fs-remote').forEach(function(el) {
+      el.classList.remove('visible');
+    });
+    clearTimeout(fsRemoteTimer);
+    fsRemoteTimer = null;
+  }
+  document.addEventListener('mousemove', function() {
+    if (isFullscreenMode()) showFsRemote();
+  });
+  document.addEventListener('pointermove', function() {
+    if (isFullscreenMode()) showFsRemote();
+  });
 
   window.touchToggle = function(id) {
     var po = document.getElementById('po-' + id);

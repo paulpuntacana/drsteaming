@@ -14,37 +14,108 @@
   <meta name="description" content="Sport & TV - live Dominican sports and TV channels for the big screen.">
   <title>Sport & TV</title>
   <style>
-    /* Disable Samsung/LG spatial navigation so arrow keys reach JavaScript */
+    /* Disable spatial navigation on all TV browsers so arrow keys reach JavaScript */
     *:not(input):not(textarea):not(select) {
       -webkit-spatial-navigation: none !important;
+      -moz-spatial-navigation: none !important;
+      -ms-spatial-navigation: none !important;
       spatial-navigation: none !important;
+      nav-up: none !important;
+      nav-down: none !important;
+      nav-left: none !important;
+      nav-right: none !important;
     }
   </style>
   <script>
-    // Samsung Tizen: register remote control keys so they reach JavaScript
+    // ═══════════════════════════════════════════════════════════════
+    // TV Remote Key Registration — all smart TV platforms
+    // ═══════════════════════════════════════════════════════════════
+    var TV_KEYS = [
+      'ArrowUp','ArrowDown','ArrowLeft','ArrowRight',
+      'ChannelUp','ChannelDown',
+      'MediaTrackNext','MediaTrackPrevious',
+      'MediaPlayPause','MediaPlay','MediaPause','MediaStop',
+      'MediaRewind','MediaFastForward',
+      'ColorF0Red','ColorF1Green','ColorF2Yellow','ColorF3Blue',
+      'Info','Guide','Caption','Subtitle','Exit',
+      '0','1','2','3','4','5','6','7','8','9'
+    ];
+
+    // ── Samsung Tizen ──
     try {
       if (window.tizen && tizen.tvinputdevice) {
-        ['ArrowUp','ArrowDown','ArrowLeft','ArrowRight',
-         'ChannelUp','ChannelDown','MediaTrackNext','MediaTrackPrevious',
-         'MediaPlayPause','MediaPlay','MediaPause','MediaStop',
-         '0','1','2','3','4','5','6','7','8','9'].forEach(function(k) {
+        TV_KEYS.forEach(function(k) {
           try { tizen.tvinputdevice.registerKey(k); } catch(e) {}
         });
       }
     } catch(e) {}
-    // LG webOS: register keys via keyRegistration API
+
+    // ── LG webOS ──
     try {
       if (window.PalmSystem || (window.webOS && webOS.platform && webOS.platform.tv)) {
+        if (window.PalmSystem && PalmSystem.activate) {
+          try { PalmSystem.activate(); } catch(e) {}
+        }
+        if (window.webOSDev && webOSDev.LGUDID) {
+          try {
+            document.addEventListener('webOSRelaunch', function(evt) {
+              if (evt.detail && evt.detail.input) window.focus();
+            });
+          } catch(e) {}
+        }
+      }
+    } catch(e) {}
+
+    // ── Hisense / Vidaa ──
+    try {
+      if (window.Hisense_SetSupportKeySet) {
+        // Bitmap: arrows(1) + OK/back(2) + numeric(4) + color(8) + media(16) + channel(32)
+        Hisense_SetSupportKeySet(1 | 2 | 4 | 8 | 16 | 32);
+      }
+    } catch(e) {}
+
+    // ── Panasonic / HbbTV / OIPF (European broadcast standard) ──
+    try {
+      if (window.KeyEvent || navigator.userAgent.match(/HbbTV|NETTV|Viera|Panasonic/i)) {
         document.addEventListener('DOMContentLoaded', function() {
           try {
-            var el = document.createElement('button');
-            el.style.cssText = 'position:absolute;left:-9999px;width:0;height:0;overflow:hidden';
-            document.body.appendChild(el);
-            el.focus();
+            var appMan = document.getElementById('oipfAppMan');
+            if (!appMan) {
+              appMan = document.createElement('object');
+              appMan.id = 'oipfAppMan';
+              appMan.setAttribute('type', 'application/oipfApplicationManager');
+              appMan.style.cssText = 'position:absolute;left:-9999px;width:0;height:0';
+              document.body.appendChild(appMan);
+            }
+            if (appMan.getOwnerApplication) {
+              var app = appMan.getOwnerApplication(document);
+              if (app && app.privateData && app.privateData.keyset) {
+                // 0x1=navigation 0x2=VCR 0x4=numeric 0x10=other
+                app.privateData.keyset.setValue(0x1 | 0x2 | 0x4 | 0x10);
+              }
+            }
           } catch(e) {}
         });
       }
     } catch(e) {}
+
+    // ── Sony / Philips / Xiaomi / TCL / Sharp / Toshiba (Android TV / Google TV) ──
+    // ── Amazon Fire TV (Fire OS) ──
+    // ── Vizio SmartCast (Chromecast built-in) ──
+    // ── Xbox / PlayStation browser ──
+    // ── Roku (ECP) ──
+    // These platforms forward remote keys as standard KeyboardEvents.
+    // No explicit registration needed — handled in main keydown handler.
+
+    // ── Global: prevent TV browsers from stealing arrow/channel keys ──
+    window.addEventListener('keydown', function(e) {
+      var kc = e.keyCode || 0;
+      if ((kc >= 37 && kc <= 40) || kc === 427 || kc === 428 || kc === 166 || kc === 167
+        || kc === 33 || kc === 34 || kc === 496 || kc === 497
+        || (kc >= 403 && kc <= 406) || kc === 10009 || kc === 461) {
+        e.preventDefault();
+      }
+    }, true);
   </script>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">

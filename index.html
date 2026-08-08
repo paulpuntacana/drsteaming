@@ -3622,6 +3622,9 @@
       </div>
     </div>
 	    <div class="top-actions">
+	      <button class="hard-refresh-btn" id="topFsBtn" onclick="doFS(activeId, event)" title="Pantalla completa" aria-label="Pantalla completa">
+	        <svg class="ic"><use href="#i-maximize"/></svg>
+	      </button>
 	      <button class="hard-refresh-btn" id="hardRefreshBtn" onclick="hardRefresh()" title="Recargar sitio" aria-label="Recargar sitio">
 	        <svg class="ic"><use href="#i-refresh"/></svg>
 	      </button>
@@ -6461,14 +6464,30 @@
 	    var key = event.key || event.code || '';
 	    var code = event.code || '';
 	    var fs = isFullscreenMode();
-	    var isOk = key === 'Enter' || key === 'OK' || key === 'Accept' || code === 'Enter' || code === 'NumpadEnter' || event.keyCode === 13;
+	    var kc0 = event.keyCode || 0;
+	    // Enter/OK — all TV platforms:
+	    // Samsung Tizen (13), LG webOS (13), Sony/Android TV (13),
+	    // Panasonic/HbbTV (13 + 65385), Philips (13), Hisense/Vidaa (13),
+	    // Vizio SmartCast (13), Xbox/PS browser (13), Opera TV (13)
+	    var isOk = key === 'Enter' || key === 'OK' || key === 'Accept' || key === 'Select'
+	      || key === 'Confirm' || key === 'NavigateIn'
+	      || code === 'Enter' || code === 'NumpadEnter'
+	      || kc0 === 13 || kc0 === 65385 || kc0 === 29443;
 	    if (fs && isOk) {
 	      event.preventDefault();
 	      event.stopPropagation();
 	      commitBrowseSelection();
 	      return;
 	    }
-	    if (fs && browseOpen && (key === 'Escape' || key === 'Back' || key === 'BrowserBack' || event.keyCode === 461 || event.keyCode === 10009)) {
+	    // Back/Escape — all TV platforms:
+	    // Samsung Tizen (10009), LG webOS (461), Sony/Android TV (27),
+	    // Panasonic/HbbTV (8 + 461), Philips (27), Hisense/Vidaa (27),
+	    // Vizio (27), Xbox/PS (27), Opera TV (461), Fire TV Silk (27),
+	    // HbbTV VK_BACK (461), Huawei HarmonyOS (27)
+	    if (fs && browseOpen && (key === 'Escape' || key === 'Back' || key === 'BrowserBack'
+	      || key === 'GoBack' || key === 'XF86Back' || key === 'NavigateOut'
+	      || key === 'Cancel' || key === 'Clear'
+	      || kc0 === 461 || kc0 === 10009 || kc0 === 27 || kc0 === 8 || kc0 === 10182)) {
 	      event.preventDefault();
 	      event.stopPropagation();
 	      hideZapOverlays();
@@ -6484,21 +6503,48 @@
 	      return;
 	    }
 	    var delta = 0;
-    if (fs && (key === 'ArrowUp' || key === 'ArrowRight')) {
+    var kc = event.keyCode || 0;
+    // Arrow keys — all TV platforms:
+    // Standard (ArrowUp/Down/Left/Right), legacy/Opera TV (Up/Down/Left/Right),
+    // HbbTV (NavigateUp etc.), keyCode fallback (37-40) for all brands
+    var isUp = key === 'ArrowUp' || key === 'ArrowRight'
+      || key === 'Up' || key === 'Right'
+      || key === 'NavigateUp' || key === 'NavigateRight'
+      || kc === 38 || kc === 39;
+    var isDown = key === 'ArrowDown' || key === 'ArrowLeft'
+      || key === 'Down' || key === 'Left'
+      || key === 'NavigateDown' || key === 'NavigateLeft'
+      || kc === 40 || kc === 37;
+    // Channel keys — all TV platforms:
+    // Samsung Tizen (427/428), LG webOS (33/34 as PageUp/Down + 427/428),
+    // Sony/Android TV (166/167), Philips Android TV (166/167),
+    // Panasonic/HbbTV VK_CHANNEL (427/428), Hisense/Vidaa (427/428),
+    // Vizio/Chromecast (166/167), Xiaomi/TCL Android TV (166/167),
+    // Huawei HarmonyOS (496/497), Fire TV (166/167),
+    // Sharp/Toshiba Android TV (166/167), Opera TV (427/428)
+    var isChUp = key === 'ChannelUp' || key === 'PageUp' || key === 'MediaTrackNext'
+      || key === 'XF86AudioChannelUp'
+      || code === 'NumpadAdd' || code === 'Equal'
+      || kc === 33 || kc === 427 || kc === 166 || kc === 496;
+    var isChDown = key === 'ChannelDown' || key === 'PageDown' || key === 'MediaTrackPrevious'
+      || key === 'XF86AudioChannelDown'
+      || code === 'NumpadSubtract' || code === 'Minus'
+      || kc === 34 || kc === 428 || kc === 167 || kc === 497;
+    if (fs && isUp) {
       event.preventDefault();
       event.stopPropagation();
       browseChannel(1);
       return;
-    } else if (fs && (key === 'ArrowDown' || key === 'ArrowLeft')) {
+    } else if (fs && isDown) {
       event.preventDefault();
       event.stopPropagation();
       browseChannel(-1);
       return;
-    } else if (key === 'ArrowUp') {
+    } else if (isUp) {
       delta = 1;
-    } else if (key === 'ArrowDown') {
+    } else if (isDown) {
       delta = -1;
-    } else if (fs && (key === 'ChannelUp' || key === 'PageUp' || key === 'MediaTrackNext' || code === 'NumpadAdd' || code === 'Equal' || event.keyCode === 33)) {
+    } else if (fs && isChUp) {
       if (browseOpen) {
         event.preventDefault();
         event.stopPropagation();
@@ -6506,7 +6552,7 @@
         return;
       }
       delta = 1;
-    } else if (fs && (key === 'ChannelDown' || key === 'PageDown' || key === 'MediaTrackPrevious' || code === 'NumpadSubtract' || code === 'Minus' || event.keyCode === 34)) {
+    } else if (fs && isChDown) {
       if (browseOpen) {
         event.preventDefault();
         event.stopPropagation();

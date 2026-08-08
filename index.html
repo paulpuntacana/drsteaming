@@ -906,6 +906,8 @@
     .zap-overlay.show {
       opacity:1;
       transform:translate(0,-50%) scale(1);
+      pointer-events:auto;
+      cursor:pointer;
     }
     .zap-shell {
       border:1px solid rgba(255,255,255,0.16);
@@ -6180,7 +6182,7 @@
 	          '<span class="fs-hint"><svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg><span class="fs-hint-label">CH+</span></span>' +
 	        '</div>';
 	      return '<section class="section" id="sec-' + esc(ch.id) + '" style="display:block">' +
-	        '<div class="player-outer" id="po-' + esc(ch.id) + '"' + outerAttrs + '>' + player + controls + fsRefresh + fsZones + '<div class="zap-overlay" id="zap-' + esc(ch.id) + '" aria-hidden="true"></div></div>' +
+	        '<div class="player-outer" id="po-' + esc(ch.id) + '"' + outerAttrs + '>' + player + controls + fsRefresh + fsZones + '<div class="zap-overlay" id="zap-' + esc(ch.id) + '" aria-hidden="true" onclick="event.stopPropagation(); commitBrowseSelection()"></div></div>' +
         '<div class="ch-info">' + logoHtml(ch, 'now-logo') + '<div class="ch-info-main"><div class="ch-name">' + esc(formatChannelNumber(ch)) + ' · ' + esc(ch.name) + ' · ' + esc(ch.number) + '</div><div class="ch-desc">' + esc(ch.desc) + '</div>' + programHtml(ch, 'now-program') + '</div>' + statsHtml(ch) + '</div>' +
         '<div class="action-row">' +
           (ch.type !== 'external' ? '<button class="act-btn act-live" onclick="goLive(\'' + esc(ch.id) + '\')"><svg class="ic"><use href="#i-play"/></svg><span class="act-lbl">' + t('go-live') + '</span></button>' : '') +

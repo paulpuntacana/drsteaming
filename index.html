@@ -3622,7 +3622,7 @@
       </div>
     </div>
 	    <div class="top-actions">
-	      <button class="hard-refresh-btn" id="topFsBtn" onclick="doFS(activeId, event)" title="Pantalla completa" aria-label="Pantalla completa">
+	      <button class="hard-refresh-btn" id="topFsBtn" onclick="event.stopPropagation(); doFS(activeId)" title="Pantalla completa" aria-label="Pantalla completa">
 	        <svg class="ic"><use href="#i-maximize"/></svg>
 	      </button>
 	      <button class="hard-refresh-btn" id="hardRefreshBtn" onclick="hardRefresh()" title="Recargar sitio" aria-label="Recargar sitio">
@@ -5972,8 +5972,9 @@
 	    numberEntryTimer = setTimeout(commitNumberEntry, delay);
 	  }
 
+  var manualFs = false;
   function isFullscreenMode() {
-    return !!(document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement || document.body.classList.contains('has-ios-fs'));
+    return !!(document.fullscreenElement || document.webkitFullscreenElement || document.webkitCurrentFullScreenElement || document.mozFullScreenElement || document.msFullscreenElement || document.body.classList.contains('has-ios-fs') || manualFs);
   }
 
   window.zapChannel = function(delta) {
@@ -6435,6 +6436,13 @@
     if (!id) id = activeId;
     var po = document.getElementById('po-' + id);
     if (po) forceNormalSpeed(id);
+    // Exit fullscreen if already in fullscreen
+    if (isFullscreenMode() && !document.body.classList.contains('has-ios-fs')) {
+      manualFs = false;
+      var exitFs = document.exitFullscreen || document.webkitExitFullscreen || document.webkitCancelFullScreen || document.mozCancelFullScreen || document.msExitFullscreen;
+      if (exitFs) exitFs.call(document);
+      return;
+    }
     if (isIOS) {
       if (!po) return;
       po.classList.add('ios-fs');
@@ -6446,12 +6454,16 @@
     var stage = document.getElementById('playerMount');
     if (!stage) return;
     safeFocus(stage);
-    var req = stage.requestFullscreen || stage.webkitRequestFullscreen || stage.mozRequestFullScreen || stage.msRequestFullscreen;
-    if (req) {
-      var result = req.call(stage);
-      if (result && result.then) result.then(function() { forceNormalSpeed(id); showZapOverlay(id, 0); }).catch(function() {});
+    function tryFs(el) {
+      var req = el.requestFullscreen || el.webkitRequestFullscreen || el.webkitEnterFullscreen || el.mozRequestFullScreen || el.msRequestFullscreen;
+      if (!req) return false;
+      manualFs = true;
+      var result = req.call(el);
+      if (result && result.then) result.then(function() { forceNormalSpeed(id); showZapOverlay(id, 0); }).catch(function() { manualFs = false; });
       else setTimeout(function() { forceNormalSpeed(id); showZapOverlay(id, 0); }, 120);
+      return true;
     }
+    if (!tryFs(stage)) tryFs(document.documentElement);
   };
 
   window.exitIosFs = function() {
@@ -6569,18 +6581,17 @@
     window.zapChannel(delta);
   }, true);
 
-  document.addEventListener('fullscreenchange', function() {
+  function onFsChange() {
+    var fsNow = !!(document.fullscreenElement || document.webkitFullscreenElement || document.webkitCurrentFullScreenElement || document.mozFullScreenElement || document.msFullscreenElement);
+    if (!fsNow) manualFs = false;
     forceNormalSpeed(activeId);
     setTimeout(function() { focusRemoteGuard(activeId); }, 80);
     if (isFullscreenMode()) showZapOverlay(activeId, 0);
     else hideZapOverlays();
-  });
-  document.addEventListener('webkitfullscreenchange', function() {
-    forceNormalSpeed(activeId);
-    setTimeout(function() { focusRemoteGuard(activeId); }, 80);
-    if (isFullscreenMode()) showZapOverlay(activeId, 0);
-    else hideZapOverlays();
-  });
+  }
+  document.addEventListener('fullscreenchange', onFsChange);
+  document.addEventListener('webkitfullscreenchange', onFsChange);
+  document.addEventListener('mozfullscreenchange', onFsChange);
 
   window.touchToggle = function(id) {
     var po = document.getElementById('po-' + id);

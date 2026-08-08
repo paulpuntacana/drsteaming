@@ -843,7 +843,7 @@
     .player-outer.ios-fs .fs-remote {
       display:flex;
       position:absolute;
-      bottom:32px; right:32px;
+      bottom:max(48px, env(safe-area-inset-bottom, 48px)); left:50%; transform:translateX(-50%) translateY(12px);
       z-index:170;
       gap:8px;
       opacity:0;
@@ -853,7 +853,7 @@
     }
     .fs-remote.visible {
       opacity:1;
-      transform:translateY(0);
+      transform:translateX(-50%) translateY(0);
       pointer-events:auto;
     }
     .fs-remote-btn {
@@ -2002,7 +2002,17 @@
 	    .main-col:fullscreen .zap-overlay,
 	    .main-col:-webkit-full-screen .zap-overlay,
 	    .player-outer.ios-fs .zap-overlay {
-	      bottom:max(18px,env(safe-area-inset-bottom));
+	      top:50% !important;
+	      bottom:auto !important;
+	      left:auto !important;
+	      right:24px !important;
+	      width:min(330px,calc(100vw - 48px)) !important;
+	      transform:translate(28px,-50%) scale(0.98) !important;
+	    }
+	    .main-col:fullscreen .zap-overlay.show,
+	    .main-col:-webkit-full-screen .zap-overlay.show,
+	    .player-outer.ios-fs .zap-overlay.show {
+	      transform:translate(0,-50%) scale(1) !important;
 	    }
 	    .tv-guide,
 	    .footer { display:none; }
@@ -6703,16 +6713,13 @@
 	    var delta = 0;
     var kc = event.keyCode || 0;
     // Arrow keys — all TV platforms:
-    // Standard (ArrowUp/Down/Left/Right), legacy/Opera TV (Up/Down/Left/Right),
-    // HbbTV (NavigateUp etc.), keyCode fallback (37-40) for all brands
-    var isUp = key === 'ArrowUp' || key === 'ArrowRight'
-      || key === 'Up' || key === 'Right'
-      || key === 'NavigateUp' || key === 'NavigateRight'
-      || kc === 38 || kc === 39;
-    var isDown = key === 'ArrowDown' || key === 'ArrowLeft'
-      || key === 'Down' || key === 'Left'
-      || key === 'NavigateDown' || key === 'NavigateLeft'
-      || kc === 40 || kc === 37;
+    // Up/Down work everywhere (desktop + fullscreen), Left/Right only in fullscreen
+    var isArrowUp = key === 'ArrowUp' || key === 'Up' || key === 'NavigateUp' || kc === 38;
+    var isArrowDown = key === 'ArrowDown' || key === 'Down' || key === 'NavigateDown' || kc === 40;
+    var isArrowRight = key === 'ArrowRight' || key === 'Right' || key === 'NavigateRight' || kc === 39;
+    var isArrowLeft = key === 'ArrowLeft' || key === 'Left' || key === 'NavigateLeft' || kc === 37;
+    var isUp = isArrowUp || (fs && isArrowRight);
+    var isDown = isArrowDown || (fs && isArrowLeft);
     // Channel keys — all TV platforms:
     // Samsung Tizen (427/428), LG webOS (33/34 as PageUp/Down + 427/428),
     // Sony/Android TV (166/167), Philips Android TV (166/167),

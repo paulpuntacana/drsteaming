@@ -2002,17 +2002,7 @@
 	    .main-col:fullscreen .zap-overlay,
 	    .main-col:-webkit-full-screen .zap-overlay,
 	    .player-outer.ios-fs .zap-overlay {
-	      top:50% !important;
-	      bottom:auto !important;
-	      left:auto !important;
-	      right:24px !important;
-	      width:min(330px,calc(100vw - 48px)) !important;
-	      transform:translate(28px,-50%) scale(0.98) !important;
-	    }
-	    .main-col:fullscreen .zap-overlay.show,
-	    .main-col:-webkit-full-screen .zap-overlay.show,
-	    .player-outer.ios-fs .zap-overlay.show {
-	      transform:translate(0,-50%) scale(1) !important;
+	      bottom:max(24px,env(safe-area-inset-bottom));
 	    }
 	    .tv-guide,
 	    .footer { display:none; }

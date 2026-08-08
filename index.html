@@ -851,14 +851,10 @@
       transition:background 0.25s ease;
     }
     .fs-zone-left {
-      top:0; left:0; width:18%; height:100%;
+      top:0; left:0; width:18%; height:70%;
     }
     .fs-zone-right {
-      top:0; right:0; width:18%; height:100%;
-    }
-    .fs-zone-center {
-      top:20%; left:25%; width:50%; height:60%;
-      cursor:default;
+      top:0; right:0; width:18%; height:70%;
     }
     .fs-zone:active { background:rgba(255,255,255,0.06); }
     .fs-zone .fs-hint {
@@ -6002,7 +5998,7 @@
 	    showBrowseOverlay(browseId, 0);
 	  }
 
-	  function browseChannel(delta) {
+	  window.browseChannel = function browseChannel(delta) {
 	    if (!isFullscreenMode()) {
 	      window.zapChannel(delta);
 	      return;
@@ -6016,9 +6012,9 @@
 	    if (idx < 0) idx = 0;
 	    var next = list[(idx + delta + list.length) % list.length];
 	    showBrowseOverlay(next.id, delta);
-	  }
+	  };
 
-	  function commitBrowseSelection() {
+	  window.commitBrowseSelection = function commitBrowseSelection() {
 	    if (!isFullscreenMode()) return false;
 	    if (!browseOpen) {
 	      openBrowseOverlay();
@@ -6041,7 +6037,7 @@
 	      noDefer:true
 	    });
 	    return true;
-	  }
+	  };
 
 	  function digitFromEvent(event) {
 	    var key = event.key || '';
@@ -6163,8 +6159,7 @@
 	        '</div>' +
 	        '<div class="fs-zone fs-zone-right fs-zone-intro" onclick="event.stopPropagation(); browseChannel(1)" aria-label="CH+">' +
 	          '<span class="fs-hint"><svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg></span>' +
-	        '</div>' +
-	        '<div class="fs-zone fs-zone-center" onclick="event.stopPropagation(); commitBrowseSelection()" aria-label="OK"></div>';
+	        '</div>';
 	      return '<section class="section" id="sec-' + esc(ch.id) + '" style="display:block">' +
 	        '<div class="player-outer" id="po-' + esc(ch.id) + '"' + outerAttrs + '>' + player + controls + fsRefresh + fsZones + '<div class="zap-overlay" id="zap-' + esc(ch.id) + '" aria-hidden="true"></div></div>' +
         '<div class="ch-info">' + logoHtml(ch, 'now-logo') + '<div class="ch-info-main"><div class="ch-name">' + esc(formatChannelNumber(ch)) + ' · ' + esc(ch.name) + ' · ' + esc(ch.number) + '</div><div class="ch-desc">' + esc(ch.desc) + '</div>' + programHtml(ch, 'now-program') + '</div>' + statsHtml(ch) + '</div>' +

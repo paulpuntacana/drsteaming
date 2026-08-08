@@ -843,11 +843,12 @@
     .player-outer.ios-fs .fs-remote {
       display:flex;
       position:absolute;
-      bottom:max(48px, env(safe-area-inset-bottom, 48px)); left:50%; transform:translateX(-50%) translateY(12px);
+      bottom:48px;
+      left:50%;
       z-index:170;
       gap:8px;
       opacity:0;
-      transform:translateY(12px);
+      transform:translateX(-50%) translateY(12px);
       transition:opacity 0.35s ease, transform 0.35s ease;
       pointer-events:none;
     }

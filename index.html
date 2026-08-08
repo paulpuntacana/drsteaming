@@ -13,6 +13,39 @@
   <meta name="apple-mobile-web-app-title" content="Sport & TV">
   <meta name="description" content="Sport & TV - live Dominican sports and TV channels for the big screen.">
   <title>Sport & TV</title>
+  <style>
+    /* Disable Samsung/LG spatial navigation so arrow keys reach JavaScript */
+    *:not(input):not(textarea):not(select) {
+      -webkit-spatial-navigation: none !important;
+      spatial-navigation: none !important;
+    }
+  </style>
+  <script>
+    // Samsung Tizen: register remote control keys so they reach JavaScript
+    try {
+      if (window.tizen && tizen.tvinputdevice) {
+        ['ArrowUp','ArrowDown','ArrowLeft','ArrowRight',
+         'ChannelUp','ChannelDown','MediaTrackNext','MediaTrackPrevious',
+         'MediaPlayPause','MediaPlay','MediaPause','MediaStop',
+         '0','1','2','3','4','5','6','7','8','9'].forEach(function(k) {
+          try { tizen.tvinputdevice.registerKey(k); } catch(e) {}
+        });
+      }
+    } catch(e) {}
+    // LG webOS: register keys via keyRegistration API
+    try {
+      if (window.PalmSystem || (window.webOS && webOS.platform && webOS.platform.tv)) {
+        document.addEventListener('DOMContentLoaded', function() {
+          try {
+            var el = document.createElement('button');
+            el.style.cssText = 'position:absolute;left:-9999px;width:0;height:0;overflow:hidden';
+            document.body.appendChild(el);
+            el.focus();
+          } catch(e) {}
+        });
+      }
+    } catch(e) {}
+  </script>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -6471,7 +6504,13 @@
     document.body.classList.remove('has-ios-fs');
   };
 
-	  document.addEventListener('keydown', function(event) {
+	  var handledKeys = {};
+	  function handleRemoteKey(event) {
+	    // Deduplicate: window and document both fire, only handle once
+	    var stamp = event.timeStamp + '-' + (event.keyCode || 0) + '-' + (event.key || '');
+	    if (handledKeys[stamp]) return;
+	    handledKeys[stamp] = true;
+	    setTimeout(function() { delete handledKeys[stamp]; }, 50);
 	    var target = event.target;
 	    if (target && /INPUT|TEXTAREA|SELECT/.test(target.tagName)) return;
 	    if (event.metaKey || event.ctrlKey || event.altKey) return;
@@ -6579,7 +6618,9 @@
     event.preventDefault();
     event.stopPropagation();
     window.zapChannel(delta);
-  }, true);
+  }
+  document.addEventListener('keydown', handleRemoteKey, true);
+  window.addEventListener('keydown', handleRemoteKey, true);
 
   function onFsChange() {
     var fsNow = !!(document.fullscreenElement || document.webkitFullscreenElement || document.webkitCurrentFullScreenElement || document.mozFullScreenElement || document.msFullscreenElement);

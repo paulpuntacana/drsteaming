@@ -836,30 +836,51 @@
       object-fit:contain;
     }
 
-    /* Fullscreen tap zones for TV D-pad/cursor navigation (CH+/CH-) */
+    /* Fullscreen tap zones for TV D-pad/cursor (CH+/CH-/OK) */
     .fs-zone { display:none; }
     .main-col:fullscreen .fs-zone,
     .main-col:-webkit-full-screen .fs-zone,
     .player-outer.ios-fs .fs-zone {
-      display:block;
+      display:flex;
+      align-items:center;
+      justify-content:center;
       position:absolute;
       z-index:140;
       cursor:pointer;
       -webkit-tap-highlight-color:transparent;
+      transition:background 0.25s ease;
     }
-    .fs-zone-up {
-      top:0; left:0; width:100%; height:15%;
+    .fs-zone-left {
+      top:0; left:0; width:18%; height:100%;
     }
-    .fs-zone-down {
-      bottom:0; left:0; width:100%; height:15%;
+    .fs-zone-right {
+      top:0; right:0; width:18%; height:100%;
     }
-    .fs-zone:active { background:rgba(255,255,255,0.04); }
-    .fs-zone svg {
-      position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
-      width:36px; height:36px; opacity:0; transition:opacity 0.2s;
-      fill:none; stroke:rgba(255,255,255,0.6); stroke-width:2;
+    .fs-zone-center {
+      top:20%; left:25%; width:50%; height:60%;
+      cursor:default;
     }
-    .fs-zone:hover svg { opacity:1; }
+    .fs-zone:active { background:rgba(255,255,255,0.06); }
+    .fs-zone .fs-hint {
+      opacity:0; transition:opacity 0.4s ease;
+      pointer-events:none;
+    }
+    .fs-zone .fs-hint svg {
+      width:40px; height:40px;
+      fill:none; stroke:rgba(255,255,255,0.5); stroke-width:2.2;
+      stroke-linecap:round; stroke-linejoin:round;
+      filter:drop-shadow(0 2px 8px rgba(0,0,0,0.6));
+    }
+    /* Intro hint: show briefly then fade out */
+    @keyframes fsHintIntro {
+      0% { opacity:0; }
+      8% { opacity:0.15; }
+      60% { opacity:0.15; }
+      100% { opacity:0; }
+    }
+    .fs-zone-intro .fs-hint { animation:fsHintIntro 4s ease forwards; }
+    .fs-zone:hover .fs-hint { opacity:0.35; }
+    .fs-zone:active .fs-hint { opacity:0.55; }
 
     .zap-overlay {
       position:absolute; top:50%; right:18px; z-index:160;
@@ -6136,8 +6157,14 @@
         : '';
       var outerAttrs = ch.type === 'hls' ? ' onclick="touchToggle(\'' + esc(ch.id) + '\')"' : '';
 
-	      var fsZones = '<div class="fs-zone fs-zone-up" onclick="event.stopPropagation(); browseChannel(1)" aria-label="CH+"><svg viewBox="0 0 24 24"><polyline points="6 15 12 9 18 15"/></svg></div>' +
-	        '<div class="fs-zone fs-zone-down" onclick="event.stopPropagation(); browseChannel(-1)" aria-label="CH-"><svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></div>';
+	      var fsZones =
+	        '<div class="fs-zone fs-zone-left fs-zone-intro" onclick="event.stopPropagation(); browseChannel(-1)" aria-label="CH-">' +
+	          '<span class="fs-hint"><svg viewBox="0 0 24 24"><polyline points="15 6 9 12 15 18"/></svg></span>' +
+	        '</div>' +
+	        '<div class="fs-zone fs-zone-right fs-zone-intro" onclick="event.stopPropagation(); browseChannel(1)" aria-label="CH+">' +
+	          '<span class="fs-hint"><svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg></span>' +
+	        '</div>' +
+	        '<div class="fs-zone fs-zone-center" onclick="event.stopPropagation(); commitBrowseSelection()" aria-label="OK"></div>';
 	      return '<section class="section" id="sec-' + esc(ch.id) + '" style="display:block">' +
 	        '<div class="player-outer" id="po-' + esc(ch.id) + '"' + outerAttrs + '>' + player + controls + fsRefresh + fsZones + '<div class="zap-overlay" id="zap-' + esc(ch.id) + '" aria-hidden="true"></div></div>' +
         '<div class="ch-info">' + logoHtml(ch, 'now-logo') + '<div class="ch-info-main"><div class="ch-name">' + esc(formatChannelNumber(ch)) + ' · ' + esc(ch.name) + ' · ' + esc(ch.number) + '</div><div class="ch-desc">' + esc(ch.desc) + '</div>' + programHtml(ch, 'now-program') + '</div>' + statsHtml(ch) + '</div>' +
@@ -6725,7 +6752,15 @@
     if (!fsNow) manualFs = false;
     forceNormalSpeed(activeId);
     setTimeout(function() { focusRemoteGuard(activeId); }, 80);
-    if (isFullscreenMode()) showZapOverlay(activeId, 0);
+    if (isFullscreenMode()) {
+      showZapOverlay(activeId, 0);
+      // Re-trigger intro hint animation on fullscreen enter
+      document.querySelectorAll('.fs-zone-intro').forEach(function(el) {
+        el.classList.remove('fs-zone-intro');
+        el.offsetHeight;
+        el.classList.add('fs-zone-intro');
+      });
+    }
     else hideZapOverlays();
   }
   document.addEventListener('fullscreenchange', onFsChange);
